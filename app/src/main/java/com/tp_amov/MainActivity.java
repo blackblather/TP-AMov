@@ -2,9 +2,7 @@ package com.tp_amov;
 
 import android.content.Context;
 import android.net.*;
-import android.util.Log;
 import android.widget.Button;
-import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +13,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ((Button) findViewById(R.id.btn_m3)).setEnabled(false); //By default, button is disabled
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkRequest networkRequest = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR).build();
@@ -27,17 +27,16 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         btn_m3.setEnabled(true);
                     }
-                });
+                }); //May be called on startup
             }
             @Override
             public void onLost(@NonNull Network network) {
-                //runOnUiThread(() ->btn_m3.setEnabled(false));
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         btn_m3.setEnabled(false);
                     }
-                });
+                }); //Is never called on startup
             }
         });
     }
