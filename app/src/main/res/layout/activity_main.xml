@@ -10,6 +10,7 @@
 
     <Button
             android:text="@string/modo_1"
+            android:onClick="OnModeBtnClick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
@@ -18,6 +19,7 @@
             app:layout_constraintVertical_chainStyle="packed"/>
     <Button
             android:text="@string/modo_2"
+            android:onClick="OnModeBtnClick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_m2" app:layout_constraintEnd_toEndOf="parent"
@@ -26,6 +28,7 @@
             app:layout_constraintBottom_toTopOf="@+id/btn_m3"/>
     <Button
             android:text="@string/modo_3"
+            android:onClick="OnModeBtnClick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
