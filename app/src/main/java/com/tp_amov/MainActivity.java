@@ -2,15 +2,15 @@ package com.tp_amov;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.*;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
-import androidx.core.util.Consumer;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_SELECTED_MODE = "com.tp_amov.SELECTED_MODE";
