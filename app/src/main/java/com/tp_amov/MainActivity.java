@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String EXTRA_SELECTED_MODE = "com.tp_amov.SELECTED_MODE";
+    static final String EXTRA_SELECTED_MODE = "com.tp_amov.SELECTED_MODE";
 
     public void OnModeBtnClick(View v){
         //Clicked button is enabled
