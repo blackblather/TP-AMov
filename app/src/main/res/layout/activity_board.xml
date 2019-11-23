@@ -2,23 +2,15 @@
 <GridLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/Board_activity"
         tools:context=".BoardActivity">
 
-    <androidx.appcompat.widget.Toolbar
-            android:id="@+id/my_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
-            android:elevation="4dp"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            app:layout_constraintTop_toTopOf="parent"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            tools:layout_editor_absoluteX="70dp" />
-    <!--android:background="?attr/colorPrimary"-->
+    <fragment android:name="com.tp_amov.ToolbarFragment"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/toolbar_fragment"/>
 
     <fragment
             android:id="@+id/Board"

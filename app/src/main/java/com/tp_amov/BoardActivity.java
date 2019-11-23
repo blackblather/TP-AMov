@@ -1,23 +1,16 @@
 package com.tp_amov;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import androidx.appcompat.app.AppCompatActivity;
 import com.tp_amov.board.Board;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 
 public class BoardActivity extends AppCompatActivity {
     Board b = new Board();
@@ -37,8 +30,6 @@ public class BoardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
         b.start_board();
     }
 
