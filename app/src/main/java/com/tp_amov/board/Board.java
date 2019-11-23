@@ -36,14 +36,14 @@ public class Board
 //            }
 //        }
 
-        boolean insert(int cell_index, int value)
+        boolean insertNum(int cell_index, int value)
         {
             values.set(cell_index,value);
             return true;
         }
     }
 
-    private ArrayList<InnerBoard> innerBoards = new ArrayList<>();
+    private ArrayList<InnerBoard> InnerBoards = new ArrayList<>();
     private Runnable invalidNrListener;
 
     public Board() {
@@ -57,18 +57,16 @@ public class Board
             JSONObject jsonObject = new JSONObject(serverResp);
             JSONArray jsonInnerBoards = jsonObject.getJSONArray("board");
             for(int i = 0; i < 9; i++)
-                innerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
+                InnerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void start_board() {
-
-    }
-
-    public void insertNumber(int number, int row, int col) {
-
+    public boolean insertNum(int inner_board_index, int cell_index, int value)
+    {
+        InnerBoards.get(inner_board_index).insertNum(cell_index,value);
+        return true;
     }
 
     public void setInvalidNrListener (Runnable invalidNrListener) {
