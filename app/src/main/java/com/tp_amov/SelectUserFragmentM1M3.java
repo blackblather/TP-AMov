@@ -33,7 +33,7 @@ public class SelectUserFragmentM1M3 extends Fragment {
         final View finalView = view;
 
         //Gets button
-        Button btn_start_m1m3 = (Button) view.findViewById(R.id.btn_m1);
+        Button btn_start_m1m3 = (Button) view.findViewById(R.id.btn_start_m1m3);
 
         //Assigns an "OnClickListener" to btn_start_m1m3
         btn_start_m1m3.setOnClickListener(new View.OnClickListener(){
