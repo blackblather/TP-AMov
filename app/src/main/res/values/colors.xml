@@ -6,4 +6,6 @@
     <color name="white">#ffffffff</color>
     <color name="black">#ff000000</color>
     <color name="purple">#673AB7</color>
+    <color name="box_select_blue">#4fa5d5</color>
+    <color name="background_grey">#9E9E9E</color>
 </resources>

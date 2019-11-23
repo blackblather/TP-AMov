@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/game_bkgnd"
+    android:layout_width="376dp"
+    android:layout_height="376dp"
+    tools:context=".BoardFragment" >
+
+    <fragment
+        android:id="@+id/InnerBoard_1"
+        android:name="com.tp_amov.InnerBoardFragment"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="2dp"
+        android:layout_row="0"
+        android:layout_column="0" />
+
+    <fragment
+        android:id="@+id/InnerBoard_2"
+        android:name="com.tp_amov.InnerBoardFragment"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_row="0"
+        android:layout_column="1" />
+
+    <fragment
+        android:id="@+id/InnerBoard_3"
+        android:name="com.tp_amov.InnerBoardFragment"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="4dp"
+        android:layout_row="0"
+        android:layout_column="2" />
+
+    <fragment
+        android:id="@+id/InnerBoard_4"
+        android:name="com.tp_amov.InnerBoardFragment"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="2dp"
+        android:layout_row="1"
+        android:layout_column="0" />
+
+    <fragment
+        android:id="@+id/InnerBoard_5"
+        android:name="com.tp_amov.InnerBoardFragment"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_row="1"
+        android:layout_column="1" />
+
+    <fragment
+        android:id="@+id/InnerBoard_6"
+        android:name="com.tp_amov.InnerBoardFragment"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="4dp"
+        android:layout_row="1"
+        android:layout_column="2" />
+
+    <fragment
+        android:id="@+id/InnerBoard_7"
+        android:name="com.tp_amov.InnerBoardFragment"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="2dp"
+        android:layout_row="2"
+        android:layout_column="0" />
+
+    <fragment
+        android:id="@+id/InnerBoard_8"
+        android:name="com.tp_amov.InnerBoardFragment"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_row="2"
+        android:layout_column="1" />
+
+    <fragment
+        android:id="@+id/InnerBoard_9"
+        android:name="com.tp_amov.InnerBoardFragment"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="4dp"
+        android:layout_row="2"
+        android:layout_column="2" />
+</GridLayout>
