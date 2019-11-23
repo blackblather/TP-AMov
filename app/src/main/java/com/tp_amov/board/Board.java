@@ -1,67 +1,84 @@
 package com.tp_amov.board;
 
-import android.widget.EditText;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.util.Consumer;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import com.tp_amov.R;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Board
 {
-    ArrayList<InnerBoard> InnerBoards = new ArrayList<>();
+    private class InnerBoard {
+        //Cria array inicializado com zeros
+        private ArrayList<Integer> values = new ArrayList<>(Collections.nCopies(9, 0));
 
-    public Board()
-    {
-        for (int i = 0; i < 9; i++) {
-            InnerBoards.add(new InnerBoard());
+        InnerBoard() {
+//            FillBoard();
         }
-    }
-    private Runnable InvalidNrListener;
-    public void start_board()
-    {
-
-    }
-
-    public boolean insert(int inner_board_index, int cell_index, int value)
-    {
-        InnerBoards.get(inner_board_index).insert(cell_index,value);
-        return true;
-    }
-
-    public void setInvalidNrListener (Runnable invalidNrListener)
-    {
-        this.InvalidNrListener = invalidNrListener;
-    }
-
-    public boolean isInvalidNr(int Nr)
-    {
-        /*if(...)
-        {
-
-        }
-        else
-        {*/
-            InvalidNrListener.run();
-            return false;
-        /*}*/
-    }
-
-    private class InnerBoard
-    {
-        ArrayList<Integer> values = new ArrayList<>();
-        InnerBoard()
-        {
-            for (int i = 0; i < 9; i++) {
-                values.add(0);
+        InnerBoard(JSONArray elements) {
+            try{
+                for(int i = 0; i < 9; i++)
+                    values.set(i, elements.getInt(i));
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-
         }
 
-        public boolean insert(int cell_index, int value)
+//        private void FillBoard(){
+//            Random rand = new Random();
+//            int val;
+//            for (int i = 0; i < 9; i++) {
+//                do {
+//                    val = rand.nextInt(9) + 1;  //Range: [1 .. 9]
+//                } while (values.contains(val));
+//                values.set(i, val);
+//            }
+//        }
+
+        boolean insert(int cell_index, int value)
         {
             values.set(cell_index,value);
             return true;
         }
     }
+
+    private ArrayList<InnerBoard> innerBoards = new ArrayList<>();
+    private Runnable invalidNrListener;
+
+    public Board() {
+//        for (int i = 0; i < 9; i++)
+//            InnerBoards.add(new InnerBoard());
+        //TODO: GET JSON RESPONSE FROM WEBSERVICE
+        try{
+            String serverResp = "{\"board\":[[0,0,0,0,7,0,8,0,4],[0,2,3,4,0,0,0,0,9],[0,0,8,3,0,0,1,0,5]," +
+                                            "[2,1,4,0,3,0,0,9,8],[0,0,0,0,0,0,2,4,0],[0,0,7,0,0,0,0,0,0]," +
+                                            "[0,0,0,0,4,0,9,0,2],[7,8,5,9,0,2,4,0,3],[0,0,2,6,8,0,5,0,0]]}";
+            JSONObject jsonObject = new JSONObject(serverResp);
+            JSONArray jsonInnerBoards = jsonObject.getJSONArray("board");
+            for(int i = 0; i < 9; i++)
+                innerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void start_board() {
+
+    }
+
+    public void insertNumber(int number, int row, int col) {
+
+    }
+
+    public void setInvalidNrListener (Runnable invalidNrListener) {
+        this.invalidNrListener = invalidNrListener;
+    }
+
+    public boolean isInvalidNr(int Nr) {
+        invalidNrListener.run();
+        return false;
+    }
+
+
 }
