@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.Toast;
 
 import com.tp_amov.board.Board;
@@ -23,6 +24,7 @@ public class BoardActivity extends AppCompatActivity {
     Board b = new Board();
     EditText selected_cell;
 
+    ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     public void rand()
     {
         b.setInvalidNrListener(new Runnable() {
@@ -42,20 +44,24 @@ public class BoardActivity extends AppCompatActivity {
         b.start_board();
     }
 
-    public  void onClick(View t)
+    public void onClick(View t)
     {
         if(selected_cell!=null) {
             Button b = (Button) t;
-
-            ViewParent parent = t.getParent();
-            String inner_board_index = null;
+            int f_index=0;
+            for (InnerBoardFragment frag : ib_frags) {
+                if(frag.ElementExists(selected_cell))
+                    break;
+                else
+                    f_index++;
+            }
             String cell_index = null;
             try {
                 cell_index = getIDString(selected_cell,R.id.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Toast.makeText(this, "Number " + b.getText().toString() + " pressed! ID:" + cell_index,
+            Toast.makeText(this, "Number " + b.getText().toString() + " pressed! CELL_ID:" + cell_index +" FRAG_ID:"+ ib_frags.get(f_index).getTag(),
                     Toast.LENGTH_SHORT).show();
         }
         else
@@ -64,7 +70,6 @@ public class BoardActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         }
     }
-
 
     public static String getIDString(View view, Class<?> clazz) throws Exception {
 
@@ -77,9 +82,7 @@ public class BoardActivity extends AppCompatActivity {
                 return ids[i].getName();
             }
         }
-
         return "";
-
     }
 
     public void onResume()
@@ -90,7 +93,6 @@ public class BoardActivity extends AppCompatActivity {
 
     public void onFocusChange(View t)
     {
-        EditText input = (EditText)t;
         Drawable unselected =  getDrawable(R.drawable.box_back);
         Drawable selected =  getDrawable( R.drawable.box_back_interact);
         Drawable current =  t.getBackground();
@@ -118,6 +120,4 @@ public class BoardActivity extends AppCompatActivity {
             t.setBackground(unselected);
         }
     }
-
-
 }
