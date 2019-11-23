@@ -9,35 +9,19 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import com.tp_amov.board.Board;
+
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class BoardActivity extends AppCompatActivity {
     Board b = new Board();
     EditText selected_cell;
-    ArrayList<EditText> cells = new ArrayList<>();
-
-    public void BuildETHandlersList()
-    {
-        /*for (int j = 1; j <= 9; j++) {
-            int initial = R.id.btn_box_m1;
-            int secondary = R.id.btn_box_m2;
-            int step = secondary - initial;
-            int iterations = 0;
-            EditText cell;
-            //Find the desired inner_board_index
-            for (int i = initial ; i < initial +(80*step) ; i=i+step*3)
-            {
-                iterations++;
-                cell = (EditText)findViewById(i);
-                if((iterations % 3)==0)
-                {
-                    i=i+step*9;
-                }
-            }
-        }*/
-    }
 
     public void rand()
     {
@@ -58,10 +42,50 @@ public class BoardActivity extends AppCompatActivity {
         b.start_board();
     }
 
+    public  void onClick(View t)
+    {
+        if(selected_cell!=null) {
+            Button b = (Button) t;
+
+            ViewParent parent = t.getParent();
+            String inner_board_index = null;
+            String cell_index = null;
+            try {
+                cell_index = getIDString(selected_cell,R.id.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(this, "Number " + b.getText().toString() + " pressed! ID:" + cell_index,
+                    Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            Toast.makeText(this, "Please select a cell!",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    public static String getIDString(View view, Class<?> clazz) throws Exception {
+
+        Integer id = view.getId();
+        Field[] ids = clazz.getFields();
+        for (int i = 0; i < ids.length; i++) {
+            Object val = ids[i].get(null);
+            if (val != null && val instanceof Integer
+                    && ((Integer) val).intValue() == id.intValue()) {
+                return ids[i].getName();
+            }
+        }
+
+        return "";
+
+    }
+
     public void onResume()
     {
+        //After everything is rendered
         super.onResume();
-        BuildETHandlersList();
     }
 
     public void onFocusChange(View t)

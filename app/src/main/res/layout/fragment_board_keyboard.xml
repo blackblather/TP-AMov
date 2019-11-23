@@ -7,7 +7,7 @@
     android:background="@drawable/keyboard_background"
     android:elevation="10dp"
     android:translationZ="5dp"
-    tools:context=".board.BoardKeyboardFragment">
+    tools:context=".BoardKeyboardFragment">
 
     <LinearLayout
         android:layout_width="320dp"
