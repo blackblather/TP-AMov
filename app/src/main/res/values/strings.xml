@@ -3,4 +3,6 @@
     <string name="modo_1">Modo 1</string>
     <string name="modo_2">Modo 2</string>
     <string name="modo_3">Modo 3</string>
+    <string name="comecar">Começar</string>
+    <string name="username">Username</string>
 </resources>
