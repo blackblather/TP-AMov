@@ -17,7 +17,7 @@ public class SelectUserActivity extends AppCompatActivity {
         if(selectedMode.equals(getString(R.string.modo_1))){
             fragment = new SelectUserFragmentM1M3();
         } else if(selectedMode.equals(getString(R.string.modo_2))){
-            fragment = new SelectUserFragmentM2();    //TODO: Create SelectUserFragmentM2
+            fragment = new SelectUserFragmentM2();
         } else if(selectedMode.equals(getString(R.string.modo_3))){
             fragment = new SelectUserFragmentM1M3();    //TODO
         } else return;
