@@ -47,7 +47,7 @@ public class BoardActivity extends AppCompatActivity {
     public void onClick(View t)
     {
         if(selected_cell!=null) {
-            Button b = (Button) t;
+            Button btn = (Button) t;
             int f_index=0;
             for (InnerBoardFragment frag : ib_frags) {
                 if(frag.ElementExists(selected_cell))
@@ -61,7 +61,12 @@ public class BoardActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Toast.makeText(this, "Number " + b.getText().toString() + " pressed! CELL_ID:" + cell_index +" FRAG_ID:"+ ib_frags.get(f_index).getTag(),
+            String[] id = cell_index.split("btn_box_m");
+            selected_cell.setText(((Button) t).getText().toString());
+            int cell_i = Integer.parseInt(id[1]);
+            int val = Integer.parseInt(btn.getText().toString());;
+            b.insert(f_index,cell_i,val);
+            Toast.makeText(this, "Number " + btn.getText().toString() + " pressed! CELL_ID:" + cell_index +" FRAG_ID:"+ ib_frags.get(f_index).getTag(),
                     Toast.LENGTH_SHORT).show();
         }
         else

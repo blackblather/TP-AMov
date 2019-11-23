@@ -60,7 +60,7 @@ public class Board
 
         public boolean insert(int cell_index, int value)
         {
-            values.set(cell_index,value);
+            values.add(cell_index,value);
             return true;
         }
     }
