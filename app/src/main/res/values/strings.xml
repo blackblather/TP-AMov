@@ -5,6 +5,9 @@
     <string name="modo_3">Modo 3</string>
     <string name="comecar">Começar</string>
     <string name="username">Username</string>
+    <string name="highlight_editable_setting">Highlight Editable Cells</string>
+    <string name="highlight_editable_setting_condensed">Highlight Cells</string>
     <string name="username_player_1">Username (player 1)</string>
     <string name="username_player_2">Username (player 2)</string>
+    <string name="dark_ui">Dark UI</string>
 </resources>

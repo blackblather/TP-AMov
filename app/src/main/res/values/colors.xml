@@ -9,4 +9,5 @@
     <color name="box_select_blue">#4fa5d5</color>
     <color name="background_grey">#9E9E9E</color>
     <color name="red">#FF0000</color>
+    <color name="select_foreground_blue">#4fa5d5</color>
 </resources>

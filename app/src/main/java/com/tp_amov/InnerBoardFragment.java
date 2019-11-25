@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -52,6 +53,19 @@ public class InnerBoardFragment extends Fragment {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void UpdateValue(int index, Integer value)
+    {
+        EditText temp = (EditText)nums.get(index);
+        temp.setText(value.toString());
+        int readonly_color = ResourcesCompat.getColor(getResources(), R.color.black, null);
+        temp.setTextColor(readonly_color);
+        temp.setEnabled(false);
+    }
+
+    public ArrayList<View> GetViews(){
+        return nums;
     }
 
     public boolean ElementExists(View v)
