@@ -2,12 +2,22 @@ package com.tp_amov.board;
 
 import com.tp_amov.RunnableWithObjList;
 
+import android.content.Context;
+import androidx.core.util.Consumer;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 public class Board
 {
@@ -27,78 +37,104 @@ public class Board
             }
         }
 
-//        private void FillBoard(){
-//            Random rand = new Random();
-//            int val;
-//            for (int i = 0; i < 9; i++) {
-//                do {
-//                    val = rand.nextInt(9) + 1;  //Range: [1 .. 9]
-//                } while (values.contains(val));
-//                values.set(i, val);
-//            }
-//        }
+        private void FillBoard(){
+            Random rand = new Random();
+            int val;
+            for (int i = 0; i < 9; i++) {
+                do {
+                    val = rand.nextInt(9) + 1;  //Range: [1 .. 9]
+                } while (values.contains(val));
+                values.set(i, val);
+            }
+        }
 
-        void insertNum(int cell_index, int value)
-        {
+        void InsertNum(int cell_index, int value) {
             values.set(cell_index,value);
         }
-    }
 
-    private ArrayList<InnerBoard> InnerBoards = new ArrayList<>();
-    private ArrayList<InnerBoard> StartInnerBoards = new ArrayList<>();
-    private RunnableWithObjList insertNrListner;
-    private Runnable invalidNrListener;
-
-    public Board() {
-//        for (int i = 0; i < 9; i++)
-//            InnerBoards.add(new InnerBoard());
-        //TODO: GET JSON RESPONSE FROM WEBSERVICE
-        try{
-            String serverResp = "{\"board\":[[0,0,0,0,7,0,8,0,4],[0,2,3,4,0,0,0,0,9],[0,0,8,3,0,0,1,0,5]," +
-                                            "[2,1,4,0,3,0,0,9,8],[0,0,0,0,0,0,2,4,0],[0,0,7,0,0,0,0,0,0]," +
-                                            "[0,0,0,0,4,0,9,0,2],[7,8,5,9,0,2,4,0,3],[0,0,2,6,8,0,5,0,0]]}";
-            JSONObject jsonObject = new JSONObject(serverResp);
-            JSONArray jsonInnerBoards = jsonObject.getJSONArray("board");
-            for(int i = 0; i < 9; i++) {
-                InnerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
-                StartInnerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        ArrayList<Integer> GetValues() {
+            return values;
         }
     }
 
-    public void insertNum(ArrayList<Object> data)
-    {
+    private ArrayList<InnerBoard> innerBoards = new ArrayList<>();
+    private ArrayList<InnerBoard> startInnerBoards = new ArrayList<>();
+    private RunnableWithObjList insertNrListner;
+    private Runnable invalidNrListener, boardCreationErrorCallback;
+    private Consumer<ArrayList<ArrayList<Integer>>> boardCreationSuccessCallback;
+    //boardCreationErrorCallback;
+
+    public Board(Context context, String difficulty, Consumer<ArrayList<ArrayList<Integer>>> boardCreationSuccessListener, Runnable boardCreationErrorListener) {
+        for (int i = 0; i < 9; i++)
+            innerBoards.add(new InnerBoard());
+        boardCreationSuccessCallback = boardCreationSuccessListener;
+        boardCreationErrorCallback = boardCreationErrorListener;
+        GetOnlineBoard(context, difficulty);
+    }
+
+    private void InitBoard(JSONObject jsonObject) throws JSONException {
+        JSONArray jsonInnerBoards = jsonObject.getJSONArray("board");
+        for(int i = 0; i < 9; i++)
+            startInnerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
+    }
+
+    private ArrayList<ArrayList<Integer>> GetStartBoardArray() {
+        ArrayList<ArrayList<Integer>> boardArray = new ArrayList<>();
+        for (InnerBoard i : startInnerBoards)
+            boardArray.add(i.GetValues());
+        return boardArray;
+    }
+
+    private void GetOnlineBoard(Context context, String difficulty) {
+        String url = "https://sugoku.herokuapp.com/board?difficulty=" + difficulty;
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try{
+                        InitBoard(response);
+                        boardCreationSuccessCallback.accept(GetStartBoardArray());
+                    } catch (JSONException e) {
+                        boardCreationErrorCallback.run();
+                    }
+                }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    boardCreationErrorCallback.run();
+                }
+            });
+
+        // Access the RequestQueue through your singleton class.
+        queue.add(jsonObjectRequest);
+    }
+
+    public void insertNum(ArrayList<Object> data) {
         insertNrListner.run(data);
-        InnerBoards.get((Integer)data.get(0)).insertNum((Integer)data.get(1),(Integer)data.get(2));
+        Integer i1 = (Integer)data.get(0);
+        Integer i2 = (Integer)data.get(1);
+        Integer i3 = (Integer)data.get(2);
+        InnerBoard innerBoard = innerBoards.get(i1);
+        innerBoard.InsertNum(i2,i3);
     }
 
-    public InnerBoard getIB(int inner_board_index)
-    {
-        return InnerBoards.get(inner_board_index);
+    public InnerBoard getIB(int inner_board_index) {
+        return innerBoards.get(inner_board_index);
     }
 
-    public ArrayList<Integer> getValuesFromBoard(int index)
-    {
-        return InnerBoards.get(index).values;
+    public ArrayList<Integer> getValuesFromBoard(int index) {
+        return innerBoards.get(index).values;
     }
 
-    public ArrayList<Integer> getValuesFromStartBoard(int index)
-    {
-        return StartInnerBoards.get(index).values;
+    public ArrayList<Integer> getValuesFromStartBoard(int index) {
+        return startInnerBoards.get(index).values;
     }
 
-    public boolean IsCellEditable(int ib_index, int cell)
-    {
-        if(this.getValuesFromStartBoard(ib_index).get(cell) == 0)
-            return true;
-        else
-            return false;
-    }
-
-    public RunnableWithObjList getinsertNrListner () {
-        return insertNrListner;
+    public boolean IsCellEditable(int ib_index, int cell) {
+        return this.getValuesFromStartBoard(ib_index).get(cell) == 0;
     }
 
     public void setinsertNrListner (RunnableWithObjList insertNrListner) {
@@ -113,6 +149,4 @@ public class Board
         invalidNrListener.run();
         return false;
     }
-
-
 }

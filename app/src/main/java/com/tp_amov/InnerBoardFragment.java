@@ -55,7 +55,7 @@ public class InnerBoardFragment extends Fragment {
         }
     }
 
-    public void UpdateValue(int index, Integer value)
+    void UpdateValue(int index, Integer value)
     {
         EditText temp = (EditText)nums.get(index);
         temp.setText(value.toString());
@@ -64,11 +64,11 @@ public class InnerBoardFragment extends Fragment {
         temp.setEnabled(false);
     }
 
-    public ArrayList<View> GetViews(){
+    ArrayList<View> GetViews(){
         return nums;
     }
 
-    public boolean ElementExists(View v)
+    boolean ElementExists(View v)
     {
         return nums.contains(v);
     }

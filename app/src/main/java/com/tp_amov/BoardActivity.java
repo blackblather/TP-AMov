@@ -11,13 +11,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.util.Consumer;
 import com.tp_amov.board.Board;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class BoardActivity extends AppCompatActivity {
-    private Board b = new Board();
+    private Board b;
     private EditText selected_cell;
     private Toolbar toolbar;
     private MenuItem highlight_opt;
@@ -51,6 +52,19 @@ public class BoardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_board);
         toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
+        b = new Board(getApplicationContext(), "easy",
+                new Consumer<ArrayList<ArrayList<Integer>>>() {
+                    @Override
+                    public void accept(ArrayList<ArrayList<Integer>> boardArray) {
+                        FillViews(boardArray);
+                    }
+                }, new Runnable() {
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        });
         InitRuns();
     }
 
@@ -153,15 +167,15 @@ public class BoardActivity extends AppCompatActivity {
     public void onResume() {
         //After everything is rendered
         super.onResume();
-        FillViews();
+        //FillViews();
     }
 
 
-    private void FillViews() {
-        for (int i = 0; i < 9; i++)
-            for (int j = 0; j < 9; j++)
+    private void FillViews(ArrayList<ArrayList<Integer>> boardArray) {
+        for (int i = 0; i < boardArray.size(); i++)
+            for (int j = 0; j < boardArray.get(i).size(); j++)
                 if(!b.IsCellEditable(i,j))
-                    ib_frags.get(i).UpdateValue(j, b.getValuesFromBoard(i).get(j));
+                    ib_frags.get(i).UpdateValue(j, boardArray.get(i).get(j));
     }
 
     public void Toggle_darkmode() {
