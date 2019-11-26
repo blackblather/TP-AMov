@@ -1,5 +1,13 @@
 package com.tp_amov.board;
 
+import android.content.Context;
+import androidx.core.util.Consumer;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,26 +49,62 @@ public class Board
             values.set(cell_index,value);
             return true;
         }
+        ArrayList<Integer> GetArray(){
+            return values;
+        }
     }
 
     private ArrayList<InnerBoard> innerBoards = new ArrayList<>();
-    private Runnable invalidNrListener;
+    private Runnable invalidNrListener, boardCreationErrorCallback;
+    private Consumer<ArrayList<ArrayList<Integer>>> boardCreationSuccessCallback;
+    //boardCreationErrorCallback;
 
-    public Board() {
+    public Board(Context context, String difficulty, Consumer<ArrayList<ArrayList<Integer>>> boardCreationSuccessListener, Runnable boardCreationErrorListener) {
+        boardCreationSuccessCallback = boardCreationSuccessListener;
+        boardCreationErrorCallback = boardCreationErrorListener;
+        GetOnlineBoard(context, difficulty);
 //        for (int i = 0; i < 9; i++)
 //            InnerBoards.add(new InnerBoard());
-        //TODO: GET JSON RESPONSE FROM WEBSERVICE
-        try{
-            String serverResp = "{\"board\":[[0,0,0,0,7,0,8,0,4],[0,2,3,4,0,0,0,0,9],[0,0,8,3,0,0,1,0,5]," +
-                                            "[2,1,4,0,3,0,0,9,8],[0,0,0,0,0,0,2,4,0],[0,0,7,0,0,0,0,0,0]," +
-                                            "[0,0,0,0,4,0,9,0,2],[7,8,5,9,0,2,4,0,3],[0,0,2,6,8,0,5,0,0]]}";
-            JSONObject jsonObject = new JSONObject(serverResp);
-            JSONArray jsonInnerBoards = jsonObject.getJSONArray("board");
-            for(int i = 0; i < 9; i++)
-                innerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    }
+
+    private void InitBoard(JSONObject jsonObject) throws JSONException {
+        JSONArray jsonInnerBoards = jsonObject.getJSONArray("board");
+        for(int i = 0; i < 9; i++)
+            innerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
+    }
+
+    private ArrayList<ArrayList<Integer>> GetBoardArray(){
+        ArrayList<ArrayList<Integer>> boardArray = new ArrayList<>();
+        for (InnerBoard i : innerBoards)
+            boardArray.add(i.GetArray());
+        return boardArray;
+    }
+
+    private void GetOnlineBoard(Context context, String difficulty){
+        String url = "https://sugoku.herokuapp.com/board?difficulty=" + difficulty;
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try{
+                        InitBoard(response);
+                        boardCreationSuccessCallback.accept(GetBoardArray());
+                    } catch (JSONException e) {
+                        boardCreationErrorCallback.run();
+                    }
+                }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    boardCreationErrorCallback.run();
+                }
+            });
+
+        // Access the RequestQueue through your singleton class.
+        queue.add(jsonObjectRequest);
     }
 
     public void start_board() {
@@ -79,6 +123,4 @@ public class Board
         invalidNrListener.run();
         return false;
     }
-
-
 }
