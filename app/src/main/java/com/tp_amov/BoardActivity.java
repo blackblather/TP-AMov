@@ -1,5 +1,6 @@
 package com.tp_amov;
 
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
@@ -7,6 +8,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -21,9 +24,10 @@ public class BoardActivity extends AppCompatActivity {
     private EditText selected_cell;
     private Toolbar toolbar;
     private MenuItem highlight_opt;
+    private MenuItem dk_mode;
     private int foreground_unselected,foreground_selected;
-    /*MenuItem dk_mode;*/
 
+    LinearLayout NumPadBckgrnd;
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     private void InitRuns() {
         b.setInvalidNrListener(new Runnable() {
@@ -34,10 +38,10 @@ public class BoardActivity extends AppCompatActivity {
         });
         b.setinsertNrListner(new RunnableWithObjList() {
             @Override
-            public void run(ArrayList<Object> objs) {
-                if(b.IsCellEditable((Integer)objs.get(0), (Integer)objs.get(1)))
+            public void run(Integer innerboard_index,Integer cell_index,Integer value) {
+                if(b.IsCellEditable(innerboard_index, cell_index))
                 {
-                    selected_cell.setText((objs.get(2)).toString());
+                    selected_cell.setText(value.toString());
                 /*Toast toast = Toast.makeText(context, text, duration);
                 toast.show();*/
                 }
@@ -59,7 +63,7 @@ public class BoardActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.board_settings_menu, menu);
         highlight_opt = menu.findItem(R.id.board_action_setting_HEC);
-        /*dk_mode = menu.findItem(R.id.board_action_setting_DKM);*/
+        dk_mode = menu.findItem(R.id.board_action_setting_DKM);
         return true;
     }
 
@@ -83,7 +87,7 @@ public class BoardActivity extends AppCompatActivity {
                     ToogleHighlight();
                     return true;
                 }
-            /*case R.id.board_action_setting_DKM:
+            case R.id.board_action_setting_DKM:
                 if(item.isChecked()) {
                     item.setChecked(false);
                     Toggle_darkmode();
@@ -93,19 +97,14 @@ public class BoardActivity extends AppCompatActivity {
                     item.setChecked(true);
                     Toggle_darkmode();
                     return true;
-                }*/
+                }
         }
         return super.onOptionsItemSelected(item);
     }
 
     public void onClick(View t) {
-        if(selected_cell!=null) {
-            ArrayList<Object> data = new ArrayList<>();
-            data.add(getInnerBoxIndex()); //f_index
-            data.add(getCellIndex()); //cell_i
-            data.add(getBtnValue(t)); //value
-            b.insertNum(data);
-        }
+        if(selected_cell!=null)
+            b.insertNum(getInnerBoxIndex(),getCellIndex(),getBtnValue(t));
         else {
             Toast.makeText(this, "Please select a cell!",
                     Toast.LENGTH_SHORT).show();
@@ -156,7 +155,6 @@ public class BoardActivity extends AppCompatActivity {
         FillViews();
     }
 
-
     private void FillViews() {
         for (int i = 0; i < 9; i++)
             for (int j = 0; j < 9; j++)
@@ -165,15 +163,58 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void Toggle_darkmode() {
+        GridLayout gl = findViewById(R.id.Board_activity);
+        int default_color = ResourcesCompat.getColor(getResources(),R.color.white,null);
+        int dark_color_background = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
+        Drawable default_color_kbd = getDrawable( R.drawable.keyboard_background);
+        Drawable dark_color_background_kbd = getDrawable( R.drawable.keyboard_background_dark);
+        if(dk_mode.isChecked()){
+            gl.setBackgroundColor(dark_color_background);
+            NumPadBckgrnd.setBackground(dark_color_background_kbd);
+        }
+        else{
+            gl.setBackgroundColor(default_color);
+            NumPadBckgrnd.setBackground(default_color_kbd);
+        }
+        ApplyDarkMode_opt();
+        ToogleHighlight();
+    }
 
+    private void ApplyDarkMode_opt(){
+        for (int i = 0; i < 9; i++) {
+            ArrayList<View> components = ib_frags.get(i).GetViews();
+            for (int j = 0; j < 9; j++)
+                if(dk_mode.isChecked())
+                    if(b.getValuesFromStartBoard(i).get(j) == 0)
+                        if(((EditText)components.get(j)) == selected_cell)
+                            ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_dark_interact));
+                        else
+                            ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_dark));
+                    else {
+                        ((EditText) components.get(j)).setBackground((Drawable) getDrawable(R.drawable.box_back_dark));
+                        ((EditText) components.get(j)).setTextColor(ResourcesCompat.getColor(getResources(), R.color.white, null));
+                    }
+                else{
+                    if(b.getValuesFromStartBoard(i).get(j) == 0)
+                        if(((EditText)components.get(j)) == selected_cell)
+                            ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_interact));
+                        else
+                            ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back));
+                    else {
+                        ((EditText) components.get(j)).setBackground((Drawable) getDrawable(R.drawable.box_back));
+                        ((EditText) components.get(j)).setTextColor(ResourcesCompat.getColor(getResources(), R.color.black, null));
+                    }
+                }
+
+        }
     }
 
     private void ToogleHighlight() {
         ToggleForeground();
-        ApplyHighlight_opt(foreground_unselected,foreground_selected);
+        ApplyHighlight_opt();
     }
 
-    private void ApplyHighlight_opt(int foreground_unselected, int foreground_selected){
+    private void ApplyHighlight_opt(){
         for (int i = 0; i < 9; i++) {
             ArrayList<View> components = ib_frags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
@@ -187,19 +228,39 @@ public class BoardActivity extends AppCompatActivity {
 
     private void ToggleForeground(){
         if(highlight_opt.isChecked()){
-            foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.select_foreground_blue, null);
-            foreground_selected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+            if(!dk_mode.isChecked()) {
+                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.select_foreground_blue, null);
+                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+            }
+            else{
+                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.dk_md_yellow, null);
+                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
+            }
         }
         else{
-            foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.black, null);
-            foreground_selected = ResourcesCompat.getColor(getResources(), R.color.black, null);
+            if(!dk_mode.isChecked()) {
+                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.black, null);
+                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.black, null);
+            }
+            else{
+                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+            }
         }
     }
 
     public void onFocusChange(View t) {
         ToggleForeground();
-        Drawable unselected = getDrawable(R.drawable.box_back);
-        Drawable selected = getDrawable( R.drawable.box_back_interact);
+        Drawable unselected;
+        Drawable selected;
+        if(dk_mode.isChecked()){
+            unselected = getDrawable(R.drawable.box_back_dark);
+            selected = getDrawable( R.drawable.box_back_dark_interact);
+        }
+        else{
+            unselected = getDrawable(R.drawable.box_back);
+            selected = getDrawable( R.drawable.box_back_interact);
+        }
         Drawable current = t.getBackground();
         Drawable.ConstantState constantStateDrawableA = unselected.getConstantState();
         Drawable.ConstantState constantStateDrawableB = current.getConstantState();
@@ -211,7 +272,7 @@ public class BoardActivity extends AppCompatActivity {
             else if(selected_cell != (EditText)t) {
                 selected_cell.setBackground(unselected);
                 selected_cell.setTextColor(foreground_unselected);
-                selected_cell = (EditText)t;
+                selected_cell = (EditText) t;
             }
             selected_cell.setTextColor(foreground_selected);
             t.setBackground(selected);

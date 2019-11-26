@@ -10,4 +10,8 @@
     <color name="background_grey">#9E9E9E</color>
     <color name="red">#FF0000</color>
     <color name="select_foreground_blue">#4fa5d5</color>
+    <color name="dark_gray">#292929</color>
+    <color name="dark_grey_light">#414141</color>
+    <color name="dk_md_yellow">#ffcd43</color>
+    <color name="dk_md_red">#ff4343</color>
 </resources>

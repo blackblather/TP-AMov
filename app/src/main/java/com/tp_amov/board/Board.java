@@ -68,10 +68,10 @@ public class Board
         }
     }
 
-    public void insertNum(ArrayList<Object> data)
+    public void insertNum(Integer innerboard_index,Integer cell_index,Integer value)
     {
-        insertNrListner.run(data);
-        InnerBoards.get((Integer)data.get(0)).insertNum((Integer)data.get(1),(Integer)data.get(2));
+        insertNrListner.run(innerboard_index, cell_index, value);
+        InnerBoards.get(innerboard_index).insertNum(cell_index,value);
     }
 
     public InnerBoard getIB(int inner_board_index)
