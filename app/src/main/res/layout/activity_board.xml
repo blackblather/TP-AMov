@@ -12,6 +12,8 @@
               android:layout_height="wrap_content"
               android:id="@+id/toolbar_fragment"/>
 
+    <!-- FRAGMENTS GO HERE (ROW 1, COL 0) (INSERTED PROGRAMMATICALLY)-->
+
     <fragment
             android:id="@+id/Board"
             android:name="com.tp_amov.BoardFragment"
