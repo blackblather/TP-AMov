@@ -8,6 +8,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 public class SelectUserActivity extends AppCompatActivity {
+    public static final String EXTRA_USERNAMES = "usernames";
+    public static final String EXTRA_IMG_PATHS = "imgPaths";
 
     private void LoadFragment(String selectedMode){
         FragmentManager fragmentManager = getSupportFragmentManager();

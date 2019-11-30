@@ -6,8 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 
 public class SelectUserFragmentM1M3 extends Fragment {
@@ -38,7 +42,12 @@ public class SelectUserFragmentM1M3 extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), BoardActivity.class);
-                //intent.putExtra(EXTRA_SELECTED_MODE, message);
+
+                EditText usernameTxt = finalView.findViewById(R.id.txt_username);
+
+                intent.putExtra(SelectUserActivity.EXTRA_USERNAMES, new ArrayList<String>(Collections.singletonList(usernameTxt.getText().toString())));
+                intent.putExtra(SelectUserActivity.EXTRA_IMG_PATHS, new ArrayList<String>(Collections.singletonList("")));
+
                 startActivity(intent);
             }
         });

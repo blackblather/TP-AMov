@@ -1,5 +1,6 @@
 package com.tp_amov;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.util.Consumer;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import com.tp_amov.board.Board;
 
 import java.lang.reflect.Field;
@@ -26,7 +30,7 @@ public class BoardActivity extends AppCompatActivity {
     /*MenuItem dk_mode;*/
 
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
-    private void InitRuns() {
+    private void SetBoardRunnables() {
         b.setInvalidNrListener(new Runnable() {
             @Override
             public void run() {
@@ -48,24 +52,54 @@ public class BoardActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_board);
-        toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(toolbar);
-        b = new Board(getApplicationContext(), "easy",
-                new Consumer<ArrayList<ArrayList<Integer>>>() {
-                    @Override
-                    public void accept(ArrayList<ArrayList<Integer>> boardArray) {
-                        FillViews(boardArray);
-                    }
-                }, new Runnable() {
-            @Override
-            public void run() {
-                Toast toast = Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        });
-        InitRuns();
+        try {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_board);
+            //Set toolbar info
+            toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+            setSupportActionBar(toolbar);
+
+            //Get intent
+            Intent intent = getIntent();
+
+            //Store intent's extras
+            ArrayList<String> usernames = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_USERNAMES);
+            ArrayList<String> imgPaths = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_IMG_PATHS);
+
+            //Get fragment manager / fragment transaction objects
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            //Gets new fragment instance by sending it the chosen usernames + imgPaths
+            Fragment fragment = InGamePlayerInfoFragment.newInstance(usernames, imgPaths);
+
+            //Adds fragment to activity
+            fragmentTransaction.add(R.id.Board_activity, fragment);
+            fragmentTransaction.commit();
+
+            //Initializes board object
+            b = new Board(getApplicationContext(), "easy",
+                    new Consumer<ArrayList<ArrayList<Integer>>>() {
+                        @Override
+                        public void accept(ArrayList<ArrayList<Integer>> boardArray) {
+                            FillViews(boardArray);
+                        }
+                    }, new Runnable() {
+                @Override
+                public void run() {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            });
+
+            SetBoardRunnables();
+        } catch (ClassCastException e){
+            finish();
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(getApplicationContext(), "An error occurred, try again later", duration);
+            toast.show();
+        }
     }
 
     @Override
