@@ -1,21 +1,13 @@
 package com.tp_amov;
 
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridLayout;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
@@ -24,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import com.tp_amov.board.Board;
+import com.tp_amov.board.BoardEvents;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -36,24 +29,41 @@ public class BoardActivity extends AppCompatActivity {
     private MenuItem dk_mode;
     private int foreground_unselected,foreground_selected;
 
+    private BoardEvents boardEvents;
+
     LinearLayout NubPadBackground;
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     private void SetBoardRunnables() {
-        b.setInvalidNrListener(new Runnable() {
+        boardEvents = new BoardEvents();
+        boardEvents.setOnInsertValidNumber(new RunnableWithObjList() {
             @Override
-            public void run() {
-
+            public void run(Integer innerboard_index, Integer cell_index, Integer value) {
+                if(b.IsCellEditable(innerboard_index, cell_index))
+                    selected_cell.setText(value.toString());
             }
         });
-        b.setinsertNrListner(new RunnableWithObjList() {
+        boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
-            public void run(Integer innerboard_index,Integer cell_index,Integer value) {
-                if(b.IsCellEditable(innerboard_index, cell_index))
-                {
-                    selected_cell.setText(value.toString());
-                /*Toast toast = Toast.makeText(context, text, duration);
-                toast.show();*/
-                }
+            public void run() {
+                //TODO
+            }
+        });
+        boardEvents.setOnBoardCreationError(new Runnable() {
+            @Override
+            public void run() {
+                //TODO
+            }
+        });
+        boardEvents.setOnBoardCreationSuccess(new Consumer<ArrayList<ArrayList<Integer>>>() {
+            @Override
+            public void accept(ArrayList<ArrayList<Integer>> arrayLists) {
+                FillViews(arrayLists);
+            }
+        });
+        boardEvents.setOnGameFinished(new Runnable() {
+            @Override
+            public void run() {
+                //TODO
             }
         });
     }
@@ -88,23 +98,11 @@ public class BoardActivity extends AppCompatActivity {
             //Get application context
             Context context = getApplicationContext();
 
-            //Initializes board object
-            b = new Board(context, "easy",
-                new Consumer<ArrayList<ArrayList<Integer>>>() {
-                    @Override
-                    public void accept(ArrayList<ArrayList<Integer>> boardArray) {
-                        FillViews(boardArray);
-                    }
-                },
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
-                }
-            );
             SetBoardRunnables();
+
+            //Initializes board object
+            b = new Board(context, "easy", boardEvents);
+
             setScreenAdaptation(context);
         } catch (ClassCastException e){
             finish();

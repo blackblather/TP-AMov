@@ -1,12 +1,10 @@
 package com.tp_amov.board;
 
 import android.content.Context;
-import androidx.core.util.Consumer;
 import com.android.volley.*;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.tp_amov.RunnableWithObjList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,9 +61,7 @@ public class Board
     private ArrayList<InnerBoard> innerBoards = new ArrayList<>();
     private ArrayList<InnerBoard> startInnerBoards = new ArrayList<>();
     //Callbacks
-    private RunnableWithObjList insertNrListner;
-    private Runnable invalidNrListener, boardCreationErrorCallback;
-    private Consumer<ArrayList<ArrayList<Integer>>> boardCreationSuccessCallback;
+    private BoardEvents boardEvents;
     //boardCreationErrorCallback;
     //Network vars
     private RequestQueue queue;
@@ -73,11 +69,10 @@ public class Board
 
     //------------> Initializers
 
-    public Board(Context context, String difficulty, Consumer<ArrayList<ArrayList<Integer>>> boardCreationSuccessListener, Runnable boardCreationErrorListener) {
+    public Board(Context context, String difficulty, BoardEvents boardEvents) {
         for (int i = 0; i < 9; i++)
             innerBoards.add(new InnerBoard());
-        boardCreationSuccessCallback = boardCreationSuccessListener;
-        boardCreationErrorCallback = boardCreationErrorListener;
+        this.boardEvents = boardEvents;
         GetOnlineBoard(context, difficulty);
     }
 
@@ -90,7 +85,7 @@ public class Board
     //------------> Private functions
 
     private boolean isInvalidNr(int Nr) {
-        invalidNrListener.run();
+        boardEvents.onInsertInvalidNumber.run();
         return false;
     }
 
@@ -106,16 +101,16 @@ public class Board
                 public void onResponse(JSONObject response) {
                     try{
                         InitBoard(response);
-                        boardCreationSuccessCallback.accept(GetStartBoardArray());
+                        boardEvents.onBoardCreationSuccess.accept(GetStartBoardArray());
                     } catch (JSONException e) {
-                        boardCreationErrorCallback.run();
+                        boardEvents.onBoardCreationError.run();
                     }
                 }
             },
             new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    boardCreationErrorCallback.run();
+                    boardEvents.onBoardCreationError.run();
                 }
             });
 
@@ -167,16 +162,6 @@ public class Board
         queue.add(stringRequest);
     }
 
-    //------------> Listeners
-
-    public void setInvalidNrListener (Runnable invalidNrListener) {
-        this.invalidNrListener = invalidNrListener;
-    }
-
-    public void setinsertNrListner (RunnableWithObjList insertNrListner) {
-        this.insertNrListner = insertNrListner;
-    }
-
     //------------> Getters
 
     public InnerBoard getIB(int inner_board_index) {
@@ -205,7 +190,8 @@ public class Board
     //------------> Setters
 
     public void insertNum(Integer innerboard_index,Integer cell_index,Integer value) {
-        insertNrListner.run(innerboard_index, cell_index, value);
         innerBoards.get(innerboard_index).InsertNum(cell_index,value);
+        //TODO: Validation
+        boardEvents.onInsertValidNumber.run(innerboard_index, cell_index, value);
     }
 }
