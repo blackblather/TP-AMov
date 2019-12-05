@@ -1,11 +1,16 @@
 package com.tp_amov;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -56,6 +61,9 @@ public class BoardActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
         InitRuns();
+        FillViews();
+        Context context = getApplicationContext();
+        setScreenAdaptation(context);
     }
 
     @Override
@@ -152,7 +160,10 @@ public class BoardActivity extends AppCompatActivity {
     public void onResume() {
         //After everything is rendered
         super.onResume();
-        FillViews();
+    }
+
+    public void onRestart(){
+        super.onRestart();
     }
 
     private void FillViews() {
@@ -249,18 +260,135 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    public void onFocusChange(View t) {
-        ToggleForeground();
-        Drawable unselected;
+    private Drawable updateColorSelect(){
         Drawable selected;
         if(dk_mode.isChecked()){
-            unselected = getDrawable(R.drawable.box_back_dark);
             selected = getDrawable( R.drawable.box_back_dark_interact);
         }
         else{
-            unselected = getDrawable(R.drawable.box_back);
             selected = getDrawable( R.drawable.box_back_interact);
         }
+        return selected;
+    }
+
+    private Drawable updateColorUnselect(){
+        Drawable unselected;
+        if(dk_mode.isChecked()){
+            unselected = getDrawable(R.drawable.box_back_dark);
+        }
+        else{
+            unselected = getDrawable(R.drawable.box_back);
+        }
+        return unselected;
+    }
+
+    public void setScreenAdaptation(Context context){
+        int width = getScreenWidthInDPs(context);
+        int height = getScreenHeightInDPs(context);
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // In landscape
+            setBoardSizeForScreenSize(width,height,true);
+        } else {
+            // In portrait
+            setBoardSizeForScreenSize(width,height,false);
+        }
+    }
+
+    public void setBoardSizeForScreenSize(int width, int height, boolean isLandScape){
+        final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
+        int cell_dimension;
+        if(isLandScape){
+            cell_dimension = (int) ((((height-16)/9)* scale)-(2*scale));
+        }
+        else{
+            cell_dimension = (int) ((((width-(16))/9)* scale)-(2*scale));
+        }
+        for (int i = 0; i < 9; i++)
+            for (int j = 0; j < 9; j++) {
+                EditText editT = (EditText) ib_frags.get(i).GetViews().get(j);
+                ViewGroup.LayoutParams layoutParams = editT.getLayoutParams();
+                layoutParams.width = cell_dimension;
+                layoutParams.height = cell_dimension;
+                editT.setLayoutParams(layoutParams);
+                //((EditText) ib_frags.get(i).GetViews().get(j)).setLayoutParams(layoutParams);
+            }
+    }
+
+    public static int getScreenWidthInDPs(Context context){
+        /*
+            DisplayMetrics
+                A structure describing general information about a display,
+                such as its size, density, and font scaling.
+        */
+        DisplayMetrics dm = new DisplayMetrics();
+
+        /*
+            WindowManager
+                The interface that apps use to talk to the window manager.
+                Use Context.getSystemService(Context.WINDOW_SERVICE) to get one of these.
+        */
+
+        /*
+            public abstract Object getSystemService (String name)
+                Return the handle to a system-level service by name. The class of the returned
+                object varies by the requested name. Currently available names are:
+
+                WINDOW_SERVICE ("window")
+                    The top-level window manager in which you can place custom windows.
+                    The returned object is a WindowManager.
+        */
+
+        /*
+            public abstract Display getDefaultDisplay ()
+
+                Returns the Display upon which this WindowManager instance will create new windows.
+
+                Returns
+                The display that this window manager is managing.
+        */
+
+        /*
+            public void getMetrics (DisplayMetrics outMetrics)
+                Gets display metrics that describe the size and density of this display.
+                The size is adjusted based on the current rotation of the display.
+
+                Parameters
+                outMetrics A DisplayMetrics object to receive the metrics.
+        */
+        WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(dm);
+        int widthInDP = Math.round(dm.widthPixels / dm.density);
+        return widthInDP;
+    }
+
+    // Custom method to get screen height in dp/dip using Context object
+    public static int getScreenHeightInDPs(Context context){
+        DisplayMetrics dm = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(dm);
+        /*
+            In this example code we converted the float value
+            to nearest whole integer number. But, you can get the actual height in dp
+            by removing the Math.round method. Then, it will return a float value, you should
+            also make the necessary changes.
+        */
+
+        /*
+            public int heightPixels
+                The absolute height of the display in pixels.
+
+            public float density
+             The logical density of the display.
+        */
+        int heightInDP = Math.round(dm.heightPixels / dm.density);
+        return heightInDP;
+    }
+
+    public void onFocusChange(View t) {
+        ToggleForeground();
+        Drawable unselected = updateColorUnselect();
+        Drawable selected = updateColorSelect();
         Drawable current = t.getBackground();
         Drawable.ConstantState constantStateDrawableA = unselected.getConstantState();
         Drawable.ConstantState constantStateDrawableB = current.getConstantState();
