@@ -200,14 +200,14 @@ public class Board
         }
     }
 
-    public ArrayList<ArrayList<Integer>> toArray(){
+    private ArrayList<ArrayList<Integer>> toArray(){
         ArrayList<ArrayList<Integer>> boardArray = new ArrayList<>();
         for (InnerBoard i : startInnerBoards)
             boardArray.add(i.GetValues());
         return boardArray;
     }
 
-    public JSONObject toJSONObject() {
+    private JSONObject toJSONObject() {
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("board", toArray());
