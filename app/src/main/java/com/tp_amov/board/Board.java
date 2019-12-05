@@ -59,13 +59,17 @@ public class Board
 
     }
 
+    //Inner boards
     private ArrayList<InnerBoard> innerBoards = new ArrayList<>();
     private ArrayList<InnerBoard> startInnerBoards = new ArrayList<>();
+    //Callbacks
     private RunnableWithObjList insertNrListner;
     private Runnable invalidNrListener, boardCreationErrorCallback;
     private Consumer<ArrayList<ArrayList<Integer>>> boardCreationSuccessCallback;
-    private RequestQueue queue;
     //boardCreationErrorCallback;
+    //Network vars
+    private RequestQueue queue;
+    private final String url ="https://sugoku.herokuapp.com/";
 
     //------------> Initializers
 
@@ -86,10 +90,10 @@ public class Board
     //------------> Network
 
     private void GetOnlineBoard(Context context, String difficulty) {
-        String url = "https://sugoku.herokuapp.com/board?difficulty=" + difficulty;
+        String urlGET = new String(url + "board?difficulty=" + difficulty);
 
         queue = Volley.newRequestQueue(context);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, urlGET, null,
             new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -114,9 +118,9 @@ public class Board
 
     public void GetOnlineSolvedBoard(){
 
-        String url ="https://sugoku.herokuapp.com/solve";
+        String urlPOST = new String(url + "solve");
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, urlPOST,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -135,7 +139,7 @@ public class Board
             @Override
             public byte[] getBody() throws AuthFailureError {
                 try {
-                    String body = new String("board=" + URLEncoder.encode("[[0,0,0,0,0,0,8,0,0],[0,0,4,0,0,8,0,0,9],[0,7,0,0,0,0,0,0,5],[0,1,0,0,7,5,0,0,8],[0,5,6,0,9,1,3,0,0],[7,8,0,0,0,0,0,0,0],[0,2,0,0,0,0,0,0,0],[0,0,0,9,3,0,0,1,0],[0,0,5,7,0,0,4,0,3]]","UTF-8"));
+                    String body = new String("board=" + URLEncoder.encode("[[1,1,0,0,0,0,8,0,0],[0,0,4,0,0,8,0,0,9],[0,7,0,0,0,0,0,0,5],[0,1,0,0,7,5,0,0,8],[0,5,6,0,9,1,3,0,0],[7,8,0,0,0,0,0,0,0],[0,2,0,0,0,0,0,0,0],[0,0,0,9,3,0,0,1,0],[0,0,5,7,0,0,4,0,3]]","UTF-8"));
                     return body.getBytes();
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
