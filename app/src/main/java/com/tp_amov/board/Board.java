@@ -1,6 +1,7 @@
 package com.tp_amov.board;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 import com.android.volley.*;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
@@ -101,7 +102,7 @@ public class Board
                 public void onResponse(JSONObject response) {
                     try{
                         InitBoard(response);
-                        boardEvents.onBoardCreationSuccess.accept(GetStartBoardArray());
+                        boardEvents.onBoardCreationSuccess.accept(toArray());
                     } catch (JSONException e) {
                         boardEvents.onBoardCreationError.run();
                     }
@@ -140,13 +141,10 @@ public class Board
         }) {
             @Override
             public byte[] getBody() throws AuthFailureError {
-                try {
-                    String body = new String("board=" + URLEncoder.encode("[[1,1,0,0,0,0,8,0,0],[0,0,4,0,0,8,0,0,9],[0,7,0,0,0,0,0,0,5],[0,1,0,0,7,5,0,0,8],[0,5,6,0,9,1,3,0,0],[7,8,0,0,0,0,0,0,0],[0,2,0,0,0,0,0,0,0],[0,0,0,9,3,0,0,1,0],[0,0,5,7,0,0,4,0,3]]","UTF-8"));
-                    return body.getBytes();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                return null;
+                String URLEncodedBoard = toURLEncodedString();
+                if(URLEncodedBoard != null)
+                    return URLEncodedBoard.getBytes();
+                return "".getBytes();
             }
 
 
@@ -158,7 +156,6 @@ public class Board
             }
         };
 
-// Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
 
@@ -176,13 +173,6 @@ public class Board
         return startInnerBoards.get(index).values;
     }
 
-    private ArrayList<ArrayList<Integer>> GetStartBoardArray() {
-        ArrayList<ArrayList<Integer>> boardArray = new ArrayList<>();
-        for (InnerBoard i : startInnerBoards)
-            boardArray.add(i.GetValues());
-        return boardArray;
-    }
-
     public boolean IsCellEditable(int ib_index, int cell) {
         return this.getValuesFromStartBoard(ib_index).get(cell) == 0;
     }
@@ -193,5 +183,37 @@ public class Board
         innerBoards.get(innerboard_index).InsertNum(cell_index,value);
         //TODO: Validation
         boardEvents.onInsertValidNumber.run(innerboard_index, cell_index, value);
+    }
+
+    //------------> Converters
+    @NonNull
+    @Override
+    public String toString(){
+        return toJSONObject().toString();
+    }
+
+    private String toURLEncodedString(){
+        try {
+            return new String("board=" + URLEncoder.encode(toArray().toString().replace(" ", ""),"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
+
+    public ArrayList<ArrayList<Integer>> toArray(){
+        ArrayList<ArrayList<Integer>> boardArray = new ArrayList<>();
+        for (InnerBoard i : startInnerBoards)
+            boardArray.add(i.GetValues());
+        return boardArray;
+    }
+
+    public JSONObject toJSONObject() {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("board", toArray());
+            return jsonObject;
+        } catch (JSONException e) {
+            return new JSONObject();
+        }
     }
 }
