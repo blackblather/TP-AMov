@@ -83,8 +83,15 @@ public class Board
 
     private void InitBoard(JSONObject jsonObject) throws JSONException {
         JSONArray jsonInnerBoards = jsonObject.getJSONArray("board");
-        for(int i = 0; i < 9; i++)
+        for (int i = 0; i < 9; i++)
             startInnerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
+    }
+
+    //------------> Private functions
+
+    private boolean isInvalidNr(int Nr) {
+        invalidNrListener.run();
+        return false;
     }
 
     //------------> Network
@@ -162,18 +169,14 @@ public class Board
 
     //------------> Listeners
 
-    public void setinsertNrListner (RunnableWithObjList insertNrListner) {
-        this.insertNrListner = insertNrListner;
-    }
-
     public void setInvalidNrListener (Runnable invalidNrListener) {
         this.invalidNrListener = invalidNrListener;
     }
 
-    public boolean isInvalidNr(int Nr) {
-        invalidNrListener.run();
-        return false;
+    public void setinsertNrListner (RunnableWithObjList insertNrListner) {
+        this.insertNrListner = insertNrListner;
     }
+
     //------------> Getters
 
     public InnerBoard getIB(int inner_board_index) {
@@ -201,12 +204,8 @@ public class Board
 
     //------------> Setters
 
-    public void insertNum(ArrayList<Object> data) {
-        insertNrListner.run(data);
-        Integer i1 = (Integer)data.get(0);
-        Integer i2 = (Integer)data.get(1);
-        Integer i3 = (Integer)data.get(2);
-        InnerBoard innerBoard = innerBoards.get(i1);
-        innerBoard.InsertNum(i2,i3);
+    public void insertNum(Integer innerboard_index,Integer cell_index,Integer value) {
+        insertNrListner.run(innerboard_index, cell_index, value);
+        innerBoards.get(innerboard_index).InsertNum(cell_index,value);
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/board_action_setting_HEC"
         android:title="@string/highlight_editable_setting"
@@ -8,4 +9,11 @@
         android:checkable="true"
         android:checked="true"
         app:showAsAction="never"/>
+    <item android:id="@+id/board_action_setting_DKM"
+        android:title="@string/dark_ui"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:checkable="true"
+        android:checked="false"
+        app:showAsAction="never"
+        tools:ignore="DuplicateIds" />
 </menu>

@@ -15,20 +15,20 @@
     <!-- FRAGMENTS GO HERE (ROW 1, COL 0) (INSERTED PROGRAMMATICALLY)-->
 
     <fragment
-            android:id="@+id/Board"
-            android:name="com.tp_amov.BoardFragment"
-            android:layout_width="376dp"
-            android:layout_height="376dp"
-            android:layout_row="2"
-            android:layout_column="0"
-            android:layout_gravity="center_horizontal|bottom"
-            android:layout_margin="10dp" />
+        android:id="@+id/Board"
+        android:name="com.tp_amov.BoardFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_row="2"
+        android:layout_column="0"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_margin="10dp" />
 
     <fragment
-            android:id="@+id/num_kbd"
+            android:id="@+id/frag_num_kbd"
             android:name="com.tp_amov.BoardKeyboardFragment"
             android:layout_width="match_parent"
-            android:layout_height="132dp"
+            android:layout_height="wrap_content"
             android:layout_row="3"
             android:layout_column="0" />
 

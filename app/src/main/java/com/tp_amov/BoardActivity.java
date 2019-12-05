@@ -1,13 +1,20 @@
 package com.tp_amov;
 
 import android.content.Intent;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -26,9 +33,10 @@ public class BoardActivity extends AppCompatActivity {
     private EditText selected_cell;
     private Toolbar toolbar;
     private MenuItem highlight_opt;
+    private MenuItem dk_mode;
     private int foreground_unselected,foreground_selected;
-    /*MenuItem dk_mode;*/
 
+    LinearLayout NubPadBackground;
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     private void SetBoardRunnables() {
         b.setInvalidNrListener(new Runnable() {
@@ -39,10 +47,10 @@ public class BoardActivity extends AppCompatActivity {
         });
         b.setinsertNrListner(new RunnableWithObjList() {
             @Override
-            public void run(ArrayList<Object> objs) {
-                if(b.IsCellEditable((Integer)objs.get(0), (Integer)objs.get(1)))
+            public void run(Integer innerboard_index,Integer cell_index,Integer value) {
+                if(b.IsCellEditable(innerboard_index, cell_index))
                 {
-                    selected_cell.setText((objs.get(2)).toString());
+                    selected_cell.setText(value.toString());
                 /*Toast toast = Toast.makeText(context, text, duration);
                 toast.show();*/
                 }
@@ -77,22 +85,27 @@ public class BoardActivity extends AppCompatActivity {
             fragmentTransaction.add(R.id.Board_activity, fragment);
             fragmentTransaction.commit();
 
-            //Initializes board object
-            b = new Board(getApplicationContext(), "easy",
-                    new Consumer<ArrayList<ArrayList<Integer>>>() {
-                        @Override
-                        public void accept(ArrayList<ArrayList<Integer>> boardArray) {
-                            FillViews(boardArray);
-                        }
-                    }, new Runnable() {
-                @Override
-                public void run() {
-                    Toast toast = Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-            });
+            //Get application context
+            Context context = getApplicationContext();
 
+            //Initializes board object
+            b = new Board(context, "easy",
+                new Consumer<ArrayList<ArrayList<Integer>>>() {
+                    @Override
+                    public void accept(ArrayList<ArrayList<Integer>> boardArray) {
+                        FillViews(boardArray);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }
+            );
             SetBoardRunnables();
+            setScreenAdaptation(context);
         } catch (ClassCastException e){
             finish();
             int duration = Toast.LENGTH_SHORT;
@@ -107,7 +120,7 @@ public class BoardActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.board_settings_menu, menu);
         highlight_opt = menu.findItem(R.id.board_action_setting_HEC);
-        /*dk_mode = menu.findItem(R.id.board_action_setting_DKM);*/
+        dk_mode = menu.findItem(R.id.board_action_setting_DKM);
         return true;
     }
 
@@ -131,7 +144,7 @@ public class BoardActivity extends AppCompatActivity {
                     ToogleHighlight();
                     return true;
                 }
-            /*case R.id.board_action_setting_DKM:
+            case R.id.board_action_setting_DKM:
                 if(item.isChecked()) {
                     item.setChecked(false);
                     Toggle_darkmode();
@@ -141,19 +154,14 @@ public class BoardActivity extends AppCompatActivity {
                     item.setChecked(true);
                     Toggle_darkmode();
                     return true;
-                }*/
+                }
         }
         return super.onOptionsItemSelected(item);
     }
 
     public void onClick(View t) {
-        if(selected_cell!=null) {
-            ArrayList<Object> data = new ArrayList<>();
-            data.add(getInnerBoxIndex()); //f_index
-            data.add(getCellIndex()); //cell_i
-            data.add(getBtnValue(t)); //value
-            b.insertNum(data);
-        }
+        if(selected_cell!=null)
+            b.insertNum(getInnerBoxIndex(),getCellIndex(),getBtnValue(t));
         else {
             Toast.makeText(this, "Please select a cell!",
                     Toast.LENGTH_SHORT).show();
@@ -204,6 +212,9 @@ public class BoardActivity extends AppCompatActivity {
         //FillViews();
     }
 
+    public void onRestart(){
+        super.onRestart();
+    }
 
     private void FillViews(ArrayList<ArrayList<Integer>> boardArray) {
         for (int i = 0; i < boardArray.size(); i++)
@@ -213,15 +224,58 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void Toggle_darkmode() {
+        GridLayout gl = findViewById(R.id.Board_activity);
+        int default_color = ResourcesCompat.getColor(getResources(),R.color.white,null);
+        int dark_color_background = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
+        Drawable default_color_kbd = getDrawable( R.drawable.keyboard_background);
+        Drawable dark_color_background_kbd = getDrawable( R.drawable.keyboard_background_dark);
+        if(dk_mode.isChecked()){
+            gl.setBackgroundColor(dark_color_background);
+            NubPadBackground.setBackground(dark_color_background_kbd);
+        }
+        else{
+            gl.setBackgroundColor(default_color);
+            NubPadBackground.setBackground(default_color_kbd);
+        }
+        ApplyDarkMode_opt();
+        ToogleHighlight();
+    }
 
+    private void ApplyDarkMode_opt(){
+        for (int i = 0; i < 9; i++) {
+            ArrayList<View> components = ib_frags.get(i).GetViews();
+            for (int j = 0; j < 9; j++)
+                if(dk_mode.isChecked())
+                    if(b.getValuesFromStartBoard(i).get(j) == 0)
+                        if(((EditText)components.get(j)) == selected_cell)
+                            ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_dark_interact));
+                        else
+                            ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_dark));
+                    else {
+                        ((EditText) components.get(j)).setBackground((Drawable) getDrawable(R.drawable.box_back_dark));
+                        ((EditText) components.get(j)).setTextColor(ResourcesCompat.getColor(getResources(), R.color.white, null));
+                    }
+                else{
+                    if(b.getValuesFromStartBoard(i).get(j) == 0)
+                        if(((EditText)components.get(j)) == selected_cell)
+                            ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_interact));
+                        else
+                            ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back));
+                    else {
+                        ((EditText) components.get(j)).setBackground((Drawable) getDrawable(R.drawable.box_back));
+                        ((EditText) components.get(j)).setTextColor(ResourcesCompat.getColor(getResources(), R.color.black, null));
+                    }
+                }
+
+        }
     }
 
     private void ToogleHighlight() {
         ToggleForeground();
-        ApplyHighlight_opt(foreground_unselected,foreground_selected);
+        ApplyHighlight_opt();
     }
 
-    private void ApplyHighlight_opt(int foreground_unselected, int foreground_selected){
+    private void ApplyHighlight_opt(){
         for (int i = 0; i < 9; i++) {
             ArrayList<View> components = ib_frags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
@@ -235,19 +289,156 @@ public class BoardActivity extends AppCompatActivity {
 
     private void ToggleForeground(){
         if(highlight_opt.isChecked()){
-            foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.select_foreground_blue, null);
-            foreground_selected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+            if(!dk_mode.isChecked()) {
+                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.select_foreground_blue, null);
+                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+            }
+            else{
+                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.dk_md_yellow, null);
+                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
+            }
         }
         else{
-            foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.black, null);
-            foreground_selected = ResourcesCompat.getColor(getResources(), R.color.black, null);
+            if(!dk_mode.isChecked()) {
+                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.black, null);
+                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.black, null);
+            }
+            else{
+                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+            }
         }
+    }
+
+    private Drawable updateColorSelect(){
+        Drawable selected;
+        if(dk_mode.isChecked()){
+            selected = getDrawable( R.drawable.box_back_dark_interact);
+        }
+        else{
+            selected = getDrawable( R.drawable.box_back_interact);
+        }
+        return selected;
+    }
+
+    private Drawable updateColorUnselect(){
+        Drawable unselected;
+        if(dk_mode.isChecked()){
+            unselected = getDrawable(R.drawable.box_back_dark);
+        }
+        else{
+            unselected = getDrawable(R.drawable.box_back);
+        }
+        return unselected;
+    }
+
+    public void setScreenAdaptation(Context context){
+        int width = getScreenWidthInDPs(context);
+        int height = getScreenHeightInDPs(context);
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // In landscape
+            setBoardSizeForScreenSize(width,height,true);
+        } else {
+            // In portrait
+            setBoardSizeForScreenSize(width,height,false);
+        }
+    }
+
+    public void setBoardSizeForScreenSize(int width, int height, boolean isLandScape){
+        final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
+        int cell_dimension;
+        if(isLandScape){
+            cell_dimension = (int) ((((height-16)/9)* scale)-(2*scale));
+        }
+        else{
+            cell_dimension = (int) ((((width-(16))/9)* scale)-(2*scale));
+        }
+        for (int i = 0; i < 9; i++)
+            for (int j = 0; j < 9; j++) {
+                EditText editT = (EditText) ib_frags.get(i).GetViews().get(j);
+                ViewGroup.LayoutParams layoutParams = editT.getLayoutParams();
+                layoutParams.width = cell_dimension;
+                layoutParams.height = cell_dimension;
+                editT.setLayoutParams(layoutParams);
+                //((EditText) ib_frags.get(i).GetViews().get(j)).setLayoutParams(layoutParams);
+            }
+    }
+
+    public static int getScreenWidthInDPs(Context context){
+        /*
+            DisplayMetrics
+                A structure describing general information about a display,
+                such as its size, density, and font scaling.
+        */
+        DisplayMetrics dm = new DisplayMetrics();
+
+        /*
+            WindowManager
+                The interface that apps use to talk to the window manager.
+                Use Context.getSystemService(Context.WINDOW_SERVICE) to get one of these.
+        */
+
+        /*
+            public abstract Object getSystemService (String name)
+                Return the handle to a system-level service by name. The class of the returned
+                object varies by the requested name. Currently available names are:
+
+                WINDOW_SERVICE ("window")
+                    The top-level window manager in which you can place custom windows.
+                    The returned object is a WindowManager.
+        */
+
+        /*
+            public abstract Display getDefaultDisplay ()
+
+                Returns the Display upon which this WindowManager instance will create new windows.
+
+                Returns
+                The display that this window manager is managing.
+        */
+
+        /*
+            public void getMetrics (DisplayMetrics outMetrics)
+                Gets display metrics that describe the size and density of this display.
+                The size is adjusted based on the current rotation of the display.
+
+                Parameters
+                outMetrics A DisplayMetrics object to receive the metrics.
+        */
+        WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(dm);
+        int widthInDP = Math.round(dm.widthPixels / dm.density);
+        return widthInDP;
+    }
+
+    // Custom method to get screen height in dp/dip using Context object
+    public static int getScreenHeightInDPs(Context context){
+        DisplayMetrics dm = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(dm);
+        /*
+            In this example code we converted the float value
+            to nearest whole integer number. But, you can get the actual height in dp
+            by removing the Math.round method. Then, it will return a float value, you should
+            also make the necessary changes.
+        */
+
+        /*
+            public int heightPixels
+                The absolute height of the display in pixels.
+
+            public float density
+             The logical density of the display.
+        */
+        int heightInDP = Math.round(dm.heightPixels / dm.density);
+        return heightInDP;
     }
 
     public void onFocusChange(View t) {
         ToggleForeground();
-        Drawable unselected = getDrawable(R.drawable.box_back);
-        Drawable selected = getDrawable( R.drawable.box_back_interact);
+        Drawable unselected = updateColorUnselect();
+        Drawable selected = updateColorSelect();
         Drawable current = t.getBackground();
         Drawable.ConstantState constantStateDrawableA = unselected.getConstantState();
         Drawable.ConstantState constantStateDrawableB = current.getConstantState();
@@ -259,7 +450,7 @@ public class BoardActivity extends AppCompatActivity {
             else if(selected_cell != (EditText)t) {
                 selected_cell.setBackground(unselected);
                 selected_cell.setTextColor(foreground_unselected);
-                selected_cell = (EditText)t;
+                selected_cell = (EditText) t;
             }
             selected_cell.setTextColor(foreground_selected);
             t.setBackground(selected);
