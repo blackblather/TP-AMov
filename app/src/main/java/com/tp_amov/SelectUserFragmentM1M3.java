@@ -41,6 +41,8 @@ public class SelectUserFragmentM1M3 extends Fragment {
         btn_start_m1m3.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                //if( mode == 1) -> go to board activity
+                //else if (mode == 3) -> go to lobby activity
                 Intent intent = new Intent(getContext(), BoardActivity.class);
 
                 EditText usernameTxt = finalView.findViewById(R.id.txt_username);
