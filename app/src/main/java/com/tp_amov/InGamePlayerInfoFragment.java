@@ -19,7 +19,7 @@ public class InGamePlayerInfoFragment extends Fragment {
             this.imgPath = imgPath;
         }
 
-        public String getUsername() {
+        String getUsername() {
             return username;
         }
 
