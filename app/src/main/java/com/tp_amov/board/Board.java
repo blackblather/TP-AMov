@@ -16,6 +16,10 @@ import java.util.*;
 
 public class Board
 {
+    private enum RequestType{
+        insertNumber,
+        validateSolution
+    }
     private class InnerBoard {
         //Cria array inicializado com zeros
         private ArrayList<Integer> values = new ArrayList<>(Collections.nCopies(9, 0));
@@ -74,7 +78,8 @@ public class Board
         for (int i = 0; i < 9; i++)
             innerBoards.add(new InnerBoard());
         this.boardEvents = boardEvents;
-        GetOnlineBoard(context, difficulty);
+        this.queue = Volley.newRequestQueue(context);
+        GetOnlineBoard(difficulty);
     }
 
     private void InitBoard(JSONObject jsonObject) throws JSONException {
@@ -92,10 +97,9 @@ public class Board
 
     //------------> Network
 
-    private void GetOnlineBoard(Context context, String difficulty) {
+    private void GetOnlineBoard(String difficulty) {
         String urlGET = new String(url + "board?difficulty=" + difficulty);
 
-        queue = Volley.newRequestQueue(context);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, urlGET, null,
             new Response.Listener<JSONObject>() {
                 @Override
@@ -119,7 +123,7 @@ public class Board
         queue.add(jsonObjectRequest);
     }
 
-    public void GetOnlineSolvedBoard(){
+    private void GetOnlineSolvedBoard(final RequestType requestType){
 
         String urlPOST = new String(url + "solve");
 
@@ -130,14 +134,18 @@ public class Board
                         // Display the first 500 characters of the response string.
                         try {
                             JSONObject resp = new JSONObject(response);
+                            switch (requestType){
+                                case insertNumber: InsertNumberResponse(resp); break;
+                                case validateSolution: ValidateResponse(resp); break;
+                            }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-            }
+            public void onErrorResponse(VolleyError error) { }
         }) {
             @Override
             public byte[] getBody() throws AuthFailureError {
@@ -146,7 +154,6 @@ public class Board
                     return URLEncodedBoard.getBytes();
                 return "".getBytes();
             }
-
 
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -159,15 +166,31 @@ public class Board
         queue.add(stringRequest);
     }
 
+    private void InsertNumberResponse(JSONObject jsonResp){
+        try {
+            String resp = jsonResp.getString("status");
+            if(resp.equals("unsolved") || resp.equals("solved"))
+                boardEvents.onInsertValidNumber.run();
+            else
+                boardEvents.onInsertInvalidNumber.run();
+        } catch (JSONException e) {
+            boardEvents.onInsertInvalidNumber.run();
+        }
+    }
+
+    private void ValidateResponse(JSONObject jsonResp){
+        try {
+            String resp = jsonResp.getString("status");
+            if(resp.equals("solved"))
+                boardEvents.onBoardSolved.run();
+            else
+                boardEvents.onBoardUnsolved.run();
+        } catch (JSONException e) {
+            boardEvents.onBoardUnsolved.run();
+        }
+    }
+
     //------------> Getters
-
-    public InnerBoard getIB(int inner_board_index) {
-        return innerBoards.get(inner_board_index);
-    }
-
-    public ArrayList<Integer> getValuesFromBoard(int index) {
-        return innerBoards.get(index).values;
-    }
 
     public ArrayList<Integer> getValuesFromStartBoard(int index) {
         return startInnerBoards.get(index).values;
@@ -177,15 +200,19 @@ public class Board
         return this.getValuesFromStartBoard(ib_index).get(cell) == 0;
     }
 
-    //------------> Setters
+    //------------> Validations
 
-    public void insertNum(Integer innerboard_index,Integer cell_index,Integer value) {
+    public void InsertNumber(Integer innerboard_index, Integer cell_index, Integer value) {
         innerBoards.get(innerboard_index).InsertNum(cell_index,value);
-        //TODO: Validation
-        boardEvents.onInsertValidNumber.run(innerboard_index, cell_index, value);
+        GetOnlineSolvedBoard(RequestType.insertNumber);
+    }
+
+    public void ValidateSolution(){
+        GetOnlineSolvedBoard(RequestType.validateSolution);
     }
 
     //------------> Converters
+
     @NonNull
     @Override
     public String toString(){
