@@ -1,18 +1,16 @@
 package com.tp_amov.board;
 
 import androidx.core.util.Consumer;
-import com.tp_amov.RunnableWithObjList;
 
 import java.util.ArrayList;
 
 public class BoardEvents {
-    RunnableWithObjList onInsertValidNumber;
-    Runnable onInsertInvalidNumber, onBoardCreationError, onGameFinished;
+    Runnable onInsertValidNumber, onInsertInvalidNumber, onBoardCreationError, onBoardSolved, onBoardUnsolved;
     Consumer<ArrayList<ArrayList<Integer>>> onBoardCreationSuccess;
 
     public BoardEvents(){ }
 
-    public void setOnInsertValidNumber(RunnableWithObjList onInsertValidNumber) {
+    public void setOnInsertValidNumber(Runnable onInsertValidNumber) {
         this.onInsertValidNumber = onInsertValidNumber;
     }
     public void setOnInsertInvalidNumber(Runnable onInsertInvalidNumber) {
@@ -24,7 +22,10 @@ public class BoardEvents {
     public void setOnBoardCreationSuccess(Consumer<ArrayList<ArrayList<Integer>>> onBoardCreationSuccess) {
         this.onBoardCreationSuccess = onBoardCreationSuccess;
     }
-    public void setOnGameFinished(Runnable onGameFinished) {
-        this.onGameFinished = onGameFinished;
+    public void setOnBoardSolved(Runnable onBoardSolved) {
+        this.onBoardSolved = onBoardSolved;
+    }
+    public void setOnBoardUnsolved(Runnable onBoardUnsolved) {
+        this.onBoardUnsolved = onBoardUnsolved;
     }
 }
