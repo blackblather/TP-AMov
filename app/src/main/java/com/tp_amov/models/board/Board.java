@@ -46,10 +46,14 @@ public class Board {
     }
 
     public ArrayList<ArrayList<Integer>> toArray(Element.Type... types){
-        ArrayList<ArrayList<Integer>> boardArray = new ArrayList<>();
-        for (InnerBoard innerBoard : innerBoards)
-            boardArray.add(innerBoard.toArray(types));
-        return boardArray;
+        if(types.length == 0)
+            return toArray();
+        else {
+            ArrayList<ArrayList<Integer>> boardArray = new ArrayList<>();
+            for (InnerBoard innerBoard : innerBoards)
+                boardArray.add(innerBoard.toArray(types));
+            return boardArray;
+        }
     }
 
     private JSONObject toJSONObject() {

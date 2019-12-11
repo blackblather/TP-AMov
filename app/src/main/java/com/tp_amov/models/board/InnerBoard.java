@@ -44,7 +44,7 @@ public class InnerBoard {
 
 //------------> Converters
 
-    ArrayList<Integer> toArray(){
+    private ArrayList<Integer> toArray(){
         ArrayList<Integer> elementsValues = new ArrayList<>(Collections.nCopies(elements.size(), 0));
 
         for (int i = 0; i < elements.size(); i++)
@@ -54,14 +54,18 @@ public class InnerBoard {
     }
 
     public ArrayList<Integer> toArray(Element.Type... types){
-        List<Element.Type> typesList = Arrays.asList(types);
-        ArrayList<Integer> elementsValues = new ArrayList<>(Collections.nCopies(elements.size(), 0));
+        if(types.length == 0)
+            return toArray();
+        else{
+            List<Element.Type> typesList = Arrays.asList(types);
+            ArrayList<Integer> elementsValues = new ArrayList<>(Collections.nCopies(elements.size(), 0));
 
-        for (int i = 0; i < elements.size(); i++) {
-            if(typesList.contains(elements.get(i).GetType()))
-                elementsValues.set(i, GetElement(i).GetValue());
+            for (int i = 0; i < elements.size(); i++) {
+                if(typesList.contains(elements.get(i).GetType()))
+                    elementsValues.set(i, GetElement(i).GetValue());
+            }
+            return elementsValues;
         }
-        return elementsValues;
     }
 
 }
