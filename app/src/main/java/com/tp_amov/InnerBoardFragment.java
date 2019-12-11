@@ -35,6 +35,7 @@ public class InnerBoardFragment extends Fragment {
         String[]f_id = f_tag.split("InnerBoard_");
         int index_f = Integer.parseInt(f_id[1]);
         InnerBoardFragment ibf = (InnerBoardFragment)this;
+        ibf.setRetainInstance(true);
         ((BoardActivity)this.getActivity()).ib_frags.add(index_f-1,ibf);
         ViewGroup rootView = (ViewGroup) getView();
         int childViewCount = rootView.getChildCount();

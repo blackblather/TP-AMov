@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
 import android.widget.LinearLayout;
 
 public class BoardKeyboardFragment extends Fragment {
@@ -23,7 +24,7 @@ public class BoardKeyboardFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         /*((BoardActivity)this.getActivity()).ib_frags.add(index_f-1,ibf);*/
         ViewGroup rootView = (ViewGroup) getView();
-        ((BoardActivity)this.getActivity()).NubPadBackground = (LinearLayout) rootView;
+        ((BoardActivity)this.getActivity()).NubPadBackground = (GridLayout) rootView;
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

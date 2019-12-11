@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.DisplayMetrics;
 import android.view.*;
 import android.widget.*;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
@@ -15,11 +18,15 @@ import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.tp_amov.board.Board;
 import com.tp_amov.board.BoardEvents;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class BoardActivity extends AppCompatActivity {
     private Board b;
@@ -31,7 +38,7 @@ public class BoardActivity extends AppCompatActivity {
 
     private BoardEvents boardEvents;
 
-    LinearLayout NubPadBackground;
+    GridLayout NubPadBackground;
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
@@ -77,6 +84,8 @@ public class BoardActivity extends AppCompatActivity {
             toolbar = (Toolbar) findViewById(R.id.my_toolbar);
             setSupportActionBar(toolbar);
 
+
+
             //Get intent
             Intent intent = getIntent();
 
@@ -89,7 +98,7 @@ public class BoardActivity extends AppCompatActivity {
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
             //Gets new fragment instance by sending it the chosen usernames + imgPaths
-            Fragment fragment = InGamePlayerInfoFragment.newInstance(usernames, imgPaths);
+            Fragment fragment = InGamePlayerInfoFragment.newInstance(new ArrayList<>(Arrays.asList("B")), imgPaths);
 
             //Adds fragment to activity
             fragmentTransaction.add(R.id.Board_activity, fragment);
@@ -98,13 +107,17 @@ public class BoardActivity extends AppCompatActivity {
             //Get application context
             Context context = getApplicationContext();
 
-            SetBoardRunnables();
-
             //Initializes board object
-            b = new Board(context, "easy", boardEvents);
 
+            if(savedInstanceState == null) {
+                SetBoardRunnables();
+                b = new Board(context, "easy", boardEvents);
+            }else{
+                /*b = ViewModelProviders.of(this).get(Board.class);*/
+                //b = (Board)savedInstanceState.getSerializable("board");
+            }
             setScreenAdaptation(context);
-        } catch (ClassCastException e){
+        } catch (ClassCastException e) {
             finish();
             int duration = Toast.LENGTH_SHORT;
 
@@ -212,6 +225,15 @@ public class BoardActivity extends AppCompatActivity {
 
     public void onRestart(){
         super.onRestart();
+        Toggle_darkmode();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //DATA TO SAVE
+
+        //SAVE
+        super.onSaveInstanceState(outState);
     }
 
     private void FillViews(ArrayList<ArrayList<Integer>> boardArray) {
@@ -222,7 +244,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void Toggle_darkmode() {
-        GridLayout gl = findViewById(R.id.Board_activity);
+        androidx.gridlayout.widget.GridLayout gl = findViewById(R.id.Board_activity);
         int default_color = ResourcesCompat.getColor(getResources(),R.color.white,null);
         int dark_color_background = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
         Drawable default_color_kbd = getDrawable( R.drawable.keyboard_background);
@@ -336,18 +358,19 @@ public class BoardActivity extends AppCompatActivity {
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // In landscape
-            setBoardSizeForScreenSize(width,height,true);
+            setBoardSizeForScreenSize(width,height,true, context);
         } else {
             // In portrait
-            setBoardSizeForScreenSize(width,height,false);
+            setBoardSizeForScreenSize(width,height,false, context);
         }
     }
 
-    public void setBoardSizeForScreenSize(int width, int height, boolean isLandScape){
+    public void setBoardSizeForScreenSize(int width, int height, boolean isLandScape,Context context){
         final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
         int cell_dimension;
         if(isLandScape){
-            cell_dimension = (int) ((((height-16)/9)* scale)-(2*scale));
+            ViewGroup.LayoutParams tb_size = toolbar.getLayoutParams();
+            cell_dimension = (int) (((((height-convertPixelsToDp(tb_size.height,context))-16)/9)* scale)-(5*scale));
         }
         else{
             cell_dimension = (int) ((((width-(16))/9)* scale)-(2*scale));
@@ -361,6 +384,14 @@ public class BoardActivity extends AppCompatActivity {
                 editT.setLayoutParams(layoutParams);
                 //((EditText) ib_frags.get(i).GetViews().get(j)).setLayoutParams(layoutParams);
             }
+    }
+
+    public static float convertDpToPixel(float dp, Context context){
+        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    public static float convertPixelsToDp(float px, Context context){
+        return px / ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
     public static int getScreenWidthInDPs(Context context){
@@ -461,4 +492,5 @@ public class BoardActivity extends AppCompatActivity {
             t.setBackground(unselected);
         }
     }
+
 }
