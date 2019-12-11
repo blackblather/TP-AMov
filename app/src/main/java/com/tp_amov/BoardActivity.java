@@ -15,19 +15,24 @@ import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import com.tp_amov.board.Board;
-import com.tp_amov.board.BoardEvents;
+import androidx.lifecycle.ViewModelProviders;
+import com.tp_amov.controllers.board.BoardController;
+import com.tp_amov.controllers.board.BoardControllerFactory;
+import com.tp_amov.events.board.BoardEvents;
+import com.tp_amov.models.board.BoardPosition;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class BoardActivity extends AppCompatActivity {
-    private Board b;
+
+    private BoardController b;
     private EditText selected_cell;
     private Toolbar toolbar;
     private MenuItem highlight_opt;
     private MenuItem dk_mode;
     private int foreground_unselected,foreground_selected;
+    private int selectedValue=0;
 
     private BoardEvents boardEvents;
 
@@ -35,11 +40,10 @@ public class BoardActivity extends AppCompatActivity {
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
-        boardEvents.setOnInsertValidNumber(new RunnableWithObjList() {
+        boardEvents.setOnInsertValidNumber(new Runnable() {
             @Override
-            public void run(Integer innerboard_index, Integer cell_index, Integer value) {
-                if(b.IsCellEditable(innerboard_index, cell_index))
-                    selected_cell.setText(value.toString());
+            public void run() {
+                selected_cell.setText(Integer.toString(selectedValue));
             }
         });
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
@@ -60,7 +64,7 @@ public class BoardActivity extends AppCompatActivity {
                 FillViews(arrayLists);
             }
         });
-        boardEvents.setOnGameFinished(new Runnable() {
+        boardEvents.setOnBoardSolved(new Runnable() {
             @Override
             public void run() {
                 //TODO
@@ -98,11 +102,13 @@ public class BoardActivity extends AppCompatActivity {
             //Get application context
             Context context = getApplicationContext();
 
-            SetBoardRunnables();
-
             //Initializes board object
-            b = new Board(context, "easy", boardEvents);
+            //OLD: b = new BoardController();
 
+            SetBoardRunnables();
+            BoardControllerFactory boardFactory = new BoardControllerFactory(context, "hard", boardEvents);
+            b = ViewModelProviders.of(this,boardFactory).get(BoardController.class);
+            b.InitializeBoard();
             setScreenAdaptation(context);
         } catch (ClassCastException e){
             finish();
@@ -158,8 +164,10 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onClick(View t) {
-        if(selected_cell!=null)
-            b.insertNum(getInnerBoxIndex(),getCellIndex(),getBtnValue(t));
+        if(selected_cell!=null){
+            selectedValue = getBtnValue(t);
+            b.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),selectedValue));
+        }
         else {
             Toast.makeText(this, "Please select a cell!",
                     Toast.LENGTH_SHORT).show();
@@ -244,7 +252,7 @@ public class BoardActivity extends AppCompatActivity {
             ArrayList<View> components = ib_frags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
                 if(dk_mode.isChecked())
-                    if(b.getValuesFromStartBoard(i).get(j) == 0)
+                    if(b.GetValuesFromStartBoard(i).get(j) == 0)
                         if(((EditText)components.get(j)) == selected_cell)
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_dark_interact));
                         else
@@ -254,7 +262,7 @@ public class BoardActivity extends AppCompatActivity {
                         ((EditText) components.get(j)).setTextColor(ResourcesCompat.getColor(getResources(), R.color.white, null));
                     }
                 else{
-                    if(b.getValuesFromStartBoard(i).get(j) == 0)
+                    if(b.GetValuesFromStartBoard(i).get(j) == 0)
                         if(((EditText)components.get(j)) == selected_cell)
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_interact));
                         else
@@ -277,7 +285,7 @@ public class BoardActivity extends AppCompatActivity {
         for (int i = 0; i < 9; i++) {
             ArrayList<View> components = ib_frags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
-                if(b.getValuesFromStartBoard(i).get(j) == 0)
+                if(b.GetValuesFromStartBoard(i).get(j) == 0)
                     if(((EditText)components.get(j)) == selected_cell)
                         ((EditText)components.get(j)).setTextColor(foreground_selected);
                     else
