@@ -1,23 +1,15 @@
 package com.tp_amov;
 
-import android.app.Activity;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class InnerBoardFragment extends Fragment {
@@ -35,6 +27,7 @@ public class InnerBoardFragment extends Fragment {
         String[]f_id = f_tag.split("InnerBoard_");
         int index_f = Integer.parseInt(f_id[1]);
         InnerBoardFragment ibf = (InnerBoardFragment)this;
+        ibf.setRetainInstance(true);
         ((BoardActivity)this.getActivity()).ib_frags.add(index_f-1,ibf);
         ViewGroup rootView = (ViewGroup) getView();
         int childViewCount = rootView.getChildCount();
