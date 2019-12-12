@@ -3,9 +3,7 @@ package com.tp_amov.controllers.board;
 import android.content.Context;
 import androidx.lifecycle.ViewModel;
 import com.android.volley.*;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.android.volley.toolbox.*;
 import com.tp_amov.events.board.BoardEvents;
 import com.tp_amov.models.board.Board;
 import com.tp_amov.models.board.BoardPosition;
@@ -14,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,9 +39,18 @@ public class BoardController extends ViewModel
 
 //------------> Initializers
 
+    static class CustomRequestQueueFactory {
+        static RequestQueue NewSingleThreadRequestQueue(Context context) {
+            File cacheDir = new File(context.getCacheDir(), "volley");
+            RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir), new BasicNetwork(new HurlStack()), 1);
+            queue.start();
+            return queue;
+        }
+    }
+
     public BoardController(Context context, String difficulty, BoardEvents boardEvents) {
         this.boardEvents = boardEvents;
-        this.queue = Volley.newRequestQueue(context);
+        this.queue = CustomRequestQueueFactory.NewSingleThreadRequestQueue(context);
         this.difficulty = difficulty;
     }
 

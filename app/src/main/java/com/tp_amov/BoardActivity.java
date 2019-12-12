@@ -40,12 +40,6 @@ public class BoardActivity extends AppCompatActivity {
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
-        boardEvents.setOnInsertValidNumber(new Runnable() {
-            @Override
-            public void run() {
-                selected_cell.setText(Integer.toString(selectedValue));
-            }
-        });
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
