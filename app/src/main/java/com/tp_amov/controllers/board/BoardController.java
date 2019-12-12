@@ -147,7 +147,8 @@ public class BoardController extends ViewModel
             if(resp.equals("unsolvable") || resp.equals("broken")) {
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),0);
                 boardEvents.getOnInsertInvalidNumber().run();
-            }
+            } else if (resp.equals("unsolved") || resp.equals("solved"))
+                boardEvents.getOnInsertValidNumber().run();
         } catch (JSONException e) {
             boardEvents.getOnInsertInvalidNumber().run();
         }
