@@ -45,7 +45,6 @@ public class BoardActivity extends AppCompatActivity {
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
-
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
