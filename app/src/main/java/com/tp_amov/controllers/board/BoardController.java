@@ -129,9 +129,7 @@ public class BoardController extends ViewModel
     private void InsertNumberResponse(JSONObject jsonResp){
         try {
             String resp = jsonResp.getString("status");
-            if(resp.equals("unsolved") || resp.equals("solved"))
-                boardEvents.getOnInsertValidNumber().run();
-            else
+            if(resp.equals("unsolvable") || resp.equals("broken"))
                 boardEvents.getOnInsertInvalidNumber().run();
         } catch (JSONException e) {
             boardEvents.getOnInsertInvalidNumber().run();
@@ -211,6 +209,7 @@ public class BoardController extends ViewModel
 
     public void InsertNumber(BoardPosition numberInfo) {
         board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
+        //TODO: verificar linha e coluna antes de chamar GetOnlineSolvedBoard(...)
         GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
     }
 

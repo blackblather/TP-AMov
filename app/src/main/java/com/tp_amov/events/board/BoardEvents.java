@@ -6,17 +6,12 @@ import com.tp_amov.models.board.BoardPosition;
 import java.util.ArrayList;
 
 public class BoardEvents {
-    Runnable onInsertValidNumber, onInsertInvalidNumber, onBoardCreationError, onBoardSolved, onBoardUnsolved, onHintLimitReached;
+    Runnable onInsertInvalidNumber, onBoardCreationError, onBoardSolved, onBoardUnsolved, onHintLimitReached;
     Consumer<ArrayList<ArrayList<Integer>>> onBoardCreationSuccess;
     Consumer<BoardPosition> onReceivedHint;
     public BoardEvents(){ }
 
 //------------> Getters
-
-
-    public Runnable getOnInsertValidNumber() {
-        return onInsertValidNumber;
-    }
 
     public Runnable getOnInsertInvalidNumber() {
         return onInsertInvalidNumber;
@@ -47,9 +42,6 @@ public class BoardEvents {
     }
 
     //------------> Setters
-    public void setOnInsertValidNumber(Runnable onInsertValidNumber) {
-        this.onInsertValidNumber = onInsertValidNumber;
-    }
     public void setOnInsertInvalidNumber(Runnable onInsertInvalidNumber) {
         this.onInsertInvalidNumber = onInsertInvalidNumber;
     }
