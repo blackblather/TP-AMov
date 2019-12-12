@@ -37,28 +37,17 @@ public class InnerBoard {
 
 //------------> Converters
 
-    private ArrayList<Integer> toArray(){
+    public ArrayList<Integer> toArray(Element.Type... types){
+        List<Element.Type> typesList = Arrays.asList(types);
         ArrayList<Integer> elementsValues = new ArrayList<>(Collections.nCopies(elements.size(), 0));
 
-        for (int i = 0; i < elements.size(); i++)
-            elementsValues.set(i, GetElement(i).GetValue());
-
-        return elementsValues;
-    }
-
-    public ArrayList<Integer> toArray(Element.Type... types){
-        if(types.length == 0)
-            return toArray();
-        else{
-            List<Element.Type> typesList = Arrays.asList(types);
-            ArrayList<Integer> elementsValues = new ArrayList<>(Collections.nCopies(elements.size(), 0));
-
-            for (int i = 0; i < elements.size(); i++) {
-                if(typesList.contains(elements.get(i).GetType()))
-                    elementsValues.set(i, GetElement(i).GetValue());
-            }
-            return elementsValues;
+        for (int i = 0; i < elements.size(); i++) {
+            if(typesList.size() == 0)
+                elementsValues.set(i, GetElement(i).GetValue());
+            else
+                elementsValues.set(i, (typesList.contains(GetElement(i).GetType())?GetElement(i).GetValue():0));
         }
+        return elementsValues;
     }
 
 }

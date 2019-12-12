@@ -7,6 +7,8 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Board {
 //Control vars
@@ -14,25 +16,15 @@ public class Board {
 
 //------------> Initializers
 
-    private InnerBoard getInnerBoardFromJSONArray(JSONArray jsonInnerBoards, int innerBoardIndex) throws JSONException {
-        ArrayList<Integer> defaultValues = new ArrayList<>();
-
-        int startRow = (innerBoardIndex / 3)*3; //!!!DIVISION BY INTEGER!!!
-        int startCol = (innerBoardIndex % 3)*3;
-        for(int row = startRow; row < startRow + 3; row++)
-            for(int col = startCol; col < startCol + 3; col++)
-                defaultValues.add(jsonInnerBoards.getJSONArray(row).getInt(col));
-
-        return new InnerBoard(defaultValues);
-    }
-
     public Board(JSONObject jsonBoard) throws JSONException {
         JSONArray jsonInnerBoards = jsonBoard.getJSONArray("board");
         for (int i = 0; i < 9; i++)
-            innerBoards.add(getInnerBoardFromJSONArray(jsonInnerBoards, i));
-
+            innerBoards.add(InnerBoardFromJSONArray(jsonInnerBoards, i));
+        String tmp = toJSONArray().toString();
     }
+
 //------------> Getters
+
     public ArrayList<InnerBoard> GetInnerBoards(){
         return innerBoards;
     }
@@ -45,28 +37,54 @@ public class Board {
 
     public String toURLEncodedString(){
         try {
-            return "board=" + URLEncoder.encode(toArray(Element.Type.defaultValue, Element.Type.userValue).toString().replace(" ", ""),"UTF-8");
-        } catch (UnsupportedEncodingException e) {
+            return "board=" + URLEncoder.encode(toJSONArray(Element.Type.defaultValue, Element.Type.userValue).toString().replace(" ", ""),"UTF-8");
+        } catch (UnsupportedEncodingException | JSONException e) {
             return null;
         }
     }
 
-    private ArrayList<ArrayList<Integer>> toArray(){
+    public ArrayList<ArrayList<Integer>> toArray(Element.Type... types){
         ArrayList<ArrayList<Integer>> boardArray = new ArrayList<>();
         for (InnerBoard innerBoard : innerBoards)
-            boardArray.add(innerBoard.toArray());
+            boardArray.add(innerBoard.toArray(types));
         return boardArray;
     }
 
-    public ArrayList<ArrayList<Integer>> toArray(Element.Type... types){
-        if(types.length == 0)
-            return toArray();
-        else {
-            ArrayList<ArrayList<Integer>> boardArray = new ArrayList<>();
-            for (InnerBoard innerBoard : innerBoards)
-                boardArray.add(innerBoard.toArray(types));
-            return boardArray;
-        }
+    private InnerBoard InnerBoardFromJSONArray(JSONArray jsonInnerBoards, int innerBoardIndex) throws JSONException {
+        ArrayList<Integer> defaultValues = new ArrayList<>();
+
+        int startRow = (innerBoardIndex / 3)*3; //!!!DIVISION BY INTEGER!!!
+        int startCol = (innerBoardIndex % 3)*3;
+        for(int row = startRow; row < startRow + 3; row++)
+            for(int col = startCol; col < startCol + 3; col++)
+                defaultValues.add(jsonInnerBoards.getJSONArray(row).getInt(col));
+
+        return new InnerBoard(defaultValues);
+    }
+
+    private JSONArray JSONArrayRowFromInnerBoards(int rowIndex, Element.Type... types) throws JSONException {
+        JSONArray jsonArrayRow = new JSONArray();
+        List<Element.Type> typesList = Arrays.asList(types);
+
+        int startInnerBoardIndex = (rowIndex / 3)*3; //!!!DIVISION BY INTEGER!!!
+        int startElementIndex = (rowIndex % 3)*3;
+        for(int innerBoardIndex = startInnerBoardIndex; innerBoardIndex < startInnerBoardIndex + 3; innerBoardIndex++)
+            for(int elementIndex = startElementIndex; elementIndex < startElementIndex + 3; elementIndex++) {
+                if(typesList.size() == 0)
+                    jsonArrayRow.put(innerBoards.get(innerBoardIndex).GetElement(elementIndex).GetValue());
+                else {
+                    Element element = innerBoards.get(innerBoardIndex).GetElement(elementIndex);
+                    jsonArrayRow.put(typesList.contains(element.GetType())?element.GetValue():0);
+                }
+            }
+        return jsonArrayRow;
+    }
+
+    private JSONArray toJSONArray(Element.Type... types) throws JSONException {
+        JSONArray jsonInnerBoards = new JSONArray();
+        for (int row = 0; row < 9; row++)
+            jsonInnerBoards.put((Object) JSONArrayRowFromInnerBoards(row, types));
+        return jsonInnerBoards;
     }
 
     private JSONObject toJSONObject() {
