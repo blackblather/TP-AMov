@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.gridlayout.widget.GridLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:rowCount="3"
+    app:columnCount="2"
+    android:id="@+id/Board_activity"
+    tools:context=".BoardActivity">
+
+    <fragment android:name="com.tp_amov.ToolbarFragment"
+        app:layout_rowSpan="1"
+        app:layout_columnSpan="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar_fragment"/>
+
+    <!-- FRAGMENTS GO HERE (ROW 1, COL 0) (INSERTED PROGRAMMATICALLY)-->
+
+    <fragment
+        android:id="@+id/Board"
+        android:name="com.tp_amov.BoardFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_row="1"
+        app:layout_rowSpan="2"
+        app:layout_column="0"
+        app:layout_gravity="left"
+        android:layout_margin="10dp" />
+
+    <fragment
+        android:id="@+id/frag_num_kbd"
+        android:name="com.tp_amov.BoardKeyboardFragment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_row="2"
+        app:layout_column="1"
+        app:layout_gravity="fill_horizontal|center_horizontal|bottom"
+        android:layout_marginBottom="12dp"/>
+
+</androidx.gridlayout.widget.GridLayout>

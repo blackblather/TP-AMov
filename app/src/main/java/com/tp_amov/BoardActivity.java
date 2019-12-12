@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.*;
 import android.widget.*;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
@@ -23,33 +25,39 @@ import com.tp_amov.models.board.BoardPosition;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 public class BoardActivity extends AppCompatActivity {
 
-    private BoardController b;
+    private Bundle temp;
+    private BoardController boardController;
     private EditText selected_cell;
     private Toolbar toolbar;
+    private Menu optionsMenu;
     private MenuItem highlight_opt;
     private MenuItem dk_mode;
     private int foreground_unselected,foreground_selected;
-    private int selectedValue=0;
 
     private BoardEvents boardEvents;
 
-    LinearLayout NubPadBackground;
+    GridLayout NubPadBackground;
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
-        boardEvents.setOnInsertValidNumber(new Runnable() {
-            @Override
-            public void run() {
-                selected_cell.setText(Integer.toString(selectedValue));
-            }
-        });
+
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
-                //TODO
+                selected_cell.setBackground(getColorInvalid());
+                new AsyncInvalidNumberTimer().execute();
+            }
+        });
+        boardEvents.setOnPostInsertInvalidNumber(new Runnable() {
+            @Override
+            public void run() {
+                selected_cell.setText("");
+                selected_cell.setBackground(getColorSelect());
             }
         });
         boardEvents.setOnBoardCreationError(new Runnable() {
@@ -93,7 +101,7 @@ public class BoardActivity extends AppCompatActivity {
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
             //Gets new fragment instance by sending it the chosen usernames + imgPaths
-            Fragment fragment = InGamePlayerInfoFragment.newInstance(usernames, imgPaths);
+            Fragment fragment = InGamePlayerInfoFragment.newInstance(new ArrayList<>(Arrays.asList("B")), imgPaths);
 
             //Adds fragment to activity
             fragmentTransaction.add(R.id.Board_activity, fragment);
@@ -103,14 +111,15 @@ public class BoardActivity extends AppCompatActivity {
             Context context = getApplicationContext();
 
             //Initializes board object
-            //OLD: b = new BoardController();
+            //OLD: boardController = new BoardController();
 
             SetBoardRunnables();
-            BoardControllerFactory boardFactory = new BoardControllerFactory(context, "hard", boardEvents);
-            b = ViewModelProviders.of(this,boardFactory).get(BoardController.class);
-            b.InitializeBoard();
+            BoardControllerFactory boardFactory = new BoardControllerFactory(context, "easy", boardEvents);
+            boardController = ViewModelProviders.of(this,boardFactory).get(BoardController.class);
+            boardController.InitializeBoard();
+            temp = savedInstanceState;
             setScreenAdaptation(context);
-        } catch (ClassCastException e){
+        } catch (ClassCastException e) {
             finish();
             int duration = Toast.LENGTH_SHORT;
 
@@ -123,8 +132,14 @@ public class BoardActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.board_settings_menu, menu);
+        optionsMenu = menu;
         highlight_opt = menu.findItem(R.id.board_action_setting_HEC);
         dk_mode = menu.findItem(R.id.board_action_setting_DKM);
+        if(temp != null) {
+            highlight_opt.setChecked((boolean) temp.getBoolean("Highlight", true));
+            dk_mode.setChecked((boolean) temp.getBoolean("Dark_mode", false));
+            Toggle_darkmode();
+        }
         return true;
     }
 
@@ -165,8 +180,8 @@ public class BoardActivity extends AppCompatActivity {
 
     public void onClick(View t) {
         if(selected_cell!=null){
-            selectedValue = getBtnValue(t);
-            b.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),selectedValue));
+            selected_cell.setText(Integer.toString(getBtnValue(t)));
+            boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),getBtnValue(t)));
         }
         else {
             Toast.makeText(this, "Please select a cell!",
@@ -222,15 +237,24 @@ public class BoardActivity extends AppCompatActivity {
         super.onRestart();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //DATA TO SAVE
+        outState.putBoolean("Highlight", highlight_opt.isChecked());
+        outState.putBoolean("Dark_mode", dk_mode.isChecked());
+        //SAVE
+        super.onSaveInstanceState(outState);
+    }
+
     private void FillViews(ArrayList<ArrayList<Integer>> boardArray) {
         for (int i = 0; i < boardArray.size(); i++)
             for (int j = 0; j < boardArray.get(i).size(); j++)
-                if(!b.IsCellEditable(i,j))
+                if(!boardController.IsCellEditable(i,j))
                     ib_frags.get(i).UpdateValue(j, boardArray.get(i).get(j));
     }
 
     public void Toggle_darkmode() {
-        GridLayout gl = findViewById(R.id.Board_activity);
+        androidx.gridlayout.widget.GridLayout gl = findViewById(R.id.Board_activity);
         int default_color = ResourcesCompat.getColor(getResources(),R.color.white,null);
         int dark_color_background = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
         Drawable default_color_kbd = getDrawable( R.drawable.keyboard_background);
@@ -252,7 +276,7 @@ public class BoardActivity extends AppCompatActivity {
             ArrayList<View> components = ib_frags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
                 if(dk_mode.isChecked())
-                    if(b.GetValuesFromStartBoard(i).get(j) == 0)
+                    if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
                         if(((EditText)components.get(j)) == selected_cell)
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_dark_interact));
                         else
@@ -262,7 +286,7 @@ public class BoardActivity extends AppCompatActivity {
                         ((EditText) components.get(j)).setTextColor(ResourcesCompat.getColor(getResources(), R.color.white, null));
                     }
                 else{
-                    if(b.GetValuesFromStartBoard(i).get(j) == 0)
+                    if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
                         if(((EditText)components.get(j)) == selected_cell)
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_interact));
                         else
@@ -285,7 +309,7 @@ public class BoardActivity extends AppCompatActivity {
         for (int i = 0; i < 9; i++) {
             ArrayList<View> components = ib_frags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
-                if(b.GetValuesFromStartBoard(i).get(j) == 0)
+                if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
                     if(((EditText)components.get(j)) == selected_cell)
                         ((EditText)components.get(j)).setTextColor(foreground_selected);
                     else
@@ -316,7 +340,7 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    private Drawable updateColorSelect(){
+    public Drawable getColorSelect(){
         Drawable selected;
         if(dk_mode.isChecked()){
             selected = getDrawable( R.drawable.box_back_dark_interact);
@@ -327,7 +351,7 @@ public class BoardActivity extends AppCompatActivity {
         return selected;
     }
 
-    private Drawable updateColorUnselect(){
+    public Drawable getColorUnselect(){
         Drawable unselected;
         if(dk_mode.isChecked()){
             unselected = getDrawable(R.drawable.box_back_dark);
@@ -338,24 +362,31 @@ public class BoardActivity extends AppCompatActivity {
         return unselected;
     }
 
+    public Drawable getColorInvalid(){
+        Drawable invalidNumber;
+        invalidNumber = getDrawable(R.drawable.box_back_invalid_number);
+        return invalidNumber;
+    }
+
     public void setScreenAdaptation(Context context){
         int width = getScreenWidthInDPs(context);
         int height = getScreenHeightInDPs(context);
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // In landscape
-            setBoardSizeForScreenSize(width,height,true);
+            setBoardSizeForScreenSize(width,height,true, context);
         } else {
             // In portrait
-            setBoardSizeForScreenSize(width,height,false);
+            setBoardSizeForScreenSize(width,height,false, context);
         }
     }
 
-    public void setBoardSizeForScreenSize(int width, int height, boolean isLandScape){
+    public void setBoardSizeForScreenSize(int width, int height, boolean isLandScape,Context context){
         final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
         int cell_dimension;
         if(isLandScape){
-            cell_dimension = (int) ((((height-16)/9)* scale)-(2*scale));
+            ViewGroup.LayoutParams tb_size = toolbar.getLayoutParams();
+            cell_dimension = (int) (((((height-convertPixelsToDp(tb_size.height,context))-16)/9)* scale)-(5*scale));
         }
         else{
             cell_dimension = (int) ((((width-(16))/9)* scale)-(2*scale));
@@ -369,6 +400,14 @@ public class BoardActivity extends AppCompatActivity {
                 editT.setLayoutParams(layoutParams);
                 //((EditText) ib_frags.get(i).GetViews().get(j)).setLayoutParams(layoutParams);
             }
+    }
+
+    public static float convertDpToPixel(float dp, Context context){
+        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    public static float convertPixelsToDp(float px, Context context){
+        return px / ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
     public static int getScreenWidthInDPs(Context context){
@@ -443,8 +482,8 @@ public class BoardActivity extends AppCompatActivity {
 
     public void onFocusChange(View t) {
         ToggleForeground();
-        Drawable unselected = updateColorUnselect();
-        Drawable selected = updateColorSelect();
+        Drawable unselected = getColorUnselect();
+        Drawable selected = getColorSelect();
         Drawable current = t.getBackground();
         Drawable.ConstantState constantStateDrawableA = unselected.getConstantState();
         Drawable.ConstantState constantStateDrawableB = current.getConstantState();
@@ -469,4 +508,30 @@ public class BoardActivity extends AppCompatActivity {
             t.setBackground(unselected);
         }
     }
+
+    public void onSubmitBoard(View t) {
+        boardEvents.getOnInsertInvalidNumber().run();
+    }
+
+    private class AsyncInvalidNumberTimer extends AsyncTask<Integer, Integer, Integer> {
+        protected Integer doInBackground(Integer... integers) {
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return 0;
+            }
+            return 1;
+        }
+
+        protected void onPostExecute(Integer result){
+            BoardActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    BoardActivity.this.boardEvents.getOnPostInsertInvalidNumber().run();
+                }
+            });
+        }
+    }
+
 }

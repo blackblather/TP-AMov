@@ -40,4 +40,5 @@ dependencies {
 
     // optional - Test helpers for LiveData
     testImplementation "androidx.arch.core:core-testing:$lifecycle_version"
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
 }

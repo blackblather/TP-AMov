@@ -32,6 +32,7 @@ public class BoardController extends ViewModel
     private Integer hintsLeft = 3;
     private String difficulty;
     private boolean alreadyCreated = false;
+     private BoardPosition numberInfo;
 //Callbacks
     private BoardEvents boardEvents;
 //Network vars
@@ -105,7 +106,9 @@ public class BoardController extends ViewModel
                     }
                 }, new Response.ErrorListener() {
             @Override
-            public void onErrorResponse(VolleyError error) { }
+            public void onErrorResponse(VolleyError error) {
+                System.out.println();
+            }
         }) {
             @Override
             public byte[] getBody() throws AuthFailureError {
@@ -123,14 +126,20 @@ public class BoardController extends ViewModel
             }
         };
 
+        //set  timeout policy
+        int socketTimeout = 300000;//300 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        stringRequest.setRetryPolicy(policy);
         queue.add(stringRequest);
     }
 
     private void InsertNumberResponse(JSONObject jsonResp){
         try {
             String resp = jsonResp.getString("status");
-            if(resp.equals("unsolvable") || resp.equals("broken"))
+            if(resp.equals("unsolvable") || resp.equals("broken")) {
+                board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),0);
                 boardEvents.getOnInsertInvalidNumber().run();
+            }
         } catch (JSONException e) {
             boardEvents.getOnInsertInvalidNumber().run();
         }
@@ -208,6 +217,7 @@ public class BoardController extends ViewModel
 //------------> User Interactions
 
     public void InsertNumber(BoardPosition numberInfo) {
+         this.numberInfo = numberInfo;
         board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
         //TODO: verificar linha e coluna antes de chamar GetOnlineSolvedBoard(...)
         GetOnlineSolvedBoard(NetworkRequestType.insertNumber);

@@ -6,7 +6,7 @@ import com.tp_amov.models.board.BoardPosition;
 import java.util.ArrayList;
 
 public class BoardEvents {
-    Runnable onInsertInvalidNumber, onBoardCreationError, onBoardSolved, onBoardUnsolved, onHintLimitReached;
+    Runnable onInsertInvalidNumber, onPostInsertInvalidNumber, onBoardCreationError, onBoardSolved, onBoardUnsolved, onHintLimitReached;
     Consumer<ArrayList<ArrayList<Integer>>> onBoardCreationSuccess;
     Consumer<BoardPosition> onReceivedHint;
     public BoardEvents(){ }
@@ -16,6 +16,8 @@ public class BoardEvents {
     public Runnable getOnInsertInvalidNumber() {
         return onInsertInvalidNumber;
     }
+
+    public Runnable getOnPostInsertInvalidNumber() { return onPostInsertInvalidNumber; }
 
     public Consumer<ArrayList<ArrayList<Integer>>> getOnBoardCreationSuccess() {
         return onBoardCreationSuccess;
@@ -44,6 +46,9 @@ public class BoardEvents {
     //------------> Setters
     public void setOnInsertInvalidNumber(Runnable onInsertInvalidNumber) {
         this.onInsertInvalidNumber = onInsertInvalidNumber;
+    }
+    public void setOnPostInsertInvalidNumber(Runnable onPostInsertInvalidNumber) {
+        this.onPostInsertInvalidNumber = onPostInsertInvalidNumber;
     }
     public void setOnBoardCreationError(Runnable onBoardCreationError) {
         this.onBoardCreationError = onBoardCreationError;
