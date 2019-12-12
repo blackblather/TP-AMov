@@ -23,28 +23,21 @@ public class InnerBoardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        String f_tag = this.getTag();
-        String[]f_id = f_tag.split("InnerBoard_");
-        int index_f = Integer.parseInt(f_id[1]);
-        InnerBoardFragment ibf = (InnerBoardFragment)this;
-        ibf.setRetainInstance(true);
-        ((BoardActivity)this.getActivity()).ib_frags.add(index_f-1,ibf);
-        ViewGroup rootView = (ViewGroup) getView();
-        int childViewCount = rootView.getChildCount();
-        for (int i=0; i<childViewCount;i++){
-            View childV = rootView.getChildAt(i);
-            try {
-                String id_tag = ((BoardActivity)this.getActivity()).getIDString(childV,R.id.class);
-                if(id_tag.contains("btn_box_m"))
-                {
-                    String[]id = id_tag.split("btn_box_m");
-                    int index_btn = Integer.parseInt(id[1]);
-                    nums.add(index_btn-1,childV);
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+
+        setRetainInstance(true);
+
+        //Register "this" in parent Activity
+        ((BoardActivity)getActivity()).ib_frags.add(this);
+
+        ViewGroup root = (ViewGroup) getView();
+
+        //Get total children (0 if root == null)
+        int childViewCount = root != null ? root.getChildCount() : 0;
+
+        //Add children to ArrayList
+        for (int i = 0; i < childViewCount; i++){
+            View childV = root.getChildAt(i);
+            nums.add(childV);
         }
     }
 
