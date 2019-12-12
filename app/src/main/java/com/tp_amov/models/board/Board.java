@@ -14,10 +14,23 @@ public class Board {
 
 //------------> Initializers
 
+    private InnerBoard getInnerBoardFromJSONArray(JSONArray jsonInnerBoards, int innerBoardIndex) throws JSONException {
+        ArrayList<Integer> defaultValues = new ArrayList<>();
+
+        int startRow = (innerBoardIndex / 3)*3; //!!!DIVISION BY INTEGER!!!
+        int startCol = (innerBoardIndex % 3)*3;
+        for(int row = startRow; row < startRow + 3; row++)
+            for(int col = startCol; col < startCol + 3; col++)
+                defaultValues.add(jsonInnerBoards.getJSONArray(row).getInt(col));
+
+        return new InnerBoard(defaultValues);
+    }
+
     public Board(JSONObject jsonBoard) throws JSONException {
         JSONArray jsonInnerBoards = jsonBoard.getJSONArray("board");
         for (int i = 0; i < 9; i++)
-            innerBoards.add(new InnerBoard(jsonInnerBoards.getJSONArray(i)));
+            innerBoards.add(getInnerBoardFromJSONArray(jsonInnerBoards, i));
+
     }
 //------------> Getters
     public ArrayList<InnerBoard> GetInnerBoards(){

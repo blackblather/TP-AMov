@@ -1,8 +1,5 @@
 package com.tp_amov.models.board;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,15 +11,11 @@ public class InnerBoard {
 
 //------------> Initializers
 
-    InnerBoard(JSONArray elements) {
-        try{
-            int value;
-            for(int i = 0; i < 9; i++) {
-                value = elements.getInt(i);
-                this.elements.add(new Element((value == 0 ? Element.Type.userValue : Element.Type.defaultValue), value));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+    InnerBoard(ArrayList<Integer> defaultValues) {
+        int value;
+        for(int i = 0; i < 9; i++) {
+            value = defaultValues.get(i);
+            this.elements.add(new Element((value == 0 ? Element.Type.userValue : Element.Type.defaultValue), value));
         }
     }
 
