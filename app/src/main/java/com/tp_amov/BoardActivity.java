@@ -155,12 +155,12 @@ public class BoardActivity extends AppCompatActivity {
             case R.id.board_action_setting_HEC:
                 if(item.isChecked()) {
                     item.setChecked(false);
-                    ToogleHighlight();
+                    ToggleHighlight();
                     return false;
                 }
                 else{
                     item.setChecked(true);
-                    ToogleHighlight();
+                    ToggleHighlight();
                     return true;
                 }
             case R.id.board_action_setting_DKM:
@@ -216,7 +216,7 @@ public class BoardActivity extends AppCompatActivity {
         return f_index;
     }
 
-    static String getIDString(View view, Class<?> clazz) throws Exception {
+    public static String getIDString(View view, Class<?> clazz) throws Exception {
         int id = view.getId();
         Field[] ids = clazz.getFields();
         for (Field field : ids) {
@@ -268,7 +268,7 @@ public class BoardActivity extends AppCompatActivity {
             NubPadBackground.setBackground(default_color_kbd);
         }
         ApplyDarkMode_opt();
-        ToogleHighlight();
+        ToggleHighlight();
     }
 
     private void ApplyDarkMode_opt(){
@@ -300,7 +300,7 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    private void ToogleHighlight() {
+    private void ToggleHighlight() {
         ToggleForeground();
         ApplyHighlight_opt();
     }
