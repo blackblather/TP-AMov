@@ -6,7 +6,7 @@ import com.tp_amov.models.board.BoardPosition;
 import java.util.ArrayList;
 
 public class BoardEvents {
-    Runnable onInsertValidNumber, onInsertInvalidNumber, onPostInsertInvalidNumber, onBoardCreationError, onBoardSolved, onBoardUnsolved, onHintLimitReached;
+    Runnable onInsertValidNumber, onInsertInvalidNumber, onBoardCreationError, onBoardSolved, onBoardUnsolved, onHintLimitReached;
     Consumer<ArrayList<ArrayList<Integer>>> onBoardCreationSuccess;
     Consumer<BoardPosition> onReceivedHint;
     public BoardEvents(){ }
@@ -21,8 +21,6 @@ public class BoardEvents {
     public Runnable getOnInsertInvalidNumber() {
         return onInsertInvalidNumber;
     }
-
-    public Runnable getOnPostInsertInvalidNumber() { return onPostInsertInvalidNumber; }
 
     public Consumer<ArrayList<ArrayList<Integer>>> getOnBoardCreationSuccess() {
         return onBoardCreationSuccess;
@@ -58,24 +56,27 @@ public class BoardEvents {
     public void setOnInsertInvalidNumber(Runnable onInsertInvalidNumber) {
         this.onInsertInvalidNumber = onInsertInvalidNumber;
     }
-    public void setOnPostInsertInvalidNumber(Runnable onPostInsertInvalidNumber) {
-        this.onPostInsertInvalidNumber = onPostInsertInvalidNumber;
-    }
+
     public void setOnBoardCreationError(Runnable onBoardCreationError) {
         this.onBoardCreationError = onBoardCreationError;
     }
+
     public void setOnBoardCreationSuccess(Consumer<ArrayList<ArrayList<Integer>>> onBoardCreationSuccess) {
         this.onBoardCreationSuccess = onBoardCreationSuccess;
     }
+
     public void setOnBoardSolved(Runnable onBoardSolved) {
         this.onBoardSolved = onBoardSolved;
     }
+
     public void setOnBoardUnsolved(Runnable onBoardUnsolved) {
         this.onBoardUnsolved = onBoardUnsolved;
     }
+
     public void setOnReceivedHint(Consumer<BoardPosition> onReceivedHint) {
         this.onReceivedHint = onReceivedHint;
     }
+
     public void setOnHintLimitReached(Runnable onHintLimitReached) {
         this.onHintLimitReached = onHintLimitReached;
     }

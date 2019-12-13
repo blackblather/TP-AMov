@@ -8,8 +8,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.*;
-import android.widget.*;
-
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.GridLayout;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
@@ -22,10 +24,12 @@ import com.tp_amov.controllers.board.BoardController;
 import com.tp_amov.controllers.board.BoardControllerFactory;
 import com.tp_amov.events.board.BoardEvents;
 import com.tp_amov.models.board.BoardPosition;
+import com.tp_amov.models.board.EditStackElement;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 public class BoardActivity extends AppCompatActivity {
@@ -39,24 +43,37 @@ public class BoardActivity extends AppCompatActivity {
     private MenuItem dk_mode;
     private int foreground_unselected,foreground_selected;
 
+    private final Object editStackLOCK = new Object();
+    private LinkedList<EditStackElement> editStack = new LinkedList<>();
+
     private BoardEvents boardEvents;
 
     GridLayout NubPadBackground;
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
+        boardEvents.setOnInsertValidNumber(new Runnable() {
+            @Override
+            public void run() {
+                EditStackElement editStackElement = editStack.removeFirst();
+                Drawable color;
+
+                if(selected_cell == editStackElement.getSelectedCell())
+                    color = getColorSelect();
+                else
+                    color = getColorUnselect();
+
+                editStackElement.getSelectedCell().setBackground(color);
+                editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
+            }
+        });
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
-                selected_cell.setBackground(getColorInvalid());
-                new AsyncInvalidNumberTimer().execute();
-            }
-        });
-        boardEvents.setOnPostInsertInvalidNumber(new Runnable() {
-            @Override
-            public void run() {
-                selected_cell.setText("");
-                selected_cell.setBackground(getColorSelect());
+                EditStackElement editStackElement = editStack.removeFirst();
+                editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
+                editStackElement.getSelectedCell().setBackground(getColorInvalid());
+                new AsyncInvalidNumberTimer(editStackElement).execute();
             }
         });
         boardEvents.setOnBoardCreationError(new Runnable() {
@@ -113,7 +130,7 @@ public class BoardActivity extends AppCompatActivity {
             //OLD: boardController = new BoardController();
 
             SetBoardRunnables();
-            BoardControllerFactory boardFactory = new BoardControllerFactory(context, "easy", boardEvents);
+            BoardControllerFactory boardFactory = new BoardControllerFactory(context, "medium", boardEvents);
             boardController = ViewModelProviders.of(this,boardFactory).get(BoardController.class);
             boardController.InitializeBoard();
             temp = savedInstanceState;
@@ -154,12 +171,12 @@ public class BoardActivity extends AppCompatActivity {
             case R.id.board_action_setting_HEC:
                 if(item.isChecked()) {
                     item.setChecked(false);
-                    ToogleHighlight();
+                    ToggleHighlight();
                     return false;
                 }
                 else{
                     item.setChecked(true);
-                    ToogleHighlight();
+                    ToggleHighlight();
                     return true;
                 }
             case R.id.board_action_setting_DKM:
@@ -178,8 +195,8 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onClick(View t) {
-        if(selected_cell!=null){
-            selected_cell.setText(Integer.toString(getBtnValue(t)));
+        if(selected_cell!=null) {
+            editStack.addLast(new EditStackElement(selected_cell, getBtnValue(t)));
             boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),getBtnValue(t)));
         }
         else {
@@ -226,12 +243,6 @@ public class BoardActivity extends AppCompatActivity {
         return "";
     }
 
-    public void onResume() {
-        //After everything is rendered
-        super.onResume();
-        //FillViews();
-    }
-
     public void onRestart(){
         super.onRestart();
     }
@@ -267,7 +278,7 @@ public class BoardActivity extends AppCompatActivity {
             NubPadBackground.setBackground(default_color_kbd);
         }
         ApplyDarkMode_opt();
-        ToogleHighlight();
+        ToggleHighlight();
     }
 
     private void ApplyDarkMode_opt(){
@@ -299,7 +310,7 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    private void ToogleHighlight() {
+    private void ToggleHighlight() {
         ToggleForeground();
         ApplyHighlight_opt();
     }
@@ -513,6 +524,12 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     private class AsyncInvalidNumberTimer extends AsyncTask<Integer, Integer, Integer> {
+        private EditStackElement editStackElement;
+
+        AsyncInvalidNumberTimer(EditStackElement editStackElement){
+            this.editStackElement = editStackElement;
+        }
+
         protected Integer doInBackground(Integer... integers) {
             try {
                 TimeUnit.SECONDS.sleep(2);
@@ -524,10 +541,22 @@ public class BoardActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Integer result){
-            BoardActivity.this.runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    BoardActivity.this.boardEvents.getOnPostInsertInvalidNumber().run();
+                    Drawable color;
+
+                    if(selected_cell == editStackElement.getSelectedCell())
+                        color = getColorSelect();
+                    else
+                        color = getColorUnselect();
+
+                    String oldValueSTR = editStackElement.getSelectedCell().getText().toString();
+                    int currentValue = editStackElement.getSelectedValue();
+                    if(!oldValueSTR.equals("") && Integer.parseInt(oldValueSTR) == currentValue) {
+                        editStackElement.getSelectedCell().setText("");
+                        editStackElement.getSelectedCell().setBackground(color);
+                    }
                 }
             });
         }
