@@ -520,7 +520,7 @@ public class BoardActivity extends AppCompatActivity {
         toast.show();
     }
 
-    private class AsyncInvalidNumberTimer extends AsyncTask<Integer, Integer, Integer> {
+    private class AsyncInvalidNumberTimer extends AsyncTask<Integer, Void, Integer> {
         private EditStack.Element editStackElement;
 
         AsyncInvalidNumberTimer(EditStack.Element editStackElement){
@@ -538,24 +538,19 @@ public class BoardActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Integer result){
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Drawable color;
+            Drawable color;
 
-                    if(selected_cell == editStackElement.getSelectedCell())
-                        color = getColorSelect();
-                    else
-                        color = getColorUnselect();
+            if(selected_cell == editStackElement.getSelectedCell())
+                color = getColorSelect();
+            else
+                color = getColorUnselect();
 
-                    String oldValueSTR = editStackElement.getSelectedCell().getText().toString();
-                    int currentValue = editStackElement.getSelectedValue();
-                    if(!oldValueSTR.equals("") && Integer.parseInt(oldValueSTR) == currentValue) {
-                        editStackElement.getSelectedCell().setText("");
-                        editStackElement.getSelectedCell().setBackground(color);
-                    }
-                }
-            });
+            String oldValueSTR = editStackElement.getSelectedCell().getText().toString();
+            int currentValue = editStackElement.getSelectedValue();
+            if(!oldValueSTR.equals("") && Integer.parseInt(oldValueSTR) == currentValue) {
+                editStackElement.getSelectedCell().setText("");
+                editStackElement.getSelectedCell().setBackground(color);
+            }
         }
     }
 
