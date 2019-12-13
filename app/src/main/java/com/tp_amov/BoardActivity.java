@@ -35,18 +35,18 @@ public class BoardActivity extends AppCompatActivity {
 
     private Bundle savedInstance;
     private BoardController boardController;
-    private EditText selected_cell;
+    private EditText selectedCell;
     private Toolbar toolbar;
-    private MenuItem highlight_opt;
-    private MenuItem dk_mode;
-    private int foreground_unselected,foreground_selected;
+    private MenuItem highlightOpt;
+    private MenuItem dkMode;
+    private int foregroundUnselected, foregroundSelected;
 
     private EditStack editStack;
 
     private BoardEvents boardEvents;
 
     GridLayout NubPadBackground;
-    ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
+    ArrayList<InnerBoardFragment> ibFrags = new ArrayList<>();
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
         boardEvents.setOnInsertValidNumber(new Runnable() {
@@ -55,7 +55,7 @@ public class BoardActivity extends AppCompatActivity {
                 EditStack.Element editStackElement = editStack.GetList().removeFirst();
                 Drawable color;
 
-                if(selected_cell == editStackElement.getSelectedCell())
+                if(selectedCell == editStackElement.getSelectedCell())
                     color = getColorSelect();
                 else
                     color = getColorUnselect();
@@ -99,6 +99,7 @@ public class BoardActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_board);
             //Set toolbar info
+
             toolbar = (Toolbar) findViewById(R.id.my_toolbar);
             setSupportActionBar(toolbar);
 
@@ -147,11 +148,11 @@ public class BoardActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.board_settings_menu, menu);
-        highlight_opt = menu.findItem(R.id.board_action_setting_HEC);
-        dk_mode = menu.findItem(R.id.board_action_setting_DKM);
+        highlightOpt = menu.findItem(R.id.board_action_setting_HEC);
+        dkMode = menu.findItem(R.id.board_action_setting_DKM);
         if(savedInstance != null) {
-            highlight_opt.setChecked((boolean) savedInstance.getBoolean("Highlight", true));
-            dk_mode.setChecked((boolean) savedInstance.getBoolean("Dark_mode", false));
+            highlightOpt.setChecked((boolean) savedInstance.getBoolean("Highlight", true));
+            dkMode.setChecked((boolean) savedInstance.getBoolean("Dark_mode", false));
             Toggle_darkmode();
         }
         return true;
@@ -193,8 +194,8 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onClick(View t) {
-        if(selected_cell!=null) {
-            editStack.GetList().addLast(new EditStack.Element(selected_cell, getBtnValue(t)));
+        if(selectedCell !=null) {
+            editStack.GetList().addLast(new EditStack.Element(selectedCell, getBtnValue(t)));
             boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),getBtnValue(t)));
         } else {
             Toast.makeText(this, "Please select a cell!",
@@ -210,7 +211,7 @@ public class BoardActivity extends AppCompatActivity {
     private int getCellIndex(){
         String cell_index = null;
         try {
-            cell_index = getIDString(selected_cell,R.id.class);
+            cell_index = getIDString(selectedCell,R.id.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -221,8 +222,8 @@ public class BoardActivity extends AppCompatActivity {
 
     private int getInnerBoxIndex(){
         int f_index=0;
-        for (InnerBoardFragment frag : ib_frags)
-            if(frag.ElementExists(selected_cell))
+        for (InnerBoardFragment frag : ibFrags)
+            if(frag.ElementExists(selectedCell))
                 break;
             else
                 f_index++;
@@ -247,8 +248,8 @@ public class BoardActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         //DATA TO SAVE
-        outState.putBoolean("Highlight", highlight_opt.isChecked());
-        outState.putBoolean("Dark_mode", dk_mode.isChecked());
+        outState.putBoolean("Highlight", highlightOpt.isChecked());
+        outState.putBoolean("Dark_mode", dkMode.isChecked());
         //SAVE
         super.onSaveInstanceState(outState);
     }
@@ -257,7 +258,7 @@ public class BoardActivity extends AppCompatActivity {
         for (int i = 0; i < boardArray.size(); i++)
             for (int j = 0; j < boardArray.get(i).size(); j++)
                 if(!boardController.IsCellEditable(i,j))
-                    ib_frags.get(i).UpdateValue(j, boardArray.get(i).get(j));
+                    ibFrags.get(i).UpdateValue(j, boardArray.get(i).get(j));
     }
 
     private void Toggle_darkmode() {
@@ -266,7 +267,7 @@ public class BoardActivity extends AppCompatActivity {
         int dark_color_background = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
         Drawable default_color_kbd = getDrawable( R.drawable.keyboard_background);
         Drawable dark_color_background_kbd = getDrawable( R.drawable.keyboard_background_dark);
-        if(dk_mode.isChecked()){
+        if(dkMode.isChecked()){
             gl.setBackgroundColor(dark_color_background);
             NubPadBackground.setBackground(dark_color_background_kbd);
         }
@@ -280,11 +281,11 @@ public class BoardActivity extends AppCompatActivity {
 
     private void ApplyDarkMode_opt(){
         for (int i = 0; i < 9; i++) {
-            ArrayList<View> components = ib_frags.get(i).GetViews();
+            ArrayList<View> components = ibFrags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
-                if(dk_mode.isChecked())
+                if(dkMode.isChecked())
                     if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
-                        if(((EditText)components.get(j)) == selected_cell)
+                        if(((EditText)components.get(j)) == selectedCell)
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_dark_interact));
                         else
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_dark));
@@ -294,7 +295,7 @@ public class BoardActivity extends AppCompatActivity {
                     }
                 else{
                     if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
-                        if(((EditText)components.get(j)) == selected_cell)
+                        if(((EditText)components.get(j)) == selectedCell)
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_interact));
                         else
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back));
@@ -314,42 +315,42 @@ public class BoardActivity extends AppCompatActivity {
 
     private void ApplyHighlight_opt(){
         for (int i = 0; i < 9; i++) {
-            ArrayList<View> components = ib_frags.get(i).GetViews();
+            ArrayList<View> components = ibFrags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
                 if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
-                    if(((EditText)components.get(j)) == selected_cell)
-                        ((EditText)components.get(j)).setTextColor(foreground_selected);
+                    if(((EditText)components.get(j)) == selectedCell)
+                        ((EditText)components.get(j)).setTextColor(foregroundSelected);
                     else
-                        ((EditText)components.get(j)).setTextColor(foreground_unselected);
+                        ((EditText)components.get(j)).setTextColor(foregroundUnselected);
         }
     }
 
     private void ToggleForeground(){
-        if(highlight_opt.isChecked()){
-            if(!dk_mode.isChecked()) {
-                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.select_foreground_blue, null);
-                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+        if(highlightOpt.isChecked()){
+            if(!dkMode.isChecked()) {
+                foregroundUnselected = ResourcesCompat.getColor(getResources(), R.color.select_foreground_blue, null);
+                foregroundSelected = ResourcesCompat.getColor(getResources(), R.color.white, null);
             }
             else{
-                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.dk_md_yellow, null);
-                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
+                foregroundUnselected = ResourcesCompat.getColor(getResources(), R.color.dk_md_yellow, null);
+                foregroundSelected = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
             }
         }
         else{
-            if(!dk_mode.isChecked()) {
-                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.black, null);
-                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.black, null);
+            if(!dkMode.isChecked()) {
+                foregroundUnselected = ResourcesCompat.getColor(getResources(), R.color.black, null);
+                foregroundSelected = ResourcesCompat.getColor(getResources(), R.color.black, null);
             }
             else{
-                foreground_unselected = ResourcesCompat.getColor(getResources(), R.color.white, null);
-                foreground_selected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+                foregroundUnselected = ResourcesCompat.getColor(getResources(), R.color.white, null);
+                foregroundSelected = ResourcesCompat.getColor(getResources(), R.color.white, null);
             }
         }
     }
 
     private Drawable getColorSelect(){
         Drawable selected;
-        if(dk_mode.isChecked()){
+        if(dkMode.isChecked()){
             selected = getDrawable( R.drawable.box_back_dark_interact);
         }
         else{
@@ -360,7 +361,7 @@ public class BoardActivity extends AppCompatActivity {
 
     private Drawable getColorUnselect(){
         Drawable unselected;
-        if(dk_mode.isChecked()){
+        if(dkMode.isChecked()){
             unselected = getDrawable(R.drawable.box_back_dark);
         }
         else{
@@ -400,7 +401,7 @@ public class BoardActivity extends AppCompatActivity {
         }
         for (int i = 0; i < 9; i++)
             for (int j = 0; j < 9; j++) {
-                EditText editT = (EditText) ib_frags.get(i).GetViews().get(j);
+                EditText editT = (EditText) ibFrags.get(i).GetViews().get(j);
                 ViewGroup.LayoutParams layoutParams = editT.getLayoutParams();
                 layoutParams.width = cell_dimension;
                 layoutParams.height = cell_dimension;
@@ -494,22 +495,22 @@ public class BoardActivity extends AppCompatActivity {
         Drawable.ConstantState constantStateDrawableA = unselected.getConstantState();
         Drawable.ConstantState constantStateDrawableB = current.getConstantState();
         if(constantStateDrawableA.equals(constantStateDrawableB)) {
-            if(selected_cell==null) {
-                selected_cell = (EditText)t;
-                selected_cell.setTextColor(foreground_selected);
+            if(selectedCell ==null) {
+                selectedCell = (EditText)t;
+                selectedCell.setTextColor(foregroundSelected);
             }
-            else if(selected_cell != (EditText)t) {
-                selected_cell.setBackground(unselected);
-                selected_cell.setTextColor(foreground_unselected);
-                selected_cell = (EditText) t;
+            else if(selectedCell != (EditText)t) {
+                selectedCell.setBackground(unselected);
+                selectedCell.setTextColor(foregroundUnselected);
+                selectedCell = (EditText) t;
             }
-            selected_cell.setTextColor(foreground_selected);
+            selectedCell.setTextColor(foregroundSelected);
             t.setBackground(selected);
         }
         else {
-            if(selected_cell == (EditText)t) {
-                selected_cell.setTextColor(foreground_unselected);
-                selected_cell = null;
+            if(selectedCell == (EditText)t) {
+                selectedCell.setTextColor(foregroundUnselected);
+                selectedCell = null;
             }
             t.setBackground(unselected);
         }
@@ -529,7 +530,7 @@ public class BoardActivity extends AppCompatActivity {
 
         protected Integer doInBackground(Integer... integers) {
             try {
-                TimeUnit.SECONDS.sleep(2);
+                TimeUnit.SECONDS.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 return 0;
@@ -540,7 +541,7 @@ public class BoardActivity extends AppCompatActivity {
         protected void onPostExecute(Integer result){
             Drawable color;
 
-            if(selected_cell == editStackElement.getSelectedCell())
+            if(selectedCell == editStackElement.getSelectedCell())
                 color = getColorSelect();
             else
                 color = getColorUnselect();

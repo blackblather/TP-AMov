@@ -31,7 +31,7 @@ public class InnerBoardFragment extends Fragment {
         int index_f = Integer.parseInt(f_id[1]);
         //Register "this" in parent Activity
         InnerBoardFragment ibf = this;
-        ((BoardActivity)getActivity()).ib_frags.add(index_f-1,ibf);
+        ((BoardActivity)getActivity()).ibFrags.add(index_f-1,ibf);
 
         ViewGroup root = (ViewGroup) getView();
 
