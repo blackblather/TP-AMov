@@ -95,6 +95,7 @@ public class BoardController extends ViewModel
     private void GetOnlineSolvedBoard(final NetworkRequestType networkRequestType){
 
         String urlPOST = WEBSERVICE_URL + "solve";
+        final String URLEncodedFINAL = board.toURLEncodedString();
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, urlPOST,
                 new Response.Listener<String>() {
@@ -120,7 +121,7 @@ public class BoardController extends ViewModel
         }) {
             @Override
             public byte[] getBody() throws AuthFailureError {
-                String URLEncodedBoard = board.toURLEncodedString();
+                String URLEncodedBoard = URLEncodedFINAL;
                 if(URLEncodedBoard != null)
                     return URLEncodedBoard.getBytes();
                 return "".getBytes();
