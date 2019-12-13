@@ -38,7 +38,6 @@ public class BoardActivity extends AppCompatActivity {
     private BoardController boardController;
     private EditText selected_cell;
     private Toolbar toolbar;
-    private Menu optionsMenu;
     private MenuItem highlight_opt;
     private MenuItem dk_mode;
     private int foreground_unselected,foreground_selected;
@@ -148,7 +147,6 @@ public class BoardActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.board_settings_menu, menu);
-        optionsMenu = menu;
         highlight_opt = menu.findItem(R.id.board_action_setting_HEC);
         dk_mode = menu.findItem(R.id.board_action_setting_DKM);
         if(temp != null) {
