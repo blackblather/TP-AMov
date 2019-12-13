@@ -26,18 +26,30 @@ public class InnerBoardFragment extends Fragment {
 
         setRetainInstance(true);
 
+        String f_tag = this.getTag();
+        String[]f_id = f_tag.split("InnerBoard_");
+        int index_f = Integer.parseInt(f_id[1]);
         //Register "this" in parent Activity
-        ((BoardActivity)getActivity()).ib_frags.add(this);
+        InnerBoardFragment ibf = this;
+        ((BoardActivity)getActivity()).ib_frags.add(index_f-1,ibf);
 
         ViewGroup root = (ViewGroup) getView();
 
         //Get total children (0 if root == null)
-        int childViewCount = root != null ? root.getChildCount() : 0;
+        int childViewCount = root.getChildCount();
 
         //Add children to ArrayList
         for (int i = 0; i < childViewCount; i++){
             View childV = root.getChildAt(i);
-            nums.add(childV);
+            try{
+                String id_tag = ((BoardActivity)getActivity()).getIDString(childV,R.id.class);
+                String[] id = id_tag.split("btn_box_m");
+                int index_btn = Integer.parseInt(id[1]);
+                nums.add(index_btn-1,childV);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 

@@ -230,7 +230,7 @@ public class BoardActivity extends AppCompatActivity {
         return f_index;
     }
 
-    private static String getIDString(View view, Class<?> clazz) throws Exception {
+    public static String getIDString(View view, Class<?> clazz) throws Exception {
         int id = view.getId();
         Field[] ids = clazz.getFields();
         for (Field field : ids) {
@@ -517,7 +517,8 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onSubmitBoard(View t) {
-        boardEvents.getOnInsertInvalidNumber().run();
+        Toast toast = Toast.makeText(getApplicationContext(), "Not Implemented", Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     private class AsyncInvalidNumberTimer extends AsyncTask<Integer, Integer, Integer> {
