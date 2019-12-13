@@ -24,17 +24,16 @@ import com.tp_amov.controllers.board.BoardController;
 import com.tp_amov.controllers.board.BoardControllerFactory;
 import com.tp_amov.events.board.BoardEvents;
 import com.tp_amov.models.board.BoardPosition;
-import com.tp_amov.models.board.EditStackElement;
+import com.tp_amov.models.board.EditStack;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 public class BoardActivity extends AppCompatActivity {
 
-    private Bundle temp;
+    private Bundle savedInstance;
     private BoardController boardController;
     private EditText selected_cell;
     private Toolbar toolbar;
@@ -42,7 +41,7 @@ public class BoardActivity extends AppCompatActivity {
     private MenuItem dk_mode;
     private int foreground_unselected,foreground_selected;
 
-    private LinkedList<EditStackElement> editStack = new LinkedList<>();
+    private EditStack editStack;
 
     private BoardEvents boardEvents;
 
@@ -53,7 +52,7 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnInsertValidNumber(new Runnable() {
             @Override
             public void run() {
-                EditStackElement editStackElement = editStack.removeFirst();
+                EditStack.Element editStackElement = editStack.GetList().removeFirst();
                 Drawable color;
 
                 if(selected_cell == editStackElement.getSelectedCell())
@@ -68,7 +67,7 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
-                EditStackElement editStackElement = editStack.removeFirst();
+                EditStack.Element editStackElement = editStack.GetList().removeFirst();
                 editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
                 editStackElement.getSelectedCell().setBackground(getColorInvalid());
                 new AsyncInvalidNumberTimer(editStackElement).execute();
@@ -124,14 +123,16 @@ public class BoardActivity extends AppCompatActivity {
             //Get application context
             Context context = getApplicationContext();
 
-            //Initializes board object
-            //OLD: boardController = new BoardController();
-
+            //Set boardController using ViewModelProviders
             SetBoardRunnables();
             BoardControllerFactory boardFactory = new BoardControllerFactory(context, "medium", boardEvents);
             boardController = ViewModelProviders.of(this,boardFactory).get(BoardController.class);
             boardController.InitializeBoard();
-            temp = savedInstanceState;
+
+            //Set editStack using ViewModelProviders
+            editStack = ViewModelProviders.of(this).get(EditStack.class);
+
+            savedInstance = savedInstanceState;
             setScreenAdaptation(context);
         } catch (ClassCastException e) {
             finish();
@@ -148,9 +149,9 @@ public class BoardActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.board_settings_menu, menu);
         highlight_opt = menu.findItem(R.id.board_action_setting_HEC);
         dk_mode = menu.findItem(R.id.board_action_setting_DKM);
-        if(temp != null) {
-            highlight_opt.setChecked((boolean) temp.getBoolean("Highlight", true));
-            dk_mode.setChecked((boolean) temp.getBoolean("Dark_mode", false));
+        if(savedInstance != null) {
+            highlight_opt.setChecked((boolean) savedInstance.getBoolean("Highlight", true));
+            dk_mode.setChecked((boolean) savedInstance.getBoolean("Dark_mode", false));
             Toggle_darkmode();
         }
         return true;
@@ -193,10 +194,9 @@ public class BoardActivity extends AppCompatActivity {
 
     public void onClick(View t) {
         if(selected_cell!=null) {
-            editStack.addLast(new EditStackElement(selected_cell, getBtnValue(t)));
+            editStack.GetList().addLast(new EditStack.Element(selected_cell, getBtnValue(t)));
             boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),getBtnValue(t)));
-        }
-        else {
+        } else {
             Toast.makeText(this, "Please select a cell!",
                     Toast.LENGTH_SHORT).show();
         }
@@ -521,9 +521,9 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     private class AsyncInvalidNumberTimer extends AsyncTask<Integer, Integer, Integer> {
-        private EditStackElement editStackElement;
+        private EditStack.Element editStackElement;
 
-        AsyncInvalidNumberTimer(EditStackElement editStackElement){
+        AsyncInvalidNumberTimer(EditStack.Element editStackElement){
             this.editStackElement = editStackElement;
         }
 
