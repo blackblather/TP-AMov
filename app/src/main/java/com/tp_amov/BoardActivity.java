@@ -42,7 +42,6 @@ public class BoardActivity extends AppCompatActivity {
     private MenuItem dk_mode;
     private int foreground_unselected,foreground_selected;
 
-    private final Object editStackLOCK = new Object();
     private LinkedList<EditStackElement> editStack = new LinkedList<>();
 
     private BoardEvents boardEvents;
