@@ -232,7 +232,7 @@ public class BoardActivity extends AppCompatActivity {
         return f_index;
     }
 
-    static String getIDString(View view, Class<?> clazz) throws Exception {
+    private static String getIDString(View view, Class<?> clazz) throws Exception {
         int id = view.getId();
         Field[] ids = clazz.getFields();
         for (Field field : ids) {
@@ -263,7 +263,7 @@ public class BoardActivity extends AppCompatActivity {
                     ib_frags.get(i).UpdateValue(j, boardArray.get(i).get(j));
     }
 
-    public void Toggle_darkmode() {
+    private void Toggle_darkmode() {
         androidx.gridlayout.widget.GridLayout gl = findViewById(R.id.Board_activity);
         int default_color = ResourcesCompat.getColor(getResources(),R.color.white,null);
         int dark_color_background = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
@@ -350,7 +350,7 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    public Drawable getColorSelect(){
+    private Drawable getColorSelect(){
         Drawable selected;
         if(dk_mode.isChecked()){
             selected = getDrawable( R.drawable.box_back_dark_interact);
@@ -361,7 +361,7 @@ public class BoardActivity extends AppCompatActivity {
         return selected;
     }
 
-    public Drawable getColorUnselect(){
+    private Drawable getColorUnselect(){
         Drawable unselected;
         if(dk_mode.isChecked()){
             unselected = getDrawable(R.drawable.box_back_dark);
@@ -372,13 +372,13 @@ public class BoardActivity extends AppCompatActivity {
         return unselected;
     }
 
-    public Drawable getColorInvalid(){
+    private Drawable getColorInvalid(){
         Drawable invalidNumber;
         invalidNumber = getDrawable(R.drawable.box_back_invalid_number);
         return invalidNumber;
     }
 
-    public void setScreenAdaptation(Context context){
+    private void setScreenAdaptation(Context context){
         int width = getScreenWidthInDPs(context);
         int height = getScreenHeightInDPs(context);
         int orientation = getResources().getConfiguration().orientation;
@@ -391,7 +391,7 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    public void setBoardSizeForScreenSize(int width, int height, boolean isLandScape,Context context){
+    private void setBoardSizeForScreenSize(int width, int height, boolean isLandScape, Context context){
         final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
         int cell_dimension;
         if(isLandScape){
@@ -416,11 +416,11 @@ public class BoardActivity extends AppCompatActivity {
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
-    public static float convertPixelsToDp(float px, Context context){
+    private static float convertPixelsToDp(float px, Context context){
         return px / ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
-    public static int getScreenWidthInDPs(Context context){
+    private static int getScreenWidthInDPs(Context context){
         /*
             DisplayMetrics
                 A structure describing general information about a display,
@@ -463,12 +463,11 @@ public class BoardActivity extends AppCompatActivity {
         */
         WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(dm);
-        int widthInDP = Math.round(dm.widthPixels / dm.density);
-        return widthInDP;
+        return Math.round(dm.widthPixels / dm.density);
     }
 
     // Custom method to get screen height in dp/dip using Context object
-    public static int getScreenHeightInDPs(Context context){
+    private static int getScreenHeightInDPs(Context context){
         DisplayMetrics dm = new DisplayMetrics();
         WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(dm);
