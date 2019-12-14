@@ -29,7 +29,6 @@ import com.tp_amov.models.board.EditStack;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 public class BoardActivity extends AppCompatActivity {
 
@@ -46,13 +45,14 @@ public class BoardActivity extends AppCompatActivity {
     private BoardEvents boardEvents;
 
     GridLayout NubPadBackground;
+//    BoardFragment boardFragment;
     ArrayList<InnerBoardFragment> ibFrags = new ArrayList<>();
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
         boardEvents.setOnInsertValidNumber(new Runnable() {
             @Override
             public void run() {
-                EditStack.Element editStackElement = editStack.GetList().removeFirst();
+                EditStack.Element editStackElement = editStack.RemoveElement();
                 Drawable color;
 
                 if(selectedCell == editStackElement.getSelectedCell())
@@ -67,10 +67,11 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
-                EditStack.Element editStackElement = editStack.GetList().removeFirst();
+                EditStack.Element editStackElement = editStack.RemoveElement();
                 editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
                 editStackElement.getSelectedCell().setBackground(getColorInvalid());
-                new AsyncInvalidNumberTimer(editStackElement).execute();
+                editStackElement.CreateTimer();
+                editStackElement.getTimer().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
         boardEvents.setOnBoardCreationError(new Runnable() {
@@ -98,8 +99,10 @@ public class BoardActivity extends AppCompatActivity {
         try {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_board);
-            //Set toolbar info
 
+            savedInstance = savedInstanceState;
+
+            //Set toolbar info
             toolbar = (Toolbar) findViewById(R.id.my_toolbar);
             setSupportActionBar(toolbar);
 
@@ -115,26 +118,22 @@ public class BoardActivity extends AppCompatActivity {
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
             //Gets new fragment instance by sending it the chosen usernames + imgPaths
-            Fragment fragment = InGamePlayerInfoFragment.newInstance(new ArrayList<>(Arrays.asList("B")), imgPaths);
+            Fragment inGamePlayerInfoFragment = InGamePlayerInfoFragment.newInstance(new ArrayList<>(Arrays.asList("B")), imgPaths);
 
-            //Adds fragment to activity
-            fragmentTransaction.add(R.id.Board_activity, fragment);
+            //Adds fragments to activity
+            fragmentTransaction.add(R.id.Board_activity, inGamePlayerInfoFragment);
+
+//            if(savedInstanceState == null){
+//                boardFragment = new BoardFragment();
+//                fragmentTransaction.add(R.id.Board_activity, boardFragment);
+//            } else{
+//                boardFragment = (BoardFragment) getSupportFragmentManager().getFragment(savedInstanceState, "boardFragment");
+//                if(boardFragment != null)
+//                    fragmentTransaction.attach(boardFragment);
+//            }
+
             fragmentTransaction.commit();
 
-            //Get application context
-            Context context = getApplicationContext();
-
-            //Set boardController using ViewModelProviders
-            SetBoardRunnables();
-            BoardControllerFactory boardFactory = new BoardControllerFactory(context, "medium", boardEvents);
-            boardController = ViewModelProviders.of(this,boardFactory).get(BoardController.class);
-            boardController.InitializeBoard();
-
-            //Set editStack using ViewModelProviders
-            editStack = ViewModelProviders.of(this).get(EditStack.class);
-
-            savedInstance = savedInstanceState;
-            setScreenAdaptation(context);
         } catch (ClassCastException e) {
             finish();
             int duration = Toast.LENGTH_SHORT;
@@ -142,6 +141,22 @@ public class BoardActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(getApplicationContext(), "An error occurred, try again later", duration);
             toast.show();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        //Set boardController using ViewModelProviders
+        SetBoardRunnables();
+        BoardControllerFactory boardFactory = new BoardControllerFactory(getApplicationContext(), "easy", boardEvents);
+        boardController = ViewModelProviders.of(this,boardFactory).get(BoardController.class);
+        boardController.InitializeBoard();
+
+        //Set editStack using ViewModelProviders
+        editStack = ViewModelProviders.of(this).get(EditStack.class);
+        editStack.setBoardActivity(this);
+        setScreenAdaptation(getApplicationContext());
     }
 
     @Override
@@ -195,7 +210,9 @@ public class BoardActivity extends AppCompatActivity {
 
     public void onClick(View t) {
         if(selectedCell !=null) {
-            editStack.GetList().addLast(new EditStack.Element(selectedCell, getBtnValue(t)));
+            int selectedInnerBoardId = ((ViewGroup)selectedCell.getParent()).getId();
+            int selectedCellId = selectedCell.getId();
+            editStack.AddElement(selectedInnerBoardId, selectedCellId, getBtnValue(t));
             boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),getBtnValue(t)));
         } else {
             Toast.makeText(this, "Please select a cell!",
@@ -250,8 +267,15 @@ public class BoardActivity extends AppCompatActivity {
         //DATA TO SAVE
         outState.putBoolean("Highlight", highlightOpt.isChecked());
         outState.putBoolean("Dark_mode", dkMode.isChecked());
+//        getSupportFragmentManager().putFragment(outState, "boardFragment", boardFragment);
+//
+//        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+//        fragmentTransaction.detach(boardFragment);
+//        fragmentTransaction.commit();
+
         //SAVE
         super.onSaveInstanceState(outState);
+
     }
 
     private void FillViews(ArrayList<ArrayList<Integer>> boardArray) {
@@ -348,7 +372,7 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    private Drawable getColorSelect(){
+    public Drawable getColorSelect(){
         Drawable selected;
         if(dkMode.isChecked()){
             selected = getDrawable( R.drawable.box_back_dark_interact);
@@ -359,7 +383,7 @@ public class BoardActivity extends AppCompatActivity {
         return selected;
     }
 
-    private Drawable getColorUnselect(){
+    public Drawable getColorUnselect(){
         Drawable unselected;
         if(dkMode.isChecked()){
             unselected = getDrawable(R.drawable.box_back_dark);
@@ -521,38 +545,7 @@ public class BoardActivity extends AppCompatActivity {
         toast.show();
     }
 
-    private class AsyncInvalidNumberTimer extends AsyncTask<Integer, Void, Integer> {
-        private EditStack.Element editStackElement;
-
-        AsyncInvalidNumberTimer(EditStack.Element editStackElement){
-            this.editStackElement = editStackElement;
-        }
-
-        protected Integer doInBackground(Integer... integers) {
-            try {
-                TimeUnit.SECONDS.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return 0;
-            }
-            return 1;
-        }
-
-        protected void onPostExecute(Integer result){
-            Drawable color;
-
-            if(selectedCell == editStackElement.getSelectedCell())
-                color = getColorSelect();
-            else
-                color = getColorUnselect();
-
-            String oldValueSTR = editStackElement.getSelectedCell().getText().toString();
-            int currentValue = editStackElement.getSelectedValue();
-            if(!oldValueSTR.equals("") && Integer.parseInt(oldValueSTR) == currentValue) {
-                editStackElement.getSelectedCell().setText("");
-                editStackElement.getSelectedCell().setBackground(color);
-            }
-        }
+    public EditText getSelectedCell() {
+        return selectedCell;
     }
-
 }
