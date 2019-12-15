@@ -21,7 +21,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import com.tp_amov.controllers.board.BoardController;
-import com.tp_amov.controllers.board.BoardControllerFactory;
 import com.tp_amov.events.board.BoardEvents;
 import com.tp_amov.models.board.BoardPosition;
 import com.tp_amov.models.board.EditStack;
@@ -149,8 +148,8 @@ public class BoardActivity extends AppCompatActivity {
 
         //Set boardController using ViewModelProviders
         SetBoardRunnables();
-        BoardControllerFactory boardFactory = new BoardControllerFactory(getApplicationContext(), "easy", boardEvents);
-        boardController = ViewModelProviders.of(this,boardFactory).get(BoardController.class);
+        BoardController.Factory boardControllerFactory = new BoardController.Factory(getApplicationContext(), "easy", boardEvents);
+        boardController = ViewModelProviders.of(this, boardControllerFactory).get(BoardController.class);
         boardController.InitializeBoard();
 
         //Set editStack using ViewModelProviders

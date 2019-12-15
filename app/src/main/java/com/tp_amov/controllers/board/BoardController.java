@@ -1,7 +1,9 @@
 package com.tp_amov.controllers.board;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import com.android.volley.*;
 import com.android.volley.toolbox.*;
 import com.tp_amov.events.board.BoardEvents;
@@ -20,6 +22,26 @@ import java.util.Random;
 
 public class BoardController extends ViewModel
 {
+    public static class Factory implements ViewModelProvider.Factory{
+        private Context context;
+        private String difficulty;
+        private BoardEvents boardEvents;
+        public Factory(Context context, String difficulty, BoardEvents boardEvents){
+            this.context = context;
+            this.difficulty = difficulty;
+            this.boardEvents = boardEvents;
+        }
+        @NonNull
+        @Override
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            try {
+                return modelClass.getConstructor(Context.class, String.class, BoardEvents.class).newInstance(context, difficulty, boardEvents);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
 //Enums
     private enum NetworkRequestType {
         insertNumber,
