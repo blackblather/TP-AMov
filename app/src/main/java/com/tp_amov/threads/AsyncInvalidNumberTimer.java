@@ -15,7 +15,7 @@ public class AsyncInvalidNumberTimer extends AsyncTask<Void, Void, BoardActivity
 
     protected BoardActivity doInBackground(Void... params) {
         try {
-            double seconds = 6;
+            double seconds = 2;
             double checkRate = 0.5;
 
             seconds = seconds * 1/0.5;
