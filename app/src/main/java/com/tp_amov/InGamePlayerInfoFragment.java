@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
@@ -33,15 +35,6 @@ public class InGamePlayerInfoFragment extends Fragment {
         // Required empty public constructor
     }
 
-    static InGamePlayerInfoFragment newInstance(ArrayList<String> usernames, ArrayList<String> imgPaths) {
-        InGamePlayerInfoFragment fragment = new InGamePlayerInfoFragment();
-        Bundle args = new Bundle();
-        args.putStringArrayList(SelectUserActivity.EXTRA_USERNAMES, usernames);
-        args.putStringArrayList(SelectUserActivity.EXTRA_IMG_PATHS, imgPaths);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     private void FillPlayersArray(ArrayList<String> usernames, ArrayList<String> imgPaths){
         if(usernames != null && imgPaths != null) {
             if (usernames.size() == imgPaths.size()) {
@@ -56,16 +49,13 @@ public class InGamePlayerInfoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null)
-            FillPlayersArray(getArguments().getStringArrayList(SelectUserActivity.EXTRA_USERNAMES),
-                    getArguments().getStringArrayList(SelectUserActivity.EXTRA_IMG_PATHS));
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TextView InGameCurrentUser = (TextView) view.findViewById(R.id.in_game_current_user_txt);
-        InGameCurrentUser.setText(players.get(0).getUsername());
+        setRetainInstance(true);
+        ((BoardActivity)getActivity()).inGamePlayerInfoFragment = this;
     }
 
     @Override
@@ -73,5 +63,17 @@ public class InGamePlayerInfoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_in_game_player_info, container, false);
+    }
+
+    public void onSetDataForInGamePlayerInfo(ArrayList<String> usernames, ArrayList<String> imgPaths){
+        Bundle args = new Bundle();
+        args.putStringArrayList(SelectUserActivity.EXTRA_USERNAMES, usernames);
+        args.putStringArrayList(SelectUserActivity.EXTRA_IMG_PATHS, imgPaths);
+        FillPlayersArray(usernames,imgPaths);
+        TextView InGameCurrentUser = (TextView) this.getView().findViewById(R.id.in_game_current_user_txt);
+        ImageView InGameCurrentPic = (ImageView) this.getView().findViewById(R.id.profile_image);
+        InGameCurrentPic.setImageResource(R.drawable.ic_launcher_background);
+        InGameCurrentUser.setText(players.get(0).getUsername());
+        this.setArguments(args);
     }
 }

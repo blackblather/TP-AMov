@@ -9,9 +9,11 @@
     android:translationZ="5dp"
     android:id="@+id/num_keyboard"
     tools:context=".BoardKeyboardFragment">
-    <GridLayout android:layout_gravity="center">
+    <GridLayout android:layout_gravity="center"
+        android:id="@+id/ClicksLayout">
         <Button
             android:id="@+id/num_1"
+            android:tag="num_1"
             style="@style/kbrd_btn"
             android:layout_row="0"
             android:layout_column="0"
@@ -19,6 +21,7 @@
 
         <Button
             android:id="@+id/num_2"
+            android:tag="num_2"
             style="@style/kbrd_btn"
             android:layout_row="0"
             android:layout_column="1"
@@ -26,6 +29,7 @@
 
         <Button
             android:id="@+id/num_3"
+            android:tag="num_3"
             style="@style/kbrd_btn"
             android:layout_row="0"
             android:layout_column="2"
@@ -33,6 +37,7 @@
 
         <Button
             android:id="@+id/num_4"
+            android:tag="num_4"
             style="@style/kbrd_btn"
             android:layout_row="0"
             android:layout_column="3"
@@ -40,6 +45,7 @@
 
         <Button
             android:id="@+id/num_5"
+            android:tag="num_5"
             style="@style/kbrd_btn"
             android:layout_row="0"
             android:layout_column="4"
@@ -47,6 +53,7 @@
 
         <Button
             android:id="@+id/num_6"
+            android:tag="num_6"
             style="@style/kbrd_btn"
             android:layout_row="1"
             android:layout_column="0"
@@ -55,6 +62,7 @@
 
         <Button
             android:id="@+id/num_7"
+            android:tag="num_7"
             style="@style/kbrd_btn"
             android:layout_row="1"
             android:layout_column="1"
@@ -62,6 +70,7 @@
 
         <Button
             android:id="@+id/num_8"
+            android:tag="num_8"
             style="@style/kbrd_btn"
             android:layout_row="1"
             android:layout_column="2"
@@ -69,16 +78,31 @@
 
         <Button
             android:id="@+id/num_9"
+            android:tag="num_9"
             style="@style/kbrd_btn"
             android:layout_row="1"
             android:layout_column="3"
             android:text="9" />
 
         <Button
+            android:id="@+id/btn_hint"
+            android:tag="num_10"
+            style="@style/hint_btn"
+            android:layout_row="1"
+            android:layout_column="4"/>
+
+        <Button
+            android:id="@+id/btn_backspace"
+            android:tag="num_11"
+            style="@style/backspace_btn"
+            android:layout_row="0"
+            android:layout_column="5"/>
+
+        <Button
             android:id="@+id/btn_submit"
+            android:tag="num_12"
             style="@style/submit_btn"
             android:layout_row="1"
-            android:layout_column="4"
-            android:text="OK" />
+            android:layout_column="5"/>
     </GridLayout>
 </GridLayout>

@@ -18,14 +18,22 @@
         android:layout_height="wrap_content"
         android:id="@+id/toolbar_fragment"/>
 
-    <!-- FRAGMENTS GO HERE (ROW 1, COL 0) (INSERTED PROGRAMMATICALLY)-->
+    <fragment
+        android:id="@+id/in_game_current_user_fragment"
+        android:name="com.tp_amov.InGamePlayerInfoFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_columnWeight="1"
+        app:layout_row="1"
+        app:layout_column="1"
+        app:layout_gravity="fill_horizontal"
+        android:layout_margin="2dp" />
 
     <fragment
         android:id="@+id/Board"
         android:name="com.tp_amov.BoardFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         app:layout_row="1"
         app:layout_rowSpan="2"
         app:layout_column="0"

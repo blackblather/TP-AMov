@@ -11,9 +11,11 @@ import android.view.*;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
@@ -48,7 +50,10 @@ public class BoardActivity extends AppCompatActivity {
     private BoardEvents boardEvents;
 
     GridLayout NubPadBackground;
+    InGamePlayerInfoFragment inGamePlayerInfoFragment;
     ArrayList<InnerBoardFragment> ib_frags = new ArrayList<>();
+    ArrayList<String> usernames;
+    ArrayList<String> imgPaths;
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
         boardEvents.setOnInsertValidNumber(new Runnable() {
@@ -104,14 +109,12 @@ public class BoardActivity extends AppCompatActivity {
             toolbar = (Toolbar) findViewById(R.id.my_toolbar);
             setSupportActionBar(toolbar);
 
+
             //Get intent
             Intent intent = getIntent();
-
-            //Store intent's extras
-            ArrayList<String> usernames = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_USERNAMES);
-            ArrayList<String> imgPaths = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_IMG_PATHS);
-
-            //Get fragment manager / fragment transaction objects
+            usernames = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_USERNAMES);
+            imgPaths = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_IMG_PATHS);
+            /*//Get fragment manager / fragment transaction objects
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -120,8 +123,7 @@ public class BoardActivity extends AppCompatActivity {
 
             //Adds fragment to activity
             fragmentTransaction.add(R.id.Board_activity, fragment);
-            fragmentTransaction.commit();
-
+            fragmentTransaction.commitNow();*/
             //Get application context
             Context context = getApplicationContext();
 
@@ -133,6 +135,9 @@ public class BoardActivity extends AppCompatActivity {
             boardController = ViewModelProviders.of(this,boardFactory).get(BoardController.class);
             boardController.InitializeBoard();
             temp = savedInstanceState;
+            //Populates fragment
+            inGamePlayerInfoFragment.onSetDataForInGamePlayerInfo(usernames,imgPaths);
+            //Set Adaptation for screen
             setScreenAdaptation(context);
         } catch (ClassCastException e) {
             finish();
@@ -246,6 +251,13 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        //Get application context
+        //Store intent's extras
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         //DATA TO SAVE
         outState.putBoolean("Highlight", highlight_opt.isChecked());
@@ -262,6 +274,8 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     private void Toggle_darkmode() {
+        ConstraintLayout playerNameplate = (ConstraintLayout) inGamePlayerInfoFragment.getView();
+        TextView nameplateText = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_current_user_txt);
         androidx.gridlayout.widget.GridLayout gl = findViewById(R.id.Board_activity);
         int default_color = ResourcesCompat.getColor(getResources(),R.color.white,null);
         int dark_color_background = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
@@ -270,10 +284,14 @@ public class BoardActivity extends AppCompatActivity {
         if(dk_mode.isChecked()){
             gl.setBackgroundColor(dark_color_background);
             NubPadBackground.setBackground(dark_color_background_kbd);
+            playerNameplate.setBackground(dark_color_background_kbd);
+            nameplateText.setTextColor(default_color);
         }
         else{
             gl.setBackgroundColor(default_color);
             NubPadBackground.setBackground(default_color_kbd);
+            playerNameplate.setBackground(default_color_kbd);
+            nameplateText.setTextColor(dark_color_background);
         }
         ApplyDarkMode_opt();
         ToggleHighlight();
@@ -383,13 +401,16 @@ public class BoardActivity extends AppCompatActivity {
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // In landscape
             setBoardSizeForScreenSize(width,height,true, context);
+            setInGamePlayerInfoForScreenSize( true, context);
+            setBoardKeyboardForScreenSize(width, height, true, context);
         } else {
             // In portrait
             setBoardSizeForScreenSize(width,height,false, context);
+            setBoardKeyboardForScreenSize(width, height, false, context);
         }
     }
 
-    private void setBoardSizeForScreenSize(int width, int height, boolean isLandScape, Context context){
+    private int setBoardSizeForScreenSize(int width, int height, boolean isLandScape, Context context){
         final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
         int cell_dimension;
         if(isLandScape){
@@ -406,8 +427,62 @@ public class BoardActivity extends AppCompatActivity {
                 layoutParams.width = cell_dimension;
                 layoutParams.height = cell_dimension;
                 editT.setLayoutParams(layoutParams);
-                //((EditText) ib_frags.get(i).GetViews().get(j)).setLayoutParams(layoutParams);
             }
+        return cell_dimension;
+    }
+
+    private int setBoardKeyboardForScreenSize(int width, int height, boolean isLandScape, Context context){
+        final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
+        int btn_dimension;
+        if(isLandScape){
+            ViewGroup.LayoutParams tb_size = toolbar.getLayoutParams();
+            btn_dimension = (int) (((((height-convertPixelsToDp(tb_size.height,context)-convertPixelsToDp((tb_size.height),context))-38)/4)* scale)-(5*scale));
+        }
+        else{
+            btn_dimension = (int) ((((width-38)/6)* scale)-(2*scale));
+        }
+        //Icon buttons
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.btn_backspace),true);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.btn_submit),true);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.btn_hint),true);
+        //Number buttons
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.num_1),false);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.num_2),false);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.num_3),false);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.num_4),false);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.num_5),false);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.num_6),false);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.num_7),false);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.num_8),false);
+        setButtonToSize(btn_dimension,(Button) findViewById(R.id.num_9),false);
+        return btn_dimension;
+    }
+
+    private void setButtonToSize(int btn_dimensions, Button btn, boolean hasIcon){
+        //Padding Start for icons must be 2/7 of button size for icon to be centered
+        ViewGroup.LayoutParams layoutParams = btn.getLayoutParams();
+        layoutParams.width = btn_dimensions;
+        layoutParams.height = btn_dimensions;
+        btn.setLayoutParams(layoutParams);
+        if(hasIcon){
+            int paddingL = (btn_dimensions/7)*2;
+            btn.setPadding(paddingL,0,0,0);
+        }
+    }
+
+    private void setInGamePlayerInfoForScreenSize(boolean isLandScape, Context context){
+        final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
+        int image_dimension;
+        ViewGroup.LayoutParams tb_size = toolbar.getLayoutParams();
+        View pImage = findViewById(R.id.profile_image);
+        if(isLandScape){
+            image_dimension = tb_size.height;
+            ViewGroup.LayoutParams layoutParams = pImage.getLayoutParams();
+            layoutParams.width = image_dimension;
+            layoutParams.height = image_dimension;
+            pImage.setLayoutParams(layoutParams);
+        }
+
     }
 
     public static float convertDpToPixel(float dp, Context context){
@@ -517,7 +592,17 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onSubmitBoard(View t) {
-        Toast toast = Toast.makeText(getApplicationContext(), "Not Implemented", Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getApplicationContext(), "Submit not Implemented", Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    public void onBackspace(View t) {
+        Toast toast = Toast.makeText(getApplicationContext(), "Backspace not Implemented", Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    public void onHintRequest(View t) {
+        Toast toast = Toast.makeText(getApplicationContext(), "Hint not Implemented", Toast.LENGTH_SHORT);
         toast.show();
     }
 
