@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.*;
@@ -51,7 +50,7 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnInsertValidNumber(new Runnable() {
             @Override
             public void run() {
-                EditStack.Element editStackElement = editStack.RemoveElement();
+                EditStack.Element editStackElement = editStack.RemoveValidElement();
                 Drawable color;
 
                 if(selectedCell == editStackElement.getSelectedCell())
@@ -66,11 +65,9 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
-                EditStack.Element editStackElement = editStack.RemoveElement();
+                EditStack.Element editStackElement = editStack.RemoveInvalidElement();
                 editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
                 editStackElement.getSelectedCell().setBackground(getColorInvalid());
-                editStackElement.CreateTimer();
-                editStackElement.getTimer().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
         boardEvents.setOnBoardCreationError(new Runnable() {

@@ -1,5 +1,6 @@
 package com.tp_amov.models.board;
 
+import android.os.AsyncTask;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import androidx.lifecycle.ViewModel;
@@ -28,13 +29,14 @@ public class EditStack extends ViewModel {
             this.selectedValue = selectedValue;
         }
 
-        public void CreateTimer() {
+        void StartTimer() {
             timer = new AsyncInvalidNumberTimer(this);
+            timer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
         //Getters
-        public BoardActivity getParentBoardActivity() {
-            return getBoardActivity();
+        public BoardActivity getBoardActivity() {
+            return EditStack.this.getBoardActivity();
         }
 
         private int getInnerBoardId() {
@@ -58,28 +60,60 @@ public class EditStack extends ViewModel {
             return selectedValue;
         }
 
-        public AsyncInvalidNumberTimer getTimer() {
+        AsyncInvalidNumberTimer getTimer() {
             return timer;
         }
 
+        //Calls to parent
+        public void RemoveIdenticalRunning(){
+            EditStack.this.RemoveIdenticalRunning(this);
+        }
 
+        //Overrides
+        @Override
+        public boolean equals(Object obj) {
+            if(obj instanceof Element){
+                Element otherElement = (Element) obj;
+                return getInnerBoardId() == otherElement.getInnerBoardId() && getCellId() == otherElement.getCellId();
+            }
+            return false;
+        }
     } //End Element class
 
-    private LinkedList<Element> list = new LinkedList<>();
+    private LinkedList<Element> pendingList = new LinkedList<>();
+    private LinkedList<Element> runningList = new LinkedList<>();
     //Control vars
     private final Object boardActivityLock = new Object();
     private BoardActivity boardActivity;
 
-    //list functions
+    //List functions
     public void AddElement(int innerBoardId, int cellId, int selectedValue){
-        list.addLast(new Element(innerBoardId, cellId, selectedValue));
+        pendingList.addLast(new Element(innerBoardId, cellId, selectedValue));
     }
 
-    public Element RemoveElement(){
-        return list.removeLast();
+    /*Removes from pendingList*/
+    public Element RemoveValidElement(){
+        return pendingList.removeLast();
     }
-    public Element Peek(){
-        return list.peekLast();
+
+    /*Removes from pendingList, adds to runningList and starts timer*/
+    public Element RemoveInvalidElement(){
+        Element element = pendingList.removeLast();
+        runningList.addLast(element);
+        element.StartTimer();
+        return element;
+    }
+
+    //Removes all elements from runningList identical to param (including the param)
+    private void RemoveIdenticalRunning(Element element) {
+        for(int i = 0; i < runningList.size(); i++) {
+            Element e = runningList.get(i);
+            if (e.getTimer() != null && e.equals(element)) {
+                runningList.remove(e);
+                e.getTimer().cancel(true);
+                i--;
+            }
+        }
     }
 
     //Getters

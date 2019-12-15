@@ -6,8 +6,6 @@ import android.widget.EditText;
 import com.tp_amov.BoardActivity;
 import com.tp_amov.models.board.EditStack;
 
-import java.util.concurrent.TimeUnit;
-
 public class AsyncInvalidNumberTimer extends AsyncTask<Void, Void, BoardActivity> {
     private EditStack.Element editStackElement;
 
@@ -17,15 +15,27 @@ public class AsyncInvalidNumberTimer extends AsyncTask<Void, Void, BoardActivity
 
     protected BoardActivity doInBackground(Void... params) {
         try {
-            TimeUnit.SECONDS.sleep(5);
+            double seconds = 6;
+            double checkRate = 0.5;
+
+            seconds = seconds * 1/0.5;
+
+            while((seconds--) > 0) {
+                if(isCancelled())
+                    break;
+                Thread.sleep((long)(checkRate*1000));
+            }
+
         } catch (InterruptedException e) {
             e.printStackTrace();
             return null;
         }
-        return editStackElement.getParentBoardActivity();
+        return editStackElement.getBoardActivity();
     }
 
     protected void onPostExecute(BoardActivity boardActivity){
+        editStackElement.RemoveIdenticalRunning();
+
         Drawable color;
 
         EditText currentlySelectedCell = boardActivity.getSelectedCell();
