@@ -219,9 +219,9 @@ public class BoardController extends ViewModel
     private void RequestHintResponse(JSONObject jsonResp){
         try {
             String status = jsonResp.getString("status");
-            hintsLeft--;
-            if(status.equals("unsolved")) {
-                BoardPosition hint = GetHintFromSolvedBoard(jsonResp.getJSONArray("board"));
+            if(status.equals("solved")) {
+                BoardPosition hint = GetHintFromSolvedBoard(jsonResp.getJSONArray("solution"));
+                hintsLeft--;
                 boardEvents.getOnReceivedHint().accept(hint);
             }
             else if(status.equals("unsolvable"))

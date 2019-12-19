@@ -39,8 +39,8 @@ public class BoardActivity extends AppCompatActivity {
     GridLayout NubPadBackground;
     InGamePlayerInfoFragment inGamePlayerInfoFragment;
     ArrayList<InnerBoardFragment> ibFrags = new ArrayList<>();
-    ArrayList<String> usernames;
-    ArrayList<String> imgPaths;
+    private ArrayList<String> usernames;
+    private ArrayList<String> imgPaths;
 
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
@@ -91,6 +91,15 @@ public class BoardActivity extends AppCompatActivity {
             public void run() {
                 Toast toast = Toast.makeText(getApplicationContext(), "Solução inválida", Toast.LENGTH_SHORT);
                 toast.show();
+            }
+        });
+        boardEvents.setOnReceivedHint(new Consumer<BoardPosition>() {
+            @Override
+            public void accept(BoardPosition boardPosition) {
+                int innerBoardIndex = boardPosition.GetInnerBoardIndex();
+                int cellIndex = boardPosition.GetCellIndex();
+                int value = boardPosition.GetValue();
+                ibFrags.get(innerBoardIndex).UpdateValue(cellIndex, value,R.color.nice_green);
             }
         });
     }
@@ -611,8 +620,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onHintRequest(View t) {
-        Toast toast = Toast.makeText(getApplicationContext(), "Hint not Implemented", Toast.LENGTH_SHORT);
-        toast.show();
+        boardController.RequestHint();
     }
 
     public EditText getSelectedCell() {
