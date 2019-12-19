@@ -89,7 +89,7 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnBoardUnsolved(new Runnable(){
             @Override
             public void run() {
-                Toast toast = Toast.makeText(getApplicationContext(), "OH TU BURR DE MERDA", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(getApplicationContext(), "Solução inválida", Toast.LENGTH_SHORT);
                 toast.show();
             }
         });
