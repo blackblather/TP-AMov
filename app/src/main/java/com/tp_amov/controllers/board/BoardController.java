@@ -115,9 +115,12 @@ public class BoardController extends ViewModel
     }
 
     private void GetOnlineSolvedBoard(final NetworkRequestType networkRequestType){
-
-        String urlPOST = WEBSERVICE_URL + "solve";
         final String URLEncodedFINAL = board.toURLEncodedString();
+        String urlPOST;
+        if(networkRequestType == NetworkRequestType.validateSolution)
+            urlPOST = WEBSERVICE_URL + "validate";
+        else
+            urlPOST = WEBSERVICE_URL + "solve";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, urlPOST,
                 new Response.Listener<String>() {

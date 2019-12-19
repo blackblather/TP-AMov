@@ -7,21 +7,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.*;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.util.Consumer;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import com.tp_amov.controllers.board.BoardController;
 import com.tp_amov.events.board.BoardEvents;
@@ -30,7 +21,6 @@ import com.tp_amov.models.board.EditStack;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class BoardActivity extends AppCompatActivity {
 
@@ -92,7 +82,15 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnBoardSolved(new Runnable() {
             @Override
             public void run() {
-                //TODO
+                Toast toast = Toast.makeText(getApplicationContext(), "OH TU TAMÉM", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        });
+        boardEvents.setOnBoardUnsolved(new Runnable(){
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(getApplicationContext(), "OH TU BURR DE MERDA", Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
     }
@@ -604,8 +602,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onSubmitBoard(View t) {
-        Toast toast = Toast.makeText(getApplicationContext(), "Submit not Implemented", Toast.LENGTH_SHORT);
-        toast.show();
+        boardController.ValidateSolution();
     }
 
     public void onBackspace(View t) {
