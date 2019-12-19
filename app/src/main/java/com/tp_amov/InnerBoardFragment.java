@@ -53,7 +53,7 @@ public class InnerBoardFragment extends Fragment {
         }
     }
 
-    void UpdateValue(int index, Integer value)
+    void UpdateValue(int index, Integer value, Integer color)
     {
         EditText temp = (EditText)nums.get(index);
         temp.setText(value.toString());
