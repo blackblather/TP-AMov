@@ -40,22 +40,52 @@
     <style name="kbrd_btn">
         <item name="android:layout_width">56dp</item>
         <item name="android:layout_height">56dp</item>
-        <item name="android:layout_margin">4dp</item>
+        <item name="android:layout_margin">3dp</item>
         <item name="android:onClick">onClick</item>
         <item name="android:textSize">20sp</item>
         <item name="android:translationZ">12dp</item>
         <item name="android:elevation">6dp</item>
     </style>
 
+    <style name="hint_btn">
+        <item name="android:layout_width">56dp</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_margin">3dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:translationZ">12dp</item>
+        <item name="android:elevation">6dp</item>
+        <item name="android:onClick">onHintRequest</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:drawableStart">@drawable/ic_hint_icon</item>
+        <item name="android:enabled">true</item>
+    </style>
+
+    <style name="backspace_btn">
+        <item name="android:layout_width">56dp</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_margin">3dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:translationZ">12dp</item>
+        <item name="android:elevation">6dp</item>
+        <item name="android:onClick">onBackspace</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:drawableStart">@drawable/ic_backspace_icon</item>
+        <item name="android:enabled">true</item>
+    </style>
+
     <style name="submit_btn">
         <item name="android:layout_width">56dp</item>
         <item name="android:layout_height">56dp</item>
-        <item name="android:layout_margin">4dp</item>
+        <item name="android:layout_margin">2dp</item>
         <item name="android:textSize">20sp</item>
         <item name="android:translationZ">12dp</item>
         <item name="android:elevation">6dp</item>
         <item name="android:onClick">onSubmitBoard</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:drawableStart">@drawable/ic_submit_icon</item>
         <item name="android:enabled">true</item>
     </style>
-
 </resources>
