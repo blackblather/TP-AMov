@@ -66,7 +66,11 @@ public class BoardActivity extends AppCompatActivity {
                     color = getColorUnselect();
 
                 editStackElement.getSelectedCell().setBackground(color);
-                editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
+                String valueToInsert = Integer.toString(editStackElement.getSelectedValue());
+                if(!valueToInsert.equals("0"))
+                    editStackElement.getSelectedCell().setText(valueToInsert);
+                else
+                    editStackElement.getSelectedCell().setText("");
             }
         });
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
@@ -413,7 +417,7 @@ public class BoardActivity extends AppCompatActivity {
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // In landscape
             setBoardSizeForScreenSize(width,height,true, context);
-            setInGamePlayerInfoForScreenSize( true, context);
+            setInGamePlayerInfoForScreenSize(true);
             setBoardKeyboardForScreenSize(width, height, true, context);
         } else {
             // In portrait
@@ -482,7 +486,7 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    private void setInGamePlayerInfoForScreenSize(boolean isLandScape, Context context){
+    private void setInGamePlayerInfoForScreenSize(boolean isLandScape){
         final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
         int image_dimension;
         ViewGroup.LayoutParams tb_size = toolbar.getLayoutParams();
@@ -609,8 +613,15 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onBackspace(View t) {
-        Toast toast = Toast.makeText(getApplicationContext(), "Backspace not Implemented", Toast.LENGTH_SHORT);
-        toast.show();
+        if(selectedCell !=null) {
+            int selectedInnerBoardId = ((ViewGroup)selectedCell.getParent()).getId();
+            int selectedCellId = selectedCell.getId();
+            editStack.AddElement(selectedInnerBoardId, selectedCellId, 0);
+            boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),0));
+        } else {
+            Toast.makeText(this, "Please select a cell!",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onHintRequest(View t) {
