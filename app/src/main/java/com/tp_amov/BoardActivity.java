@@ -18,6 +18,7 @@ import com.tp_amov.controllers.board.BoardController;
 import com.tp_amov.events.board.BoardEvents;
 import com.tp_amov.models.board.BoardPosition;
 import com.tp_amov.models.board.EditStack;
+import com.tp_amov.models.board.Element;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -288,7 +289,7 @@ public class BoardActivity extends AppCompatActivity {
 
         for (int i = 0; i < boardArray.size(); i++)
             for (int j = 0; j < boardArray.get(i).size(); j++)
-                if(!boardController.IsCellEditable(i,j))
+                if(!boardController.ElementContainsType(i,j, Element.Type.userValue, Element.Type.hintValue))
                     ibFrags.get(i).UpdateValue(j, boardArray.get(i).get(j),(dkMode.isChecked()?R.color.white:R.color.black));
     }
 

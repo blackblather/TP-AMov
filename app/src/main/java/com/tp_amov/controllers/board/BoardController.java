@@ -15,10 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class BoardController extends ViewModel
 {
@@ -192,11 +189,11 @@ public class BoardController extends ViewModel
         }
     }
 
-    private boolean CellIsWritable(BoardPosition boardPosition){
+    private boolean CellIsHintable(BoardPosition boardPosition){
         Integer innerBoardIndex = boardPosition.GetInnerBoardIndex();
         Integer cellIndex = boardPosition.GetCellIndex();
         Element element = board.GetInnerBoard(innerBoardIndex).GetElement(cellIndex);
-        return element.GetType() == Element.Type.userValue && element.GetValue() == 0;
+        return ElementContainsType(innerBoardIndex, cellIndex, Element.Type.userValue) && element.GetValue() == 0;
     }
 
     private BoardPosition GetHintFromSolvedBoard(JSONArray jsonBoard) throws JSONException {
@@ -209,7 +206,7 @@ public class BoardController extends ViewModel
         do{
             hint.SetInnerBoardIndex(rand.nextInt(totalInnerBoards));   //RANGE [0, totalInnerBoards - 1]
             hint.SetCellIndex(rand.nextInt(innerBoardsSize));          //RANGE [0, innerBoardsSize - 1]
-        } while (!CellIsWritable(hint));
+        } while (!CellIsHintable(hint));
 
         hint.SetValue(jsonBoard.getJSONArray(hint.GetInnerBoardIndex()).getInt(hint.GetCellIndex()));
 
@@ -233,19 +230,20 @@ public class BoardController extends ViewModel
 
 //------------> Getters
 
-    public ArrayList<Integer> GetValuesFromStartBoard(int index) {
-        return board.GetInnerBoard(index).toArray(Element.Type.defaultValue);
+    public ArrayList<Integer> GetValuesFromStartBoard(int innerBoardIndex) {
+        return board.GetInnerBoard(innerBoardIndex).toArray(Element.Type.defaultValue);
     }
 
 //------------> Validations
 
-    public boolean IsCellEditable(int innerBoardIndex, int elementIndex) {
+    public boolean ElementContainsType(int innerBoardIndex, int elementIndex, Element.Type... types) {
+        List<Element.Type> typesList = Arrays.asList(types);
         Element.Type elementType = board.GetInnerBoard(innerBoardIndex).GetElement(elementIndex).GetType();
-        return elementType == Element.Type.userValue || elementType == Element.Type.hintValue;
+        return typesList.contains(elementType);
     }
 
-    private boolean IsInvalidNr(int Nr) {
-        boardEvents.getOnInsertInvalidNumber().run();
+    public boolean IsValidNumber(int innerBoardIndex, int cellIndex, int value){
+
         return false;
     }
 
