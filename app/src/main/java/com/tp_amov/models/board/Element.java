@@ -9,11 +9,11 @@ public class Element{
     }
 //Control vars
     private Type type;
-    private Integer value;
+    private int value;
 
 //------------> Initializers
 
-    Element(Type type, Integer value){
+    Element(Type type, int value){
         this.type = type;
         this.value = value;
     }
@@ -24,7 +24,7 @@ public class Element{
         return type;
     }
 
-    public Integer GetValue() {
+    public int GetValue() {
         return value;
     }
 
@@ -34,7 +34,7 @@ public class Element{
         this.type = type;
     }
 
-    void SetValue(Integer value) {
+    void SetValue(int value) {
         this.value = value;
     }
 }
