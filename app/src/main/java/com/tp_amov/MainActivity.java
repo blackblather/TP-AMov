@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Create listeners to change the "ENABLED" property of "btn_m3" based on network changes
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkRequest networkRequest = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR).build();
+        NetworkRequest networkRequest = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR).addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build();
         connMgr.registerNetworkCallback(networkRequest, new ConnectivityManager.NetworkCallback(){
             private Button btn_m3 = (Button) findViewById(R.id.btn_m3);
             @Override
