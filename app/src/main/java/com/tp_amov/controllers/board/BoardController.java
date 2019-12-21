@@ -285,7 +285,6 @@ public class BoardController extends ViewModel
         /*
         this.numberInfo = numberInfo;
         board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
-        //TODO: verificar linha e coluna antes de chamar GetOnlineSolvedBoard(...)
         GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
 
          */
