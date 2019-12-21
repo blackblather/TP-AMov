@@ -21,20 +21,17 @@ public class AsyncInvalidNumberTimer extends AsyncTask<Void, Void, BoardActivity
             seconds = seconds * 1/0.5;
 
             while((seconds--) > 0) {
-                if(isCancelled())
-                    break;
                 Thread.sleep((long)(checkRate*1000));
             }
 
         } catch (InterruptedException e) {
-            e.printStackTrace();
-            return null;
+            //Task was canceled
         }
         return editStackElement.getBoardActivity();
     }
 
+    //Only called if AsyncTask was NOT canceled
     protected void onPostExecute(BoardActivity boardActivity){
-        editStackElement.RemoveIdenticalRunning();
 
         Drawable color;
 

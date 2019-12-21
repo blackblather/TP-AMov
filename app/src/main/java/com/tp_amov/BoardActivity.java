@@ -217,9 +217,9 @@ public class BoardActivity extends AppCompatActivity {
 
     public void onClick(View t) {
         if(selectedCell !=null) {
-            int selectedInnerBoardId = ((ViewGroup)selectedCell.getParent()).getId();
-            int selectedCellId = selectedCell.getId();
-            editStack.AddElement(selectedInnerBoardId, selectedCellId, getBtnValue(t));
+            int selectedInnerBoardResourceId = ((ViewGroup)selectedCell.getParent()).getId();
+            int selectedCellResourceId = selectedCell.getId();
+            editStack.AddElement(selectedInnerBoardResourceId, selectedCellResourceId, getBtnValue(t));
             boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),getBtnValue(t)));
         } else {
             Toast.makeText(this, "Please select a cell!",
