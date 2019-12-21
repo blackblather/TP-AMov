@@ -110,7 +110,7 @@ public class EditStack extends ViewModel {
             Element e = runningList.get(i);
             if (e.getTimer() != null && e.equals(element)) {
                 runningList.remove(e);
-                e.getTimer().cancel(true);
+                e.getTimer().cancel(false);
                 i--;
             }
         }
