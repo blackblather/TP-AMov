@@ -242,18 +242,53 @@ public class BoardController extends ViewModel
         return typesList.contains(elementType);
     }
 
-    public boolean IsValidNumber(int innerBoardIndex, int cellIndex, int value){
-
+    public boolean IsValidNumber(BoardPosition numberInfo) throws JSONException {
+        //Checks if innerboard contains value
+        if(!board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).ContainsValue(numberInfo.GetValue())){
+            //Gets base and offsets to calculate row and col were the value should be placed
+            int baseRow = (numberInfo.GetInnerBoardIndex()/3)*3,    //Used as a base to calculate row
+                baseColumn = (numberInfo.GetInnerBoardIndex()%3)*3, //Used as a base to calculate row
+                offsetRow = numberInfo.GetCellIndex()/3,            //Add to base to get row
+                offsetColumn = numberInfo.GetCellIndex()%3;         //Add to base to get column
+            //Calculate row and columns
+            int row = baseRow + offsetRow,
+                column = baseColumn + offsetColumn;
+            //Get board in JSONArray (NOT USING INNERBOARDS) format.
+            //WARNING: This step trades time complexity for less code complexity
+            JSONArray boardArray = board.toJSONArray();
+            //Check for duplicates in (i, column) and (row, i) in the same "for" loop
+            for(int i = 0; i < 9; i++){
+                if(boardArray.getJSONArray(i).getInt(column) == numberInfo.GetValue() && i != row)
+                    return false;
+                if(boardArray.getJSONArray(row).getInt(i) == numberInfo.GetValue() && i != column)
+                    return false;
+            }
+            return true;
+        }
         return false;
     }
 
 //------------> User Interactions
 
     public void InsertNumber(BoardPosition numberInfo) {
-         this.numberInfo = numberInfo;
+        try {
+            board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), 0);
+            if(IsValidNumber(numberInfo)) {
+                board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
+                boardEvents.getOnInsertValidNumber().run();
+            } else {
+                boardEvents.getOnInsertInvalidNumber().run();
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        /*
+        this.numberInfo = numberInfo;
         board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
         //TODO: verificar linha e coluna antes de chamar GetOnlineSolvedBoard(...)
         GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
+
+         */
     }
 
     public void ValidateSolution(){
