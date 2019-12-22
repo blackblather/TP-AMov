@@ -13,7 +13,6 @@
             app:titleTextColor="@color/white"
             android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            app:layout_constraintTop_toTopOf="parent"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             tools:layout_editor_absoluteX="70dp" />
     <!--android:background="?attr/colorPrimary"-->
