@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     public void OnModeBtnClick(View v){
         //Clicked button is enabled
         Intent intent = new Intent(this, SelectUserActivity.class);
-        String message = ((Button) v).getText().toString();
+        String message = ((Button) v).getTag().toString();
         intent.putExtra(EXTRA_SELECTED_MODE, message);
         startActivity(intent);
     }
@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Set toolbar info
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        toolbar.setTitle("Sudoku - Início");
         setSupportActionBar(toolbar);
 
         //By default, button is disabled

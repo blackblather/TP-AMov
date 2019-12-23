@@ -19,13 +19,12 @@ public class SelectUserActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        if(selectedMode.equals(getString(R.string.modo_1))){
-            fragment = new SelectUserFragmentM1M3();
-        } else if(selectedMode.equals(getString(R.string.modo_2))){
-            fragment = new SelectUserFragmentM2();
-        } else if(selectedMode.equals(getString(R.string.modo_3))){
-            fragment = new SelectUserFragmentM1M3();    //TODO
-        } else return;
+        switch (selectedMode){
+            case "btn_m1": fragment = new SelectUserFragmentM1M3(); break;
+            case "btn_m2": fragment = new SelectUserFragmentM2(); break;
+            case "btn_m3": fragment = new SelectUserFragmentM1M3(); break;  //TODO
+            default: return;
+        }
 
         fragmentTransaction.add(R.id.fragment_layout, fragment);
         fragmentTransaction.commitNow();
@@ -38,6 +37,7 @@ public class SelectUserActivity extends AppCompatActivity {
 
         //Set toolbar info
         toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        toolbar.setTitle("Sudoku - Configuração do Jogo");
         setSupportActionBar(toolbar);
 
 
