@@ -122,6 +122,9 @@ public class BoardActivity extends AppCompatActivity {
             Intent intent = getIntent();
             usernames = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_USERNAMES);
             imgPaths = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_IMG_PATHS);
+            boolean useWebservice = intent.getBooleanExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, false);
+            Toast toast = Toast.makeText(getApplicationContext(), "VALUE = " + (useWebservice?"TRUE":"FALSE"), Toast.LENGTH_SHORT);
+            toast.show();
             /*//Get fragment manager / fragment transaction objects
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

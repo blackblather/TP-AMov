@@ -8,18 +8,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import com.tp_amov.models.SelectUserFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class SelectUserFragmentM1M3 extends Fragment {
-    public SelectUserFragmentM1M3() { }
+public class SelectUserFragmentM1M3 extends SelectUserFragment {
 
-    static SelectUserFragmentM1M3 newInstance(String param1, String param2) {
-        return new SelectUserFragmentM1M3();
-    }
+    public SelectUserFragmentM1M3() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,6 +46,7 @@ public class SelectUserFragmentM1M3 extends Fragment {
 
                 intent.putExtra(SelectUserActivity.EXTRA_USERNAMES, new ArrayList<String>(Collections.singletonList(usernameTxt.getText().toString())));
                 intent.putExtra(SelectUserActivity.EXTRA_IMG_PATHS, new ArrayList<String>(Collections.singletonList("")));
+                intent.putExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, GetUseWebservice());
 
                 startActivity(intent);
             }

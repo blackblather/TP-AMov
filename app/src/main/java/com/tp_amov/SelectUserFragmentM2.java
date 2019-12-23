@@ -5,9 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import com.tp_amov.models.SelectUserFragment;
 
-public class SelectUserFragmentM2 extends Fragment {
+public class SelectUserFragmentM2 extends SelectUserFragment {
 
     public SelectUserFragmentM2() {
         // Required empty public constructor
