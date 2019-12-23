@@ -32,6 +32,7 @@ public class BoardActivity extends AppCompatActivity {
     private MenuItem highlightOpt;
     private MenuItem dkMode;
     private int foregroundUnselected, foregroundSelected;
+    private boolean useWebservice = false;
 
     private EditStack editStack;
 
@@ -117,27 +118,13 @@ public class BoardActivity extends AppCompatActivity {
             toolbar = (Toolbar) findViewById(R.id.my_toolbar);
             setSupportActionBar(toolbar);
 
-
             //Get intent
             Intent intent = getIntent();
             usernames = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_USERNAMES);
             imgPaths = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_IMG_PATHS);
-            boolean useWebservice = intent.getBooleanExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, false);
+            useWebservice = intent.getBooleanExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, false);
             Toast toast = Toast.makeText(getApplicationContext(), "VALUE = " + (useWebservice?"TRUE":"FALSE"), Toast.LENGTH_SHORT);
             toast.show();
-            /*//Get fragment manager / fragment transaction objects
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            //Gets new fragment instance by sending it the chosen usernames + imgPaths
-            Fragment inGamePlayerInfoFragment = InGamePlayerInfoFragment.newInstance(new ArrayList<>(Arrays.asList("B")), imgPaths);
-
-            //Adds fragment to activity
-            fragmentTransaction.add(R.id.Board_activity, fragment);
-            fragmentTransaction.commitNow();*/
-            //Get application context
-
-            //fragmentTransaction.commit();
 
             //Populates fragment
             inGamePlayerInfoFragment.onSetDataForInGamePlayerInfo(usernames,imgPaths);
@@ -159,7 +146,7 @@ public class BoardActivity extends AppCompatActivity {
 
         //Set boardController using ViewModelProviders
         SetBoardRunnables();
-        BoardController.Factory boardControllerFactory = new BoardController.Factory(getApplicationContext(), "easy", boardEvents);
+        BoardController.Factory boardControllerFactory = new BoardController.Factory(getApplicationContext(), "easy", boardEvents, useWebservice);
         boardController = ViewModelProviders.of(this, boardControllerFactory).get(BoardController.class);
         boardController.InitializeBoard();
 

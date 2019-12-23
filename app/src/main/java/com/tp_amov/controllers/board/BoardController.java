@@ -23,16 +23,19 @@ public class BoardController extends ViewModel
         private Context context;
         private String difficulty;
         private BoardEvents boardEvents;
-        public Factory(Context context, String difficulty, BoardEvents boardEvents){
+        private boolean useWebservice;
+
+        public Factory(Context context, String difficulty, BoardEvents boardEvents, boolean useWebservice){
             this.context = context;
             this.difficulty = difficulty;
             this.boardEvents = boardEvents;
+            this.useWebservice = useWebservice;
         }
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             try {
-                return modelClass.getConstructor(Context.class, String.class, BoardEvents.class).newInstance(context, difficulty, boardEvents);
+                return modelClass.getConstructor(Context.class, String.class, BoardEvents.class, Boolean.class).newInstance(context, difficulty, boardEvents, useWebservice);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -50,7 +53,8 @@ public class BoardController extends ViewModel
     private Integer hintsLeft = 3;
     private String difficulty;
     private boolean alreadyCreated = false;
-     private BoardPosition numberInfo;
+    private boolean useWebservice = false;
+    private BoardPosition numberInfo;
 //Callbacks
     private BoardEvents boardEvents;
 //Network vars
@@ -68,10 +72,11 @@ public class BoardController extends ViewModel
         }
     }
 
-    public BoardController(Context context, String difficulty, BoardEvents boardEvents) {
+    public BoardController(Context context, String difficulty, BoardEvents boardEvents, Boolean useWebservice) {
         this.boardEvents = boardEvents;
         this.queue = CustomRequestQueueFactory.NewSingleThreadRequestQueue(context);
         this.difficulty = difficulty;
+        this.useWebservice = useWebservice;
     }
 
     public void InitializeBoard(){
@@ -271,23 +276,23 @@ public class BoardController extends ViewModel
 //------------> User Interactions
 
     public void InsertNumber(BoardPosition numberInfo) {
-        try {
-            board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), 0);
-            if(IsValidNumber(numberInfo)) {
-                board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
-                boardEvents.getOnInsertValidNumber().run();
-            } else {
-                boardEvents.getOnInsertInvalidNumber().run();
+        if(useWebservice) {
+            this.numberInfo = numberInfo;
+            board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
+            GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
+        } else {
+            try {
+                board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), 0);
+                if (IsValidNumber(numberInfo)) {
+                    board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
+                    boardEvents.getOnInsertValidNumber().run();
+                } else {
+                    boardEvents.getOnInsertInvalidNumber().run();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e){
-            e.printStackTrace();
         }
-        /*
-        this.numberInfo = numberInfo;
-        board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
-        GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
-
-         */
     }
 
     public void ValidateSolution(){
