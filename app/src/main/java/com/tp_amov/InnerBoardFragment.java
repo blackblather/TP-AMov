@@ -39,27 +39,26 @@ public class InnerBoardFragment extends Fragment {
         int childViewCount = root.getChildCount();
 
         //Add children to ArrayList
-        for (int i = 0; i < childViewCount; i++){
+        for (int i = 0; i < childViewCount; i++) {
             View childV = root.getChildAt(i);
-            try{
+            try {
                 String id_tag = ((BoardActivity)getActivity()).getIDString(childV,R.id.class);
                 String[] id = id_tag.split("btn_box_m");
                 int index_btn = Integer.parseInt(id[1]);
                 nums.add(index_btn-1,childV);
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    void UpdateValue(int index, Integer value, Integer color)
-    {
-        EditText temp = (EditText)nums.get(index);
-        temp.setText(value.toString());
+    void UpdateValue(int index, Integer value, Integer color, boolean enabled) {
+        EditText editText = (EditText)nums.get(index);
+        editText.setText(value.toString());
         int readonly_color = ResourcesCompat.getColor(getResources(), color, null);
-        temp.setTextColor(readonly_color);
-        temp.setEnabled(false);
+        editText.setTextColor(readonly_color);
+        editText.setEnabled(enabled);
     }
 
     ArrayList<View> GetViews(){

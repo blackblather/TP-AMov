@@ -100,7 +100,7 @@ public class BoardActivity extends AppCompatActivity {
                 int innerBoardIndex = boardPosition.GetInnerBoardIndex();
                 int cellIndex = boardPosition.GetCellIndex();
                 int value = boardPosition.GetValue();
-                ibFrags.get(innerBoardIndex).UpdateValue(cellIndex, value,R.color.nice_green);
+                ibFrags.get(innerBoardIndex).UpdateValue(cellIndex, value,R.color.nice_green, true);
             }
         });
     }
@@ -290,7 +290,7 @@ public class BoardActivity extends AppCompatActivity {
         for (int i = 0; i < boardArray.size(); i++)
             for (int j = 0; j < boardArray.get(i).size(); j++)
                 if(!boardController.ElementContainsType(i,j, Element.Type.userValue, Element.Type.hintValue))
-                    ibFrags.get(i).UpdateValue(j, boardArray.get(i).get(j),(dkMode.isChecked()?R.color.white:R.color.black));
+                    ibFrags.get(i).UpdateValue(j, boardArray.get(i).get(j),(dkMode.isChecked()?R.color.white:R.color.black), false);
     }
 
     private void Toggle_darkmode() {
@@ -590,11 +590,11 @@ public class BoardActivity extends AppCompatActivity {
         Drawable.ConstantState constantStateDrawableA = unselected.getConstantState();
         Drawable.ConstantState constantStateDrawableB = current.getConstantState();
         if(constantStateDrawableA.equals(constantStateDrawableB)) {
-            if(selectedCell ==null) {
+            if(selectedCell == null) {
                 selectedCell = (EditText)t;
                 selectedCell.setTextColor(foregroundSelected);
             }
-            else if(selectedCell != (EditText)t) {
+            else if(selectedCell != t) {
                 selectedCell.setBackground(unselected);
                 selectedCell.setTextColor(foregroundUnselected);
                 selectedCell = (EditText) t;
@@ -603,7 +603,7 @@ public class BoardActivity extends AppCompatActivity {
             t.setBackground(selected);
         }
         else {
-            if(selectedCell == (EditText)t) {
+            if(selectedCell == t) {
                 selectedCell.setTextColor(foregroundUnselected);
                 selectedCell = null;
             }

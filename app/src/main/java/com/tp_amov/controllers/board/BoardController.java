@@ -242,7 +242,7 @@ public class BoardController extends ViewModel
         return typesList.contains(elementType);
     }
 
-    public boolean IsValidNumber(BoardPosition numberInfo) throws JSONException {
+    private boolean IsValidNumber(BoardPosition numberInfo) throws JSONException {
         //Checks if innerboard contains value
         if(!board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).ContainsValue(numberInfo.GetValue())){
             //Gets base and offsets to calculate row and col were the value should be placed
