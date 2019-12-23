@@ -172,7 +172,8 @@ public class BoardActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.board_settings_menu, menu);
         highlightOpt = menu.findItem(R.id.board_action_setting_HEC);
         dkMode = menu.findItem(R.id.board_action_setting_DKM);
-        if(savedInstance != null) { //Isto está aqui porque os menus são criados depois do onRestoreInstanceState porque os menus são criados depois!!
+        //Isto está aqui porque os menus são criados depois do onRestoreInstanceState
+        if(savedInstance != null) {
             highlightOpt.setChecked((boolean) savedInstance.getBoolean("Highlight", true));
             dkMode.setChecked((boolean) savedInstance.getBoolean("Dark_mode", false));
             Toggle_darkmode();

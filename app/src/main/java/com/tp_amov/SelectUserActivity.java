@@ -2,6 +2,8 @@ package com.tp_amov;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -14,6 +16,8 @@ public class SelectUserActivity extends AppCompatActivity {
     private String selectedMode;
     private Fragment fragment;
     private Toolbar toolbar;
+    private Bundle savedInstanceState;
+    private MenuItem useWebservice;
 
     private void LoadFragment(){
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -32,6 +36,8 @@ public class SelectUserActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        this.savedInstanceState = savedInstanceState;
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_user);
 
@@ -51,5 +57,31 @@ public class SelectUserActivity extends AppCompatActivity {
             System.exit(1);
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_settings_menu, menu);
+        useWebservice = menu.findItem(R.id.use_webservice);
+        if(savedInstanceState != null) //Isto está aqui porque os menus são criados depois do onRestoreInstanceState porque os menus são criados depois!!
+            useWebservice.setChecked(savedInstanceState.getBoolean("useWebservice", false));
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.isChecked())
+            item.setChecked(false);
+        else
+            item.setChecked(true);
+        return true;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean("useWebservice", useWebservice.isChecked());
+        super.onSaveInstanceState(outState);
     }
 }

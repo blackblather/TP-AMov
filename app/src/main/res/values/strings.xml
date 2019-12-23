@@ -11,4 +11,5 @@
     <string name="username_player_2">Username (player 2)</string>
     <string name="dark_ui">Dark UI</string>
     <string name="game_mode">Modo de Jogo</string>
+    <string name="use_webservice">Use Webservice</string>
 </resources>
