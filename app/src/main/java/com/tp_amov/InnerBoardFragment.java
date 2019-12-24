@@ -57,7 +57,7 @@ public class InnerBoardFragment extends Fragment {
     {
         EditText temp = (EditText)nums.get(index);
         temp.setText(value.toString());
-        int readonly_color = ResourcesCompat.getColor(getResources(), R.color.black, null);
+        int readonly_color = ResourcesCompat.getColor(getResources(), color, null);
         temp.setTextColor(readonly_color);
         temp.setEnabled(false);
     }

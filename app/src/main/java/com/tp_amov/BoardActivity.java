@@ -67,8 +67,11 @@ public class BoardActivity extends AppCompatActivity {
 
                 editStackElement.getSelectedCell().setBackground(color);
                 String valueToInsert = Integer.toString(editStackElement.getSelectedValue());
-                if(!valueToInsert.equals("0"))
+                if(!valueToInsert.equals("0")) {
                     editStackElement.getSelectedCell().setText(valueToInsert);
+                    TextView score = findViewById(R.id.in_game_score_text);
+                    score.setText(boardController.getScore().toString());
+                }
                 else
                     editStackElement.getSelectedCell().setText("");
             }
@@ -79,12 +82,14 @@ public class BoardActivity extends AppCompatActivity {
                 EditStack.Element editStackElement = editStack.RemoveInvalidElement();
                 editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
                 editStackElement.getSelectedCell().setBackground(getColorInvalid());
+                TextView score = findViewById(R.id.in_game_score_text);
+                score.setText(boardController.getScore().toString());
             }
         });
         boardEvents.setOnBoardCreationError(new Runnable() {
             @Override
             public void run() {
-                //TODO
+                finishActivity(0);
             }
         });
         boardEvents.setOnBoardCreationSuccess(new Consumer<ArrayList<ArrayList<Integer>>>() {
@@ -292,6 +297,8 @@ public class BoardActivity extends AppCompatActivity {
     private void Toggle_darkmode() {
         ConstraintLayout playerNameplate = (ConstraintLayout) inGamePlayerInfoFragment.getView();
         TextView nameplateText = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_current_user_txt);
+        TextView scoreText = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_score_label);
+        TextView scoreValue = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_score_text);
         androidx.gridlayout.widget.GridLayout gl = findViewById(R.id.Board_activity);
         int default_color = ResourcesCompat.getColor(getResources(),R.color.white,null);
         int dark_color_background = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
@@ -302,12 +309,16 @@ public class BoardActivity extends AppCompatActivity {
             NubPadBackground.setBackground(dark_color_background_kbd);
             playerNameplate.setBackground(dark_color_background_kbd);
             nameplateText.setTextColor(default_color);
+            scoreText.setTextColor(default_color);
+            scoreValue.setTextColor(default_color);
         }
         else{
             gl.setBackgroundColor(default_color);
             NubPadBackground.setBackground(default_color_kbd);
             playerNameplate.setBackground(default_color_kbd);
             nameplateText.setTextColor(dark_color_background);
+            scoreText.setTextColor(dark_color_background);
+            scoreValue.setTextColor(dark_color_background);
         }
         ApplyDarkMode_opt();
         ToggleHighlight();
@@ -413,16 +424,19 @@ public class BoardActivity extends AppCompatActivity {
     private void setScreenAdaptation(Context context){
         int width = getScreenWidthInDPs(context);
         int height = getScreenHeightInDPs(context);
+        int cell_tam;
+        int key_tam;
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // In landscape
             setBoardSizeForScreenSize(width,height,true, context);
-            setInGamePlayerInfoForScreenSize(true);
+            setInGamePlayerInfoForScreenSize(0,0,0,true);
             setBoardKeyboardForScreenSize(width, height, true, context);
         } else {
             // In portrait
-            setBoardSizeForScreenSize(width,height,false, context);
-            setBoardKeyboardForScreenSize(width, height, false, context);
+            cell_tam = setBoardSizeForScreenSize(width,height,false, context);
+            key_tam = setBoardKeyboardForScreenSize(width, height, false, context);
+            setInGamePlayerInfoForScreenSize(height,cell_tam,key_tam,false);
         }
     }
 
@@ -486,18 +500,21 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    private void setInGamePlayerInfoForScreenSize(boolean isLandScape){
+    private void setInGamePlayerInfoForScreenSize(int height,int cell_tam,int key_tam,boolean isLandScape){
         final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
         int image_dimension;
         ViewGroup.LayoutParams tb_size = toolbar.getLayoutParams();
         View pImage = findViewById(R.id.profile_image);
         if(isLandScape){
             image_dimension = tb_size.height;
-            ViewGroup.LayoutParams layoutParams = pImage.getLayoutParams();
-            layoutParams.width = image_dimension;
-            layoutParams.height = image_dimension;
-            pImage.setLayoutParams(layoutParams);
         }
+        else{
+            image_dimension = (int) ((height - ((int)convertPixelsToDp(((cell_tam*9)+(key_tam*2)+tb_size.height),getApplicationContext())+84)) * scale);
+        }
+        ViewGroup.LayoutParams layoutParams = pImage.getLayoutParams();
+        layoutParams.width = image_dimension;
+        layoutParams.height = image_dimension;
+        pImage.setLayoutParams(layoutParams);
 
     }
 
