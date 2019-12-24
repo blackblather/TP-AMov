@@ -116,6 +116,7 @@ public class BoardActivity extends AppCompatActivity {
 
             //Set toolbar info
             toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+            toolbar.setTitle("Sudoku - Jogo");
             setSupportActionBar(toolbar);
 
             //Get intent
@@ -603,7 +604,10 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onSubmitBoard(View t) {
-        boardController.ValidateSolution();
+        //boardController.ValidateSolution();
+        Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
+
+        startActivity(intent);
     }
 
     public void onBackspace(View t) {

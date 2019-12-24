@@ -12,4 +12,5 @@
     <string name="dark_ui">Dark UI</string>
     <string name="game_mode">Modo de Jogo</string>
     <string name="usar_webservice">Usar Webservice</string>
+    <string name="menu_inicial">Menu Inicial</string>
 </resources>
