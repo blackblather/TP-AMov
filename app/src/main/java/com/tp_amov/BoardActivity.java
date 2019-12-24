@@ -84,8 +84,8 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnBoardSolved(new Runnable() {
             @Override
             public void run() {
-                Toast toast = Toast.makeText(getApplicationContext(), "OH TU TAMÉM", Toast.LENGTH_SHORT);
-                toast.show();
+                Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
+                startActivity(intent);
             }
         });
         boardEvents.setOnBoardUnsolved(new Runnable(){
@@ -604,10 +604,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onSubmitBoard(View t) {
-        //boardController.ValidateSolution();
-        Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
-
-        startActivity(intent);
+        boardController.ValidateSolution();
     }
 
     public void onBackspace(View t) {
