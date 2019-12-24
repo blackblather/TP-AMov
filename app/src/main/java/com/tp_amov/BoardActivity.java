@@ -7,30 +7,21 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.*;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.util.Consumer;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import com.tp_amov.controllers.board.BoardController;
 import com.tp_amov.events.board.BoardEvents;
 import com.tp_amov.models.board.BoardPosition;
 import com.tp_amov.models.board.EditStack;
+import com.tp_amov.models.board.Element;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class BoardActivity extends AppCompatActivity {
 
@@ -41,6 +32,7 @@ public class BoardActivity extends AppCompatActivity {
     private MenuItem highlightOpt;
     private MenuItem dkMode;
     private int foregroundUnselected, foregroundSelected;
+    private boolean useWebservice = false;
 
     private EditStack editStack;
 
@@ -49,8 +41,8 @@ public class BoardActivity extends AppCompatActivity {
     GridLayout NubPadBackground;
     InGamePlayerInfoFragment inGamePlayerInfoFragment;
     ArrayList<InnerBoardFragment> ibFrags = new ArrayList<>();
-    ArrayList<String> usernames;
-    ArrayList<String> imgPaths;
+    private ArrayList<String> usernames;
+    private ArrayList<String> imgPaths;
 
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
@@ -101,7 +93,24 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnBoardSolved(new Runnable() {
             @Override
             public void run() {
-                //TODO
+                Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
+                startActivity(intent);
+            }
+        });
+        boardEvents.setOnBoardUnsolved(new Runnable(){
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(getApplicationContext(), "Solução inválida", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        });
+        boardEvents.setOnReceivedHint(new Consumer<BoardPosition>() {
+            @Override
+            public void accept(BoardPosition boardPosition) {
+                int innerBoardIndex = boardPosition.GetInnerBoardIndex();
+                int cellIndex = boardPosition.GetCellIndex();
+                int value = boardPosition.GetValue();
+                ibFrags.get(innerBoardIndex).UpdateValue(cellIndex, value,R.color.nice_green, true);
             }
         });
     }
@@ -116,26 +125,16 @@ public class BoardActivity extends AppCompatActivity {
 
             //Set toolbar info
             toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+            toolbar.setTitle("Sudoku - Jogo");
             setSupportActionBar(toolbar);
-
 
             //Get intent
             Intent intent = getIntent();
             usernames = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_USERNAMES);
             imgPaths = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_IMG_PATHS);
-            /*//Get fragment manager / fragment transaction objects
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            //Gets new fragment instance by sending it the chosen usernames + imgPaths
-            Fragment inGamePlayerInfoFragment = InGamePlayerInfoFragment.newInstance(new ArrayList<>(Arrays.asList("B")), imgPaths);
-
-            //Adds fragment to activity
-            fragmentTransaction.add(R.id.Board_activity, fragment);
-            fragmentTransaction.commitNow();*/
-            //Get application context
-
-            //fragmentTransaction.commit();
+            useWebservice = intent.getBooleanExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, false);
+            Toast toast = Toast.makeText(getApplicationContext(), "VALUE = " + (useWebservice?"TRUE":"FALSE"), Toast.LENGTH_SHORT);
+            toast.show();
 
             //Populates fragment
             inGamePlayerInfoFragment.onSetDataForInGamePlayerInfo(usernames,imgPaths);
@@ -157,7 +156,7 @@ public class BoardActivity extends AppCompatActivity {
 
         //Set boardController using ViewModelProviders
         SetBoardRunnables();
-        BoardController.Factory boardControllerFactory = new BoardController.Factory(getApplicationContext(), "easy", boardEvents);
+        BoardController.Factory boardControllerFactory = new BoardController.Factory(getApplicationContext(), "easy", boardEvents, useWebservice);
         boardController = ViewModelProviders.of(this, boardControllerFactory).get(BoardController.class);
         boardController.InitializeBoard();
 
@@ -173,7 +172,8 @@ public class BoardActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.board_settings_menu, menu);
         highlightOpt = menu.findItem(R.id.board_action_setting_HEC);
         dkMode = menu.findItem(R.id.board_action_setting_DKM);
-        if(savedInstance != null) { //Isto está aqui porque os menus são criados depois do onRestoreInstanceState porque os menus são criados depois!!
+        //Isto está aqui porque os menus são criados depois do onRestoreInstanceState
+        if(savedInstance != null) {
             highlightOpt.setChecked((boolean) savedInstance.getBoolean("Highlight", true));
             dkMode.setChecked((boolean) savedInstance.getBoolean("Dark_mode", false));
             Toggle_darkmode();
@@ -218,9 +218,9 @@ public class BoardActivity extends AppCompatActivity {
 
     public void onClick(View t) {
         if(selectedCell !=null) {
-            int selectedInnerBoardId = ((ViewGroup)selectedCell.getParent()).getId();
-            int selectedCellId = selectedCell.getId();
-            editStack.AddElement(selectedInnerBoardId, selectedCellId, getBtnValue(t));
+            int selectedInnerBoardResourceId = ((ViewGroup)selectedCell.getParent()).getId();
+            int selectedCellResourceId = selectedCell.getId();
+            editStack.AddElement(selectedInnerBoardResourceId, selectedCellResourceId, getBtnValue(t));
             boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),getBtnValue(t)));
         } else {
             Toast.makeText(this, "Please select a cell!",
@@ -290,8 +290,8 @@ public class BoardActivity extends AppCompatActivity {
 
         for (int i = 0; i < boardArray.size(); i++)
             for (int j = 0; j < boardArray.get(i).size(); j++)
-                if(!boardController.IsCellEditable(i,j))
-                    ibFrags.get(i).UpdateValue(j, boardArray.get(i).get(j),(dkMode.isChecked()?R.color.white:R.color.black));
+                if(!boardController.ElementContainsType(i,j, Element.Type.userValue, Element.Type.hintValue))
+                    ibFrags.get(i).UpdateValue(j, boardArray.get(i).get(j),(dkMode.isChecked()?R.color.white:R.color.black), false);
     }
 
     private void Toggle_darkmode() {
@@ -603,11 +603,11 @@ public class BoardActivity extends AppCompatActivity {
         Drawable.ConstantState constantStateDrawableA = unselected.getConstantState();
         Drawable.ConstantState constantStateDrawableB = current.getConstantState();
         if(constantStateDrawableA.equals(constantStateDrawableB)) {
-            if(selectedCell ==null) {
+            if(selectedCell == null) {
                 selectedCell = (EditText)t;
                 selectedCell.setTextColor(foregroundSelected);
             }
-            else if(selectedCell != (EditText)t) {
+            else if(selectedCell != t) {
                 selectedCell.setBackground(unselected);
                 selectedCell.setTextColor(foregroundUnselected);
                 selectedCell = (EditText) t;
@@ -616,7 +616,7 @@ public class BoardActivity extends AppCompatActivity {
             t.setBackground(selected);
         }
         else {
-            if(selectedCell == (EditText)t) {
+            if(selectedCell == t) {
                 selectedCell.setTextColor(foregroundUnselected);
                 selectedCell = null;
             }
@@ -625,8 +625,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onSubmitBoard(View t) {
-        Toast toast = Toast.makeText(getApplicationContext(), "Submit not Implemented", Toast.LENGTH_SHORT);
-        toast.show();
+        boardController.ValidateSolution();
     }
 
     public void onBackspace(View t) {
@@ -642,8 +641,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onHintRequest(View t) {
-        Toast toast = Toast.makeText(getApplicationContext(), "Hint not Implemented", Toast.LENGTH_SHORT);
-        toast.show();
+        boardController.RequestHint();
     }
 
     public EditText getSelectedCell() {

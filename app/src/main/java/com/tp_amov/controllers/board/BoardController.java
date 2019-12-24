@@ -15,10 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class BoardController extends ViewModel
 {
@@ -26,16 +23,19 @@ public class BoardController extends ViewModel
         private Context context;
         private String difficulty;
         private BoardEvents boardEvents;
-        public Factory(Context context, String difficulty, BoardEvents boardEvents){
+        private boolean useWebservice;
+
+        public Factory(Context context, String difficulty, BoardEvents boardEvents, boolean useWebservice){
             this.context = context;
             this.difficulty = difficulty;
             this.boardEvents = boardEvents;
+            this.useWebservice = useWebservice;
         }
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             try {
-                return modelClass.getConstructor(Context.class, String.class, BoardEvents.class).newInstance(context, difficulty, boardEvents);
+                return modelClass.getConstructor(Context.class, String.class, BoardEvents.class, Boolean.class).newInstance(context, difficulty, boardEvents, useWebservice);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -54,7 +54,8 @@ public class BoardController extends ViewModel
     private Integer hintsLeft = 3;
     private String difficulty;
     private boolean alreadyCreated = false;
-     private BoardPosition numberInfo;
+    private boolean useWebservice = false;
+    private BoardPosition numberInfo;
 //Callbacks
     private BoardEvents boardEvents;
 //Network vars
@@ -72,10 +73,11 @@ public class BoardController extends ViewModel
         }
     }
 
-    public BoardController(Context context, String difficulty, BoardEvents boardEvents) {
+    public BoardController(Context context, String difficulty, BoardEvents boardEvents, Boolean useWebservice) {
         this.boardEvents = boardEvents;
         this.queue = CustomRequestQueueFactory.NewSingleThreadRequestQueue(context);
         this.difficulty = difficulty;
+        this.useWebservice = useWebservice;
     }
 
     public void InitializeBoard(){
@@ -116,9 +118,12 @@ public class BoardController extends ViewModel
     }
 
     private void GetOnlineSolvedBoard(final NetworkRequestType networkRequestType){
-
-        String urlPOST = WEBSERVICE_URL + "solve";
         final String URLEncodedFINAL = board.toURLEncodedString();
+        String urlPOST;
+        if(networkRequestType == NetworkRequestType.validateSolution)
+            urlPOST = WEBSERVICE_URL + "validate";
+        else
+            urlPOST = WEBSERVICE_URL + "solve";
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, urlPOST,
                 new Response.Listener<String>() {
@@ -203,11 +208,11 @@ public class BoardController extends ViewModel
         }
     }
 
-    private boolean CellIsWritable(BoardPosition boardPosition){
+    private boolean CellIsHintable(BoardPosition boardPosition){
         Integer innerBoardIndex = boardPosition.GetInnerBoardIndex();
         Integer cellIndex = boardPosition.GetCellIndex();
         Element element = board.GetInnerBoard(innerBoardIndex).GetElement(cellIndex);
-        return element.GetType() == Element.Type.userValue && element.GetValue() == 0;
+        return ElementContainsType(innerBoardIndex, cellIndex, Element.Type.userValue) && element.GetValue() == 0;
     }
 
     private BoardPosition GetHintFromSolvedBoard(JSONArray jsonBoard) throws JSONException {
@@ -220,7 +225,7 @@ public class BoardController extends ViewModel
         do{
             hint.SetInnerBoardIndex(rand.nextInt(totalInnerBoards));   //RANGE [0, totalInnerBoards - 1]
             hint.SetCellIndex(rand.nextInt(innerBoardsSize));          //RANGE [0, innerBoardsSize - 1]
-        } while (!CellIsWritable(hint));
+        } while (!CellIsHintable(hint));
 
         hint.SetValue(jsonBoard.getJSONArray(hint.GetInnerBoardIndex()).getInt(hint.GetCellIndex()));
 
@@ -230,9 +235,9 @@ public class BoardController extends ViewModel
     private void RequestHintResponse(JSONObject jsonResp){
         try {
             String status = jsonResp.getString("status");
-            hintsLeft--;
-            if(status.equals("unsolved")) {
-                BoardPosition hint = GetHintFromSolvedBoard(jsonResp.getJSONArray("board"));
+            if(status.equals("solved")) {
+                BoardPosition hint = GetHintFromSolvedBoard(jsonResp.getJSONArray("solution"));
+                hintsLeft--;
                 boardEvents.getOnReceivedHint().accept(hint);
             }
             else if(status.equals("unsolvable"))
@@ -244,29 +249,64 @@ public class BoardController extends ViewModel
 
 //------------> Getters
 
-    public ArrayList<Integer> GetValuesFromStartBoard(int index) {
-        return board.GetInnerBoard(index).toArray(Element.Type.defaultValue);
+    public ArrayList<Integer> GetValuesFromStartBoard(int innerBoardIndex) {
+        return board.GetInnerBoard(innerBoardIndex).toArray(Element.Type.defaultValue);
     }
 
 //------------> Validations
 
-    public boolean IsCellEditable(int innerBoardIndex, int elementIndex) {
+    public boolean ElementContainsType(int innerBoardIndex, int elementIndex, Element.Type... types) {
+        List<Element.Type> typesList = Arrays.asList(types);
         Element.Type elementType = board.GetInnerBoard(innerBoardIndex).GetElement(elementIndex).GetType();
-        return elementType == Element.Type.userValue || elementType == Element.Type.hintValue;
+        return typesList.contains(elementType);
     }
 
-    private boolean IsInvalidNr(int Nr) {
-        boardEvents.getOnInsertInvalidNumber().run();
+    private boolean IsValidNumber(BoardPosition numberInfo) throws JSONException {
+        //Checks if innerboard contains value
+        if(!board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).ContainsValue(numberInfo.GetValue())){
+            //Gets base and offsets to calculate row and col were the value should be placed
+            int baseRow = (numberInfo.GetInnerBoardIndex()/3)*3,    //Used as a base to calculate row
+                baseColumn = (numberInfo.GetInnerBoardIndex()%3)*3, //Used as a base to calculate row
+                offsetRow = numberInfo.GetCellIndex()/3,            //Add to base to get row
+                offsetColumn = numberInfo.GetCellIndex()%3;         //Add to base to get column
+            //Calculate row and columns
+            int row = baseRow + offsetRow,
+                column = baseColumn + offsetColumn;
+            //Get board in JSONArray (NOT USING INNERBOARDS) format.
+            //WARNING: This step trades time complexity for less code complexity
+            JSONArray boardArray = board.toJSONArray();
+            //Check for duplicates in (i, column) and (row, i) in the same "for" loop
+            for(int i = 0; i < 9; i++){
+                if(boardArray.getJSONArray(i).getInt(column) == numberInfo.GetValue() && i != row)
+                    return false;
+                if(boardArray.getJSONArray(row).getInt(i) == numberInfo.GetValue() && i != column)
+                    return false;
+            }
+            return true;
+        }
         return false;
     }
 
 //------------> User Interactions
 
     public void InsertNumber(BoardPosition numberInfo) {
-         this.numberInfo = numberInfo;
-        board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
-        //TODO: verificar linha e coluna antes de chamar GetOnlineSolvedBoard(...)
-        GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
+        if(useWebservice) {
+            this.numberInfo = numberInfo;
+            board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
+            GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
+        } else {
+            try {
+                board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), 0);
+                if (IsValidNumber(numberInfo)) {
+                    board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
+                    boardEvents.getOnInsertValidNumber().run();
+                } else {
+                    boardEvents.getOnInsertInvalidNumber().run();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void ValidateSolution(){

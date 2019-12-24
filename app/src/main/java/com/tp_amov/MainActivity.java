@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity {
     static final String EXTRA_SELECTED_MODE = "com.tp_amov.SELECTED_MODE";
@@ -18,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     public void OnModeBtnClick(View v){
         //Clicked button is enabled
         Intent intent = new Intent(this, SelectUserActivity.class);
-        String message = ((Button) v).getText().toString();
+        String message = ((Button) v).getTag().toString();
         intent.putExtra(EXTRA_SELECTED_MODE, message);
         startActivity(intent);
     }
@@ -28,12 +29,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Set toolbar info
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        toolbar.setTitle("Sudoku - Início");
+        setSupportActionBar(toolbar);
+
         //By default, button is disabled
         ((Button) findViewById(R.id.btn_m3)).setEnabled(false);
 
         //Create listeners to change the "ENABLED" property of "btn_m3" based on network changes
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkRequest networkRequest = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR).build();
+        NetworkRequest networkRequest = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR).addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build();
         connMgr.registerNetworkCallback(networkRequest, new ConnectivityManager.NetworkCallback(){
             private Button btn_m3 = (Button) findViewById(R.id.btn_m3);
             @Override

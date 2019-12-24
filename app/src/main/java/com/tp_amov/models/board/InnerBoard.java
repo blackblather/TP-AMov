@@ -18,6 +18,14 @@ public class InnerBoard {
             this.elements.add(new Element((value == 0 ? Element.Type.userValue : Element.Type.defaultValue), value));
         }
     }
+//------------> Validations
+    public boolean ContainsValue(int value){
+        for (Element e : elements)
+            if(e.GetValue() == value)
+                return true;
+        return false;
+    }
+
 
 //------------> Getters
 

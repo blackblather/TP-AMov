@@ -80,7 +80,7 @@ public class Board {
         return jsonArrayRow;
     }
 
-    private JSONArray toJSONArray(Element.Type... types) throws JSONException {
+    public JSONArray toJSONArray(Element.Type... types) throws JSONException {
         JSONArray jsonInnerBoards = new JSONArray();
         for (int row = 0; row < 9; row++)
             jsonInnerBoards.put((Object) JSONArrayRowFromInnerBoards(row, types));

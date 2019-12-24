@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">TP-AMov</string>
-    <string name="modo_1">Modo 1</string>
-    <string name="modo_2">Modo 2</string>
-    <string name="modo_3">Modo 3</string>
+    <string name="modo_1">Single Player</string>
+    <string name="modo_2">1 vs 1 - Local</string>
+    <string name="modo_3">Online</string>
     <string name="comecar">Começar</string>
     <string name="username">Username</string>
     <string name="highlight_editable_setting">Highlight Editable Cells</string>
@@ -12,4 +12,7 @@
     <string name="dark_ui">Dark UI</string>
     <string name="score">SCORE:</string>
     <string name="_0">0</string>
+    <string name="game_mode">Modo de Jogo</string>
+    <string name="usar_webservice">Usar Webservice</string>
+    <string name="menu_inicial">Menu Inicial</string>
 </resources>
