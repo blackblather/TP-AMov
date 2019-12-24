@@ -49,7 +49,6 @@ public class BoardController extends ViewModel
         requestHint
     }
 //Control vars
-    private Integer score = 0;
     private Board board;
     private int score = 0;
     private Integer hintsLeft = 3;
@@ -176,25 +175,12 @@ public class BoardController extends ViewModel
             String resp = jsonResp.getString("status");
             if(resp.equals("unsolvable") || resp.equals("broken")) {
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),0);
-                onInvalidPlay();
                 boardEvents.getOnInsertInvalidNumber().run();
             } else if (resp.equals("unsolved") || resp.equals("solved"))
-                if(numberInfo.GetValue()!=0) onValidPlay();
                 boardEvents.getOnInsertValidNumber().run();
         } catch (JSONException e) {
             boardEvents.getOnInsertInvalidNumber().run();
         }
-    }
-
-    private void onValidPlay(){
-        score += 5;
-    }
-    private void onInvalidPlay(){
-        score -= 3;
-    }
-
-    public Integer getScore(){
-        return score;
     }
 
     private void ValidateSolutionResponse(JSONObject jsonResp){
