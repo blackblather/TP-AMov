@@ -2,8 +2,8 @@
 <menu
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/use_webservice"
-          android:title="@string/use_webservice"
+    <item android:id="@+id/usar_webservice"
+          android:title="@string/usar_webservice"
           android:icon="@android:drawable/ic_menu_preferences"
           android:checkable="true"
           android:checked="false"
