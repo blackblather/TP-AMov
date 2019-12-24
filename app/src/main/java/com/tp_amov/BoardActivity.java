@@ -56,13 +56,11 @@ public class BoardActivity extends AppCompatActivity {
                     color = getColorSelect();
                 else
                     color = getColorUnselect();
-
                 editStackElement.getSelectedCell().setBackground(color);
                 String valueToInsert = Integer.toString(editStackElement.getSelectedValue());
                 if(!valueToInsert.equals("0")) {
                     editStackElement.getSelectedCell().setText(valueToInsert);
-                    TextView score = findViewById(R.id.in_game_score_text);
-                    score.setText(boardController.getScore().toString());
+                    updateScoreOnView();
                 }
                 else
                     editStackElement.getSelectedCell().setText("");
@@ -71,6 +69,7 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
+                updateScoreOnView();
                 EditStack.Element editStackElement = editStack.RemoveInvalidElement();
                 editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
                 editStackElement.getSelectedCell().setBackground(getColorInvalid());
@@ -164,6 +163,9 @@ public class BoardActivity extends AppCompatActivity {
         editStack = ViewModelProviders.of(this).get(EditStack.class);
         editStack.setBoardActivity(this);
         setScreenAdaptation(getApplicationContext());
+
+        //Initializes the score module
+        updateScoreOnView();
     }
 
     @Override
@@ -646,5 +648,11 @@ public class BoardActivity extends AppCompatActivity {
 
     public EditText getSelectedCell() {
         return selectedCell;
+    }
+
+    private void updateScoreOnView(){
+        TextView score = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_score_text);
+        String updatedScore = Integer.toString(boardController.getScore());
+        score.setText(updatedScore);
     }
 }
