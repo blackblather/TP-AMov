@@ -56,14 +56,21 @@ public class BoardActivity extends AppCompatActivity {
                     color = getColorSelect();
                 else
                     color = getColorUnselect();
-
                 editStackElement.getSelectedCell().setBackground(color);
-                editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
+                String valueToInsert = Integer.toString(editStackElement.getSelectedValue());
+                if(!valueToInsert.equals("0")) {
+                    editStackElement.getSelectedCell().setText(valueToInsert);
+                    updateScoreOnView();
+                }
+                else
+                    editStackElement.getSelectedCell().setText("");
+                //
             }
         });
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
+                updateScoreOnView();
                 EditStack.Element editStackElement = editStack.RemoveInvalidElement();
                 editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
                 editStackElement.getSelectedCell().setBackground(getColorInvalid());
@@ -155,6 +162,9 @@ public class BoardActivity extends AppCompatActivity {
         editStack = ViewModelProviders.of(this).get(EditStack.class);
         editStack.setBoardActivity(this);
         setScreenAdaptation(getApplicationContext());
+
+        //Initializes the score module
+        updateScoreOnView();
     }
 
     @Override
@@ -288,6 +298,8 @@ public class BoardActivity extends AppCompatActivity {
     private void Toggle_darkmode() {
         ConstraintLayout playerNameplate = (ConstraintLayout) inGamePlayerInfoFragment.getView();
         TextView nameplateText = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_current_user_txt);
+        TextView scoreText = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_score_label);
+        TextView scoreValue = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_score_text);
         androidx.gridlayout.widget.GridLayout gl = findViewById(R.id.Board_activity);
         int default_color = ResourcesCompat.getColor(getResources(),R.color.white,null);
         int dark_color_background = ResourcesCompat.getColor(getResources(), R.color.dark_gray, null);
@@ -298,12 +310,16 @@ public class BoardActivity extends AppCompatActivity {
             NubPadBackground.setBackground(dark_color_background_kbd);
             playerNameplate.setBackground(dark_color_background_kbd);
             nameplateText.setTextColor(default_color);
+            scoreText.setTextColor(default_color);
+            scoreValue.setTextColor(default_color);
         }
         else{
             gl.setBackgroundColor(default_color);
             NubPadBackground.setBackground(default_color_kbd);
             playerNameplate.setBackground(default_color_kbd);
             nameplateText.setTextColor(dark_color_background);
+            scoreText.setTextColor(dark_color_background);
+            scoreValue.setTextColor(dark_color_background);
         }
         ApplyDarkMode_opt();
         ToggleHighlight();
@@ -409,16 +425,19 @@ public class BoardActivity extends AppCompatActivity {
     private void setScreenAdaptation(Context context){
         int width = getScreenWidthInDPs(context);
         int height = getScreenHeightInDPs(context);
+        int cell_tam;
+        int key_tam;
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // In landscape
             setBoardSizeForScreenSize(width,height,true, context);
-            setInGamePlayerInfoForScreenSize( true, context);
+            setInGamePlayerInfoForScreenSize(0,0,0,true);
             setBoardKeyboardForScreenSize(width, height, true, context);
         } else {
             // In portrait
-            setBoardSizeForScreenSize(width,height,false, context);
-            setBoardKeyboardForScreenSize(width, height, false, context);
+            cell_tam = setBoardSizeForScreenSize(width,height,false, context);
+            key_tam = setBoardKeyboardForScreenSize(width, height, false, context);
+            setInGamePlayerInfoForScreenSize(height,cell_tam,key_tam,false);
         }
     }
 
@@ -482,18 +501,21 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    private void setInGamePlayerInfoForScreenSize(boolean isLandScape, Context context){
+    private void setInGamePlayerInfoForScreenSize(int height,int cell_tam,int key_tam,boolean isLandScape){
         final float scale = this.getApplicationContext().getResources().getDisplayMetrics().density;
         int image_dimension;
         ViewGroup.LayoutParams tb_size = toolbar.getLayoutParams();
         View pImage = findViewById(R.id.profile_image);
         if(isLandScape){
             image_dimension = tb_size.height;
-            ViewGroup.LayoutParams layoutParams = pImage.getLayoutParams();
-            layoutParams.width = image_dimension;
-            layoutParams.height = image_dimension;
-            pImage.setLayoutParams(layoutParams);
         }
+        else{
+            image_dimension = (int) ((height - ((int)convertPixelsToDp(((cell_tam*9)+(key_tam*2)+tb_size.height),getApplicationContext())+84)) * scale);
+        }
+        ViewGroup.LayoutParams layoutParams = pImage.getLayoutParams();
+        layoutParams.width = image_dimension;
+        layoutParams.height = image_dimension;
+        pImage.setLayoutParams(layoutParams);
 
     }
 
@@ -608,8 +630,15 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onBackspace(View t) {
-        Toast toast = Toast.makeText(getApplicationContext(), "Backspace not Implemented", Toast.LENGTH_SHORT);
-        toast.show();
+        if(selectedCell !=null) {
+            int selectedInnerBoardId = ((ViewGroup)selectedCell.getParent()).getId();
+            int selectedCellId = selectedCell.getId();
+            editStack.AddElement(selectedInnerBoardId, selectedCellId, 0);
+            boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),0));
+        } else {
+            Toast.makeText(this, "Please select a cell!",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onHintRequest(View t) {
@@ -618,5 +647,11 @@ public class BoardActivity extends AppCompatActivity {
 
     public EditText getSelectedCell() {
         return selectedCell;
+    }
+
+    private void updateScoreOnView(){
+        TextView score = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_score_text);
+        String updatedScore = Integer.toString(boardController.getScore());
+        score.setText(updatedScore);
     }
 }

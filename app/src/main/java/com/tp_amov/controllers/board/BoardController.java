@@ -50,6 +50,7 @@ public class BoardController extends ViewModel
     }
 //Control vars
     private Board board;
+    private int score = 0;
     private Integer hintsLeft = 3;
     private String difficulty;
     private boolean alreadyCreated = false;
@@ -285,14 +286,28 @@ public class BoardController extends ViewModel
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), 0);
                 if (IsValidNumber(numberInfo)) {
                     board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
+                    if(numberInfo.GetValue() != 0) ScoreIncrement();
                     boardEvents.getOnInsertValidNumber().run();
                 } else {
+                    ScoreDecrement();
                     boardEvents.getOnInsertInvalidNumber().run();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void ScoreIncrement(){
+        score += 5;
+    }
+
+    private void ScoreDecrement(){
+        score -= 3;
+    }
+
+    public Integer getScore(){
+        return score;
     }
 
     public void ValidateSolution(){
