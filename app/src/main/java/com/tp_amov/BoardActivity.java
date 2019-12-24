@@ -58,12 +58,8 @@ public class BoardActivity extends AppCompatActivity {
                     color = getColorUnselect();
                 editStackElement.getSelectedCell().setBackground(color);
                 String valueToInsert = Integer.toString(editStackElement.getSelectedValue());
-                if(!valueToInsert.equals("0")) {
-                    editStackElement.getSelectedCell().setText(valueToInsert);
-                    updateScoreOnView();
-                }
-                else
-                    editStackElement.getSelectedCell().setText("");
+                editStackElement.getSelectedCell().setText(valueToInsert);
+                updateScoreOnView();
             }
         });
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
@@ -71,10 +67,12 @@ public class BoardActivity extends AppCompatActivity {
             public void run() {
                 updateScoreOnView();
                 EditStack.Element editStackElement = editStack.RemoveInvalidElement();
-                editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
-                editStackElement.getSelectedCell().setBackground(getColorInvalid());
-                TextView score = findViewById(R.id.in_game_score_text);
-                score.setText(boardController.getScore().toString());
+                if(!Integer.toString(editStackElement.getSelectedValue()).equals("0")) {
+                    editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
+                    editStackElement.getSelectedCell().setBackground(getColorInvalid());
+                }
+                else
+                    editStackElement.getSelectedCell().setText("");
             }
         });
         boardEvents.setOnBoardCreationError(new Runnable() {
