@@ -62,7 +62,7 @@ public class SelectUserActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_settings_menu, menu);
+        getMenuInflater().inflate(R.menu.game_settings_settings_menu, menu);
         useWebservice = menu.findItem(R.id.use_webservice);
         if(savedInstanceState != null) //Isto está aqui porque os menus são criados depois do onRestoreInstanceState porque os menus são criados depois!!
             useWebservice.setChecked(savedInstanceState.getBoolean("useWebservice", false));
