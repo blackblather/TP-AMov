@@ -55,9 +55,13 @@ public class BoardActivity extends AppCompatActivity {
                     color = getColorSelect();
                 else
                     color = getColorUnselect();
-                editStackElement.getSelectedCell().setBackground(color);
-                String valueToInsert = Integer.toString(editStackElement.getSelectedValue());
-                editStackElement.getSelectedCell().setText(valueToInsert);
+                if(!Integer.toString(editStackElement.getSelectedValue()).equals("0")) {
+                    editStackElement.getSelectedCell().setBackground(color);
+                    String valueToInsert = Integer.toString(editStackElement.getSelectedValue());
+                    editStackElement.getSelectedCell().setText(valueToInsert);
+                }
+                else
+                    editStackElement.getSelectedCell().setText("");
                 updateScoreOnView();
             }
         });

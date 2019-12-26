@@ -51,6 +51,7 @@ public class BoardController extends ViewModel
 //Control vars
     private Board board;
     private int score = 0;
+    private int oldVal = 0;
     private Integer hintsLeft = 3;
     private String difficulty;
     private boolean alreadyCreated = false;
@@ -175,10 +176,15 @@ public class BoardController extends ViewModel
             String resp = jsonResp.getString("status");
             if(resp.equals("unsolvable") || resp.equals("broken")) {
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),0);
-                ScoreDecrement();
+                if(numberInfo.GetValue() != oldVal) ScoreDecrement();
                 boardEvents.getOnInsertInvalidNumber().run();
             } else if (resp.equals("unsolved") || resp.equals("solved")){
-                ScoreIncrement();
+                if(numberInfo.GetValue() != oldVal){
+                    if(numberInfo.GetValue() != 0)
+                        ScoreIncrement();
+                    else
+                        ScoreDecrement();
+                }
                 boardEvents.getOnInsertValidNumber().run();
             }
         } catch (JSONException e) {
@@ -286,6 +292,7 @@ public class BoardController extends ViewModel
 //------------> User Interactions
 
     public void InsertNumber(BoardPosition numberInfo) {
+        oldVal = board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).GetElement(numberInfo.GetCellIndex()).GetValue();
         if(useWebservice) {
             this.numberInfo = numberInfo;
             board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
@@ -294,11 +301,11 @@ public class BoardController extends ViewModel
             try {
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), 0);
                 if (IsValidNumber(numberInfo)) {
+                    if(numberInfo.GetValue() != 0 && numberInfo.GetValue() != oldVal) ScoreIncrement();
                     board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
-                    if(numberInfo.GetValue() != 0) ScoreIncrement();
                     boardEvents.getOnInsertValidNumber().run();
                 } else {
-                    ScoreDecrement();
+                    if(numberInfo.GetValue() != oldVal) ScoreDecrement();
                     boardEvents.getOnInsertInvalidNumber().run();
                 }
             } catch (JSONException e) {
@@ -312,7 +319,7 @@ public class BoardController extends ViewModel
     }
 
     private void ScoreDecrement(){
-        score -= 3;
+        score -= 5;
     }
 
     public Integer getScore(){
