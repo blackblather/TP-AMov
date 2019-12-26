@@ -31,7 +31,7 @@ public class BoardActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private MenuItem highlightOpt;
     private MenuItem dkMode;
-    private int foregroundUnselected, foregroundSelected;
+    private int foregroundUnselected, foregroundSelected ,hintUnselected;
     private boolean useWebservice = false;
 
     private EditStack editStack;
@@ -51,7 +51,6 @@ public class BoardActivity extends AppCompatActivity {
             public void run() {
                 EditStack.Element editStackElement = editStack.RemoveValidElement();
                 Drawable color;
-
                 if(selectedCell == editStackElement.getSelectedCell())
                     color = getColorSelect();
                 else
@@ -233,6 +232,18 @@ public class BoardActivity extends AppCompatActivity {
         return Integer.parseInt(btn.getText().toString());
     }
 
+    private int getCellIndex(View view){
+        String cell_index = null;
+        try {
+            cell_index = getIDString(view,R.id.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String[] id = cell_index.split("btn_box_m");
+        int cell_i = (Integer.parseInt(id[1]))-1;
+        return cell_i;
+    }
+
     private int getCellIndex(){
         String cell_index = null;
         try {
@@ -249,6 +260,16 @@ public class BoardActivity extends AppCompatActivity {
         int f_index=0;
         for (InnerBoardFragment frag : ibFrags)
             if(frag.ElementExists(selectedCell))
+                break;
+            else
+                f_index++;
+        return f_index;
+    }
+
+    private int getInnerBoxIndex(View view){
+        int f_index=0;
+        for (InnerBoardFragment frag : ibFrags)
+            if(frag.ElementExists(view))
                 break;
             else
                 f_index++;
@@ -365,8 +386,16 @@ public class BoardActivity extends AppCompatActivity {
                 if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
                     if(((EditText)components.get(j)) == selectedCell)
                         ((EditText)components.get(j)).setTextColor(foregroundSelected);
-                    else
-                        ((EditText)components.get(j)).setTextColor(foregroundUnselected);
+                    else {
+                        if(!(boardController.GetElementType(i,j)== Element.Type.hintValue))
+                            ((EditText) components.get(j)).setTextColor(foregroundUnselected);
+                        else {
+                            if (highlightOpt.isChecked())
+                                ((EditText) components.get(j)).setTextColor(hintUnselected);
+                            else
+                                ((EditText) components.get(j)).setTextColor(foregroundUnselected);
+                        }
+                    }
         }
     }
 
@@ -391,6 +420,7 @@ public class BoardActivity extends AppCompatActivity {
                 foregroundSelected = ResourcesCompat.getColor(getResources(), R.color.white, null);
             }
         }
+        hintUnselected = ResourcesCompat.getColor(getResources(), R.color.nice_green, null);
     }
 
     public Drawable getColorSelect(){
@@ -595,32 +625,44 @@ public class BoardActivity extends AppCompatActivity {
         return heightInDP;
     }
 
-    public void onFocusChange(View t) {
+    public void onFocusChange(View newSelectedCell) {
         ToggleForeground();
         Drawable unselected = getColorUnselect();
         Drawable selected = getColorSelect();
-        Drawable current = t.getBackground();
-        Drawable.ConstantState constantStateDrawableA = unselected.getConstantState();
-        Drawable.ConstantState constantStateDrawableB = current.getConstantState();
-        if(constantStateDrawableA.equals(constantStateDrawableB)) {
+        Drawable current = newSelectedCell.getBackground();
+        Drawable.ConstantState unselectedConstantState = unselected.getConstantState();
+        Drawable.ConstantState currentConstantState = current.getConstantState();
+        if(unselectedConstantState.equals(currentConstantState)) {
             if(selectedCell == null) {
-                selectedCell = (EditText)t;
+                selectedCell = (EditText)newSelectedCell;
                 selectedCell.setTextColor(foregroundSelected);
             }
-            else if(selectedCell != t) {
+            else if(selectedCell != newSelectedCell) {
+                int innerboardIndex = getInnerBoxIndex(selectedCell);
+                int cellIndex = getCellIndex(selectedCell);
                 selectedCell.setBackground(unselected);
-                selectedCell.setTextColor(foregroundUnselected);
-                selectedCell = (EditText) t;
+                Element.Type type = boardController.GetElementType(innerboardIndex,cellIndex);
+                Element.Type type1 = Element.Type.hintValue;
+                if(!(boardController.GetElementType(innerboardIndex,cellIndex)== Element.Type.hintValue))
+                    selectedCell.setTextColor(foregroundUnselected);
+                else
+                    selectedCell.setTextColor(hintUnselected);
+                selectedCell = (EditText) newSelectedCell;
             }
             selectedCell.setTextColor(foregroundSelected);
-            t.setBackground(selected);
+            newSelectedCell.setBackground(selected);
         }
         else {
-            if(selectedCell == t) {
-                selectedCell.setTextColor(foregroundUnselected);
+            if(selectedCell == newSelectedCell) {
+                int innerboardIndex = getInnerBoxIndex(selectedCell);
+                int cellIndex = getCellIndex(selectedCell);
+                if(!(boardController.GetElementType(innerboardIndex,cellIndex)== Element.Type.hintValue))
+                    selectedCell.setTextColor(foregroundUnselected);
+                else
+                    selectedCell.setTextColor(hintUnselected);
                 selectedCell = null;
             }
-            t.setBackground(unselected);
+            newSelectedCell.setBackground(unselected);
         }
     }
 

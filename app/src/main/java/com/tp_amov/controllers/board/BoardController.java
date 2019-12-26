@@ -227,6 +227,8 @@ public class BoardController extends ViewModel
             if(status.equals("solved")) {
                 BoardPosition hint = GetHintFromSolvedBoard(jsonResp.getJSONArray("solution"));
                 hintsLeft--;
+                board.GetInnerBoard(hint.GetInnerBoardIndex()).SetValue(hint.GetCellIndex(),hint.GetValue());
+                board.GetInnerBoard(hint.GetInnerBoardIndex()).GetElement(hint.GetCellIndex()).SetType(Element.Type.hintValue);
                 boardEvents.getOnReceivedHint().accept(hint);
             }
             else if(status.equals("unsolvable"))
@@ -240,6 +242,10 @@ public class BoardController extends ViewModel
 
     public ArrayList<Integer> GetValuesFromStartBoard(int innerBoardIndex) {
         return board.GetInnerBoard(innerBoardIndex).toArray(Element.Type.defaultValue);
+    }
+
+    public Element.Type GetElementType(int innerBoardIndex, int elementIndex){
+        return board.GetInnerBoard(innerBoardIndex).GetElement(elementIndex).GetType();
     }
 
 //------------> Validations
