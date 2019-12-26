@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 
 public class BoardController extends ViewModel
 {
@@ -51,7 +52,8 @@ public class BoardController extends ViewModel
 //Control vars
     private Board board;
     private int score = 0;
-    private int oldVal = 0;
+    private LinkedList<Integer> oldValsStack = new LinkedList<>();
+    private LinkedList<BoardPosition> newValsStack = new LinkedList<>();
     private Integer hintsLeft = 3;
     private String difficulty;
     private boolean alreadyCreated = false;
@@ -176,11 +178,12 @@ public class BoardController extends ViewModel
             String resp = jsonResp.getString("status");
             if(resp.equals("unsolvable") || resp.equals("broken")) {
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),0);
-                if(numberInfo.GetValue() != oldVal) ScoreDecrement();
+                if(!newValsStack.removeFirst().GetValue().equals(oldValsStack.removeFirst())) ScoreDecrement();
                 boardEvents.getOnInsertInvalidNumber().run();
             } else if (resp.equals("unsolved") || resp.equals("solved")){
-                if(numberInfo.GetValue() != oldVal){
-                    if(numberInfo.GetValue() != 0)
+                BoardPosition newVal = newValsStack.removeFirst();
+                if(!newVal.GetValue().equals(oldValsStack.removeFirst())){
+                    if(!newVal.GetValue().equals(0))
                         ScoreIncrement();
                     else
                         ScoreDecrement();
@@ -292,20 +295,23 @@ public class BoardController extends ViewModel
 //------------> User Interactions
 
     public void InsertNumber(BoardPosition numberInfo) {
-        oldVal = board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).GetElement(numberInfo.GetCellIndex()).GetValue();
-        if(useWebservice) {
-            this.numberInfo = numberInfo;
-            board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),numberInfo.GetValue());
-            GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
+        oldValsStack.add(board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).GetElement(numberInfo.GetCellIndex()).GetValue());
+        newValsStack.add(numberInfo);
+        if (useWebservice) {
+                this.numberInfo = numberInfo;
+                board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
+                GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
         } else {
             try {
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), 0);
+                BoardPosition newVal = newValsStack.removeFirst();
                 if (IsValidNumber(numberInfo)) {
-                    if(numberInfo.GetValue() != 0 && numberInfo.GetValue() != oldVal) ScoreIncrement();
+                    if (!newVal.GetValue().equals(0) && !newVal.GetValue().equals(oldValsStack.removeFirst()))
+                        ScoreIncrement();
                     board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
                     boardEvents.getOnInsertValidNumber().run();
                 } else {
-                    if(numberInfo.GetValue() != oldVal) ScoreDecrement();
+                    if (newVal.GetValue().equals(oldValsStack.removeFirst())) ScoreDecrement();
                     boardEvents.getOnInsertInvalidNumber().run();
                 }
             } catch (JSONException e) {
@@ -313,13 +319,13 @@ public class BoardController extends ViewModel
             }
         }
     }
-
+    
     private void ScoreIncrement(){
         score += 5;
     }
 
     private void ScoreDecrement(){
-        score -= 5;
+        score -= 3;
     }
 
     public Integer getScore(){
