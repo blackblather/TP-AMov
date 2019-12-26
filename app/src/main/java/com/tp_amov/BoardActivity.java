@@ -64,8 +64,8 @@ public class BoardActivity extends AppCompatActivity {
         boardEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
-                updateScoreOnView();
                 EditStack.Element editStackElement = editStack.RemoveInvalidElement();
+                updateScoreOnView();
                 if(!Integer.toString(editStackElement.getSelectedValue()).equals("0")) {
                     editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
                     editStackElement.getSelectedCell().setBackground(getColorInvalid());

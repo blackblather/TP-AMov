@@ -177,9 +177,10 @@ public class BoardController extends ViewModel
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),0);
                 ScoreDecrement();
                 boardEvents.getOnInsertInvalidNumber().run();
-            } else if (resp.equals("unsolved") || resp.equals("solved"))
+            } else if (resp.equals("unsolved") || resp.equals("solved")){
                 ScoreIncrement();
                 boardEvents.getOnInsertValidNumber().run();
+            }
         } catch (JSONException e) {
             boardEvents.getOnInsertInvalidNumber().run();
         }
