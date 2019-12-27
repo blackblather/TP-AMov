@@ -15,4 +15,7 @@
     <string name="game_mode">Modo de Jogo</string>
     <string name="usar_webservice">Usar Webservice</string>
     <string name="menu_inicial">Menu Inicial</string>
+    <string name="pontuacao">Pontuação: </string>
+    <string name="ganhou">Ganhou!</string>
+    <string name="novo_jogo">Novo Jogo</string>
 </resources>

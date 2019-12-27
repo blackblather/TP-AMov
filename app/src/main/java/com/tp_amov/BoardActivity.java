@@ -94,6 +94,7 @@ public class BoardActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
+                intent.putExtra("score",boardController.getScore());
                 startActivity(intent);
             }
         });
