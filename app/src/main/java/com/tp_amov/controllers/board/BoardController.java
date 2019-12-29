@@ -16,7 +16,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.Semaphore;
 
 public class BoardController extends ViewModel
 {
@@ -221,12 +220,18 @@ public class BoardController extends ViewModel
         int innerBoardsSize = board.GetInnerBoards().get(totalInnerBoards-1).GetElements().size();
         Random rand = new Random();
 
-        do{
+        do {
             hint.SetInnerBoardIndex(rand.nextInt(totalInnerBoards));   //RANGE [0, totalInnerBoards - 1]
             hint.SetCellIndex(rand.nextInt(innerBoardsSize));          //RANGE [0, innerBoardsSize - 1]
         } while (!CellIsHintable(hint));
 
-        hint.SetValue(jsonBoard.getJSONArray(hint.GetInnerBoardIndex()).getInt(hint.GetCellIndex()));
+        //Cada sub-array em jsonBoard representa uma linha da board (não uma inner board)
+        int rowOffset = (hint.GetCellIndex() / 3);
+        int row = ((hint.GetInnerBoardIndex() / 3) * 3) + rowOffset;
+        int colOffset = (hint.GetCellIndex() % 3);
+        int col = ((hint.GetInnerBoardIndex() % 3) * 3) + colOffset;
+
+        hint.SetValue(jsonBoard.getJSONArray(row).getInt(col));
 
         return hint;
     }
