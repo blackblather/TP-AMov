@@ -48,7 +48,9 @@ public class BoardController extends ViewModel
         validateSolution,
         requestHint
     }
-//Control vars
+//Defines
+    private final int scoreDefaultValue = 5;
+    //Control vars
     private Board board;
     private int score = 0;
     private LinkedList<Integer> oldValsStack = new LinkedList<>();
@@ -305,6 +307,7 @@ public class BoardController extends ViewModel
         if (useWebservice) {
                 this.numberInfo = numberInfo;
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
+                board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).GetElement(numberInfo.GetCellIndex()).SetType(Element.Type.userValue);
                 GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
         } else {
             try {
@@ -314,9 +317,12 @@ public class BoardController extends ViewModel
                     if (!newVal.GetValue().equals(0) && !newVal.GetValue().equals(oldValsStack.removeFirst()))
                         ScoreIncrement();
                     board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
+                    board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).GetElement(numberInfo.GetCellIndex()).SetType(Element.Type.userValue);
                     boardEvents.getOnInsertValidNumber().run();
                 } else {
-                    if (newVal.GetValue().equals(oldValsStack.removeFirst())) ScoreDecrement();
+                    if(!newVal.GetValue().equals(oldValsStack.removeFirst())){
+                        ScoreDecrement();
+                    }
                     boardEvents.getOnInsertInvalidNumber().run();
                 }
             } catch (JSONException e) {
@@ -326,11 +332,11 @@ public class BoardController extends ViewModel
     }
     
     private void ScoreIncrement(){
-        score += 5;
+        score += scoreDefaultValue;
     }
 
     private void ScoreDecrement(){
-        score -= 3;
+        score -= scoreDefaultValue;
     }
 
     public Integer getScore(){
