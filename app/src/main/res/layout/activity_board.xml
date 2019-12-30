@@ -17,12 +17,15 @@
     <fragment
         android:id="@+id/in_game_current_user_fragment"
         android:name="com.tp_amov.InGamePlayerInfoFragment"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_row="1"
         app:layout_column="0"
         app:layout_gravity="start|fill_horizontal|center_vertical"
-        android:layout_margin="2dp" />
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="3dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp" />
 
     <fragment
         android:id="@+id/Board"
@@ -31,9 +34,8 @@
         android:layout_height="wrap_content"
         app:layout_row="2"
         app:layout_column="0"
-        app:layout_gravity="center_horizontal|bottom"
+        app:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
-        android:layout_marginTop="2dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp" />
 

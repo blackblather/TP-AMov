@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentStart="true"
-    android:layout_gravity="center_vertical|fill_horizontal"
+    android:layout_gravity="center|fill_horizontal"
     tools:context=".InGamePlayerInfoFragment"
     android:id="@+id/in_game_player_info">
 
