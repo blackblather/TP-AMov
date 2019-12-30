@@ -3,6 +3,7 @@ package com.tp_amov;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -545,6 +546,7 @@ public class BoardActivity extends AppCompatActivity {
         }
         else{
             image_dimension = (int) ((height - ((int)convertPixelsToDp(((cell_tam*9)+(key_tam*2)+tb_size.height),getApplicationContext())+84)) * scale);
+            if(image_dimension > (tb_size.height * 2)) image_dimension = tb_size.height * 2;
         }
         ViewGroup.LayoutParams layoutParams = pImage.getLayoutParams();
         layoutParams.width = image_dimension;

@@ -1,6 +1,9 @@
 package com.tp_amov;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,8 +75,20 @@ public class InGamePlayerInfoFragment extends Fragment {
         FillPlayersArray(usernames,imgPaths);
         TextView InGameCurrentUser = (TextView) this.getView().findViewById(R.id.in_game_current_user_txt);
         ImageView InGameCurrentPic = (ImageView) this.getView().findViewById(R.id.profile_image);
-        InGameCurrentPic.setImageResource(R.drawable.ic_launcher_background);
+        InGameCurrentPic.setImageBitmap(StringToBitMap(imgPaths.get(0)));
+        //InGameCurrentPic.setImageResource(R.drawable.ic_default_user_icon);
         InGameCurrentUser.setText(players.get(0).getUsername());
         this.setArguments(args);
+    }
+
+    public Bitmap StringToBitMap(String encodedString){
+        try {
+            byte [] encodeByte=Base64.decode(encodedString,Base64.DEFAULT);
+            Bitmap bitmap=BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch(Exception e) {
+            e.getMessage();
+            return null;
+        }
     }
 }
