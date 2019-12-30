@@ -263,6 +263,20 @@ public class BoardController extends ViewModel
         return board.GetInnerBoard(innerBoardIndex).GetElement(elementIndex).GetType();
     }
 
+    public Integer getScore(){
+        return score;
+    }
+
+//------------> Setters
+
+    private void ScoreIncrement(){
+        score += 5;
+    }
+
+    private void ScoreDecrement(){
+        score -= 3;
+    }
+
 //------------> Validations
 
     public boolean ElementContainsType(int innerBoardIndex, int elementIndex, Element.Type... types) {
@@ -324,18 +338,7 @@ public class BoardController extends ViewModel
             }
         }
     }
-    
-    private void ScoreIncrement(){
-        score += 5;
-    }
 
-    private void ScoreDecrement(){
-        score -= 3;
-    }
-
-    public Integer getScore(){
-        return score;
-    }
 
     public void ValidateSolution(){
         GetOnlineSolvedBoard(NetworkRequestType.validateSolution);
