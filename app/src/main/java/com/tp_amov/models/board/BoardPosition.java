@@ -4,6 +4,7 @@ public class BoardPosition {
     private Integer innerBoardIndex;
     private Integer cellIndex;
     private Integer value;
+    private Integer oldValue;
 
     public BoardPosition(){ }
 
@@ -11,6 +12,13 @@ public class BoardPosition {
         this.innerBoardIndex = innerBoardIndex;
         this.cellIndex = cellIndex;
         this.value = value;
+        this.oldValue = null;
+    }
+    public BoardPosition(Integer innerBoardIndex, Integer cellIndex, Integer value, Integer oldValue){
+        this.innerBoardIndex = innerBoardIndex;
+        this.cellIndex = cellIndex;
+        this.value = value;
+        this.oldValue = oldValue;
     }
 
     //Getters
@@ -27,6 +35,10 @@ public class BoardPosition {
         return value;
     }
 
+    public Integer GetOldValue() {
+        return oldValue;
+    }
+
     //Setters
 
     public void SetInnerBoardIndex(Integer innerBoardIndex) {
@@ -39,5 +51,9 @@ public class BoardPosition {
 
     public void SetValue(Integer value) {
         this.value = value;
+    }
+
+    public void SetOldValue(Integer oldValue) {
+        this.oldValue = oldValue;
     }
 }

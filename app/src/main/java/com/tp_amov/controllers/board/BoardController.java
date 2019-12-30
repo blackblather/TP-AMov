@@ -51,13 +51,12 @@ public class BoardController extends ViewModel
 //Control vars
     private Board board;
     private int score = 0;
-    private LinkedList<Integer> oldValsStack = new LinkedList<>();
-    private LinkedList<Integer> newValsStack = new LinkedList<>();
     private Integer hintsLeft = 3;
+    //"requestStack" is used to store requests made by the user (eg. insert number) and to synchronize webservice responses with user requests
+    private LinkedList<BoardPosition> requestStack = new LinkedList<>();
     private String difficulty;
     private boolean alreadyCreated = false;
     private boolean useWebservice = false;
-    private BoardPosition numberInfo;
 //Callbacks
     private BoardEvents boardEvents;
 //Network vars
@@ -175,18 +174,17 @@ public class BoardController extends ViewModel
     private void InsertNumberResponse(JSONObject jsonResp){
         try {
             String resp = jsonResp.getString("status");
+            BoardPosition request = requestStack.removeFirst();
             if(resp.equals("unsolvable") || resp.equals("broken")) {
-                board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(),0);
-                if(!newValsStack.removeFirst().equals(oldValsStack.removeFirst())) ScoreDecrement();
+                if(!request.GetValue().equals(request.GetOldValue()))
+                    ScoreDecrement();
+                board.GetInnerBoard(request.GetInnerBoardIndex()).SetValue(request.GetCellIndex(),0);
                 boardEvents.getOnInsertInvalidNumber().run();
             } else if (resp.equals("unsolved") || resp.equals("solved")){
-                Integer newVal = newValsStack.removeFirst();
-                if(!newVal.equals(oldValsStack.removeFirst())){
-                    if(!newVal.equals(0))
-                        ScoreIncrement();
-                    else
-                        ScoreDecrement();
-                }
+                if(!request.GetValue().equals(request.GetOldValue()) && !request.GetValue().equals(0))
+                    ScoreIncrement();
+                else
+                    ScoreDecrement();
                 boardEvents.getOnInsertValidNumber().run();
             }
         } catch (JSONException e) {
@@ -274,7 +272,7 @@ public class BoardController extends ViewModel
     }
 
     private void ScoreDecrement(){
-        score -= 3;
+        score -= 5;
     }
 
 //------------> Validations
@@ -314,23 +312,23 @@ public class BoardController extends ViewModel
 //------------> User Interactions
 
     public void InsertNumber(BoardPosition numberInfo) {
-        oldValsStack.add(board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).GetElement(numberInfo.GetCellIndex()).GetValue());
-        newValsStack.add(numberInfo.GetValue());
+        int oldValue = board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).GetElement(numberInfo.GetCellIndex()).GetValue();
         if (useWebservice) {
-                this.numberInfo = numberInfo;
-                board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
-                GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
+            numberInfo.SetOldValue(oldValue);
+            requestStack.add(numberInfo);
+            board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
+            GetOnlineSolvedBoard(NetworkRequestType.insertNumber);
         } else {
             try {
                 board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), 0);
-                Integer newVal = newValsStack.removeFirst();
                 if (IsValidNumber(numberInfo)) {
-                    if (!newVal.equals(0) && !newVal.equals(oldValsStack.removeFirst()))
+                    if (!numberInfo.GetValue().equals(0) && !numberInfo.GetValue().equals(oldValue))
                         ScoreIncrement();
                     board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
                     boardEvents.getOnInsertValidNumber().run();
                 } else {
-                    if (newVal.equals(oldValsStack.removeFirst())) ScoreDecrement();
+                    if (!numberInfo.GetValue().equals(oldValue))
+                        ScoreDecrement();
                     boardEvents.getOnInsertInvalidNumber().run();
                 }
             } catch (JSONException e) {
