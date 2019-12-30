@@ -10,7 +10,6 @@ import com.tp_amov.threads.AsyncInvalidNumberTimer;
 import java.util.LinkedList;
 
 /**
- * Used as an element in EditStack, in BoardActivity.
  * EditStack is used to synchronize events between the UI and network requests
  */
 public class EditStack extends ViewModel {
@@ -62,11 +61,6 @@ public class EditStack extends ViewModel {
 
         AsyncInvalidNumberTimer getTimer() {
             return timer;
-        }
-
-        //Calls to parent
-        public void RemoveIdenticalRunning(){
-            EditStack.this.RemoveIdenticalRunning(this);
         }
 
         //Overrides
