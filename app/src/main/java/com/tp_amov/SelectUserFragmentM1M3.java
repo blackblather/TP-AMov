@@ -2,6 +2,7 @@ package com.tp_amov;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -52,9 +53,17 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
 
                 EditText usernameTxt = finalView.findViewById(R.id.txt_username);
                 ImageView userImg = finalView.findViewById(R.id.profile_image);
+                //Gets the Bitmap
                 Bitmap img = drawableToBitmap(userImg.getDrawable());
+                //Get Bitmap center
+                Bitmap centeredImg = cropImageToCenter(img);
+                //Resize image
+                Bitmap resized = Bitmap.createScaledBitmap(centeredImg, 240, 240, true);
+                //Compressing image
+                Bitmap compressed = mediumBitmapCompression(resized);
+                //Prepares Extras for next activity
                 intent.putExtra(SelectUserActivity.EXTRA_USERNAMES, new ArrayList<String>(Collections.singletonList(usernameTxt.getText().toString())));
-                intent.putExtra(SelectUserActivity.EXTRA_IMG_PATHS, new ArrayList<String>(Collections.singletonList(BitMapToString(img))));
+                intent.putExtra(SelectUserActivity.EXTRA_IMG_PATHS, new ArrayList<String>(Collections.singletonList(BitMapToString(compressed))));
                 intent.putExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, GetUseWebservice());
 
                 startActivity(intent);
@@ -62,7 +71,7 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
         });
     }
 
-    public static Bitmap drawableToBitmap (Drawable drawable) {
+    private static Bitmap drawableToBitmap (Drawable drawable) {
         Bitmap bitmap = null;
 
         if (drawable instanceof BitmapDrawable) {
@@ -84,11 +93,46 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
         return bitmap;
     }
 
-    public String BitMapToString(Bitmap bitmap){
+    private String BitMapToString(Bitmap bitmap){
         ByteArrayOutputStream baos=new  ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
         byte [] b=baos.toByteArray();
         String temp= Base64.encodeToString(b, Base64.DEFAULT);
         return temp;
+    }
+
+    private Bitmap mediumBitmapCompression(Bitmap bitmap){
+        // Initialize a new ByteArrayStream
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        //Sets compression attributes
+        bitmap.compress(Bitmap.CompressFormat.JPEG,75,stream);
+        //Creates the new compressed image
+        byte[] byteArray = stream.toByteArray();
+        return BitmapFactory.decodeByteArray(byteArray,0,byteArray.length);
+    }
+
+    private Bitmap cropImageToCenter(Bitmap bitmap){
+        Bitmap centeredImg;
+        if (bitmap.getWidth() >= bitmap.getHeight()){
+
+            centeredImg = Bitmap.createBitmap(
+                    bitmap,
+                    bitmap.getWidth()/2 - bitmap.getHeight()/2,
+                    0,
+                    bitmap.getHeight(),
+                    bitmap.getHeight()
+            );
+
+        }else{
+
+            centeredImg = Bitmap.createBitmap(
+                    bitmap,
+                    0,
+                    bitmap.getHeight()/2 - bitmap.getWidth()/2,
+                    bitmap.getWidth(),
+                    bitmap.getWidth()
+            );
+        }
+        return centeredImg;
     }
 }

@@ -1,16 +1,34 @@
 package com.tp_amov;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import com.tp_amov.models.SelectUserFragment;
 
 public class SelectUserActivity extends AppCompatActivity {
+    public static final int CAMERA_PERMISSION_CODE = 4;
+    public static final int CAMERA_REQUEST = 3;
+    public static final int IMAGE_FILE_PICKER_PERMISSION_CODE = 2;
+    public static final int IMAGE_FILE_PICKER_REQUEST = 1;
     static final String EXTRA_USERNAMES = "usernames";
     static final String EXTRA_IMG_PATHS = "imgPaths";
     static final String EXTRA_USE_WEBSERVICE = "useWebservice";
@@ -56,6 +74,8 @@ public class SelectUserActivity extends AppCompatActivity {
             android.os.Process.killProcess(android.os.Process.myPid());
             System.exit(1);
         }
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
     }
 
@@ -72,17 +92,110 @@ public class SelectUserActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.isChecked())
-            item.setChecked(false);
-        else
-            item.setChecked(true);
-        selectUserFragment.SetUseWebservice(item.isChecked());
-        return true;
+        switch (item.getItemId()){
+            case R.id.usar_webservice:
+                if(item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
+                selectUserFragment.SetUseWebservice(item.isChecked());
+                return true;
+            case R.id.take_picture:
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+                return true;
+            case R.id.browse_picture:
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, IMAGE_FILE_PICKER_PERMISSION_CODE);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("useWebservice", useWebservice.isChecked());
         super.onSaveInstanceState(outState);
+    }
+
+    private void takePicture(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            //CAMERA PERMISSION NOT GRANTED
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+        else {
+            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+        }
+    }
+
+    private void pickFile(){
+        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        getIntent.setType("image/*");
+
+        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("image/*");
+
+        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+
+        startActivityForResult(chooserIntent, IMAGE_FILE_PICKER_REQUEST);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_CODE && grantResults.length != 0)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Toast.makeText(this, "Camera permission granted", Toast.LENGTH_SHORT).show();
+                takePicture();
+            }
+            else
+            {
+                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if (requestCode == IMAGE_FILE_PICKER_PERMISSION_CODE && grantResults.length != 0)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Toast.makeText(this, "Read access granted", Toast.LENGTH_SHORT).show();
+                pickFile();
+            }
+            else
+            {
+                Toast.makeText(this, "Read access denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+                Bitmap photo = (Bitmap) data.getExtras().get("data");
+                ImageView img = findViewById(R.id.profile_image);
+                img.setImageBitmap(photo);
+            } else if (requestCode == IMAGE_FILE_PICKER_REQUEST && resultCode == RESULT_OK) {
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String picturePath = cursor.getString(columnIndex);
+                cursor.close();
+
+                Bitmap photo = BitmapFactory.decodeFile(picturePath);
+                ImageView img = findViewById(R.id.profile_image);
+                img.setImageBitmap(photo);
+            }
+        }catch (OutOfMemoryError outOfMemoryError){
+            Toast toast = Toast.makeText(getApplicationContext(), "Image size is too big, Aborting..."+ outOfMemoryError.getLocalizedMessage(), Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 }
