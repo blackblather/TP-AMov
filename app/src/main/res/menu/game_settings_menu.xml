@@ -3,9 +3,25 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/usar_webservice"
-          android:title="@string/usar_webservice"
-          android:icon="@android:drawable/ic_menu_preferences"
-          android:checkable="true"
-          android:checked="false"
-          app:showAsAction="never"/>
+        android:title="@string/usar_webservice"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:checkable="true"
+        android:checked="false"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/add_image"
+        android:title="@string/adicionar_imagem"
+        android:icon="@drawable/ic_insert_image_icon"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item android:id="@+id/take_picture"
+                android:title="@string/tirar_uma_fotografia"
+                android:icon="@drawable/ic_insert_image_take_picture_icon"
+                />
+            <item android:id="@+id/browse_picture"
+                android:title="@string/procurar_fotografia"
+                android:icon="@drawable/ic_browse_icon"
+                />
+        </menu>
+    </item>
 </menu>

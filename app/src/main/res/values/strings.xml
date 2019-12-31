@@ -18,4 +18,7 @@
     <string name="pontuacao">Pontuação: </string>
     <string name="ganhou">Ganhou!</string>
     <string name="novo_jogo">Novo Jogo</string>
+    <string name="adicionar_imagem">Adicionar Imagem</string>
+    <string name="tirar_uma_fotografia">Tirar uma Fotografia</string>
+    <string name="procurar_fotografia">Procurar Fotografia</string>
 </resources>
