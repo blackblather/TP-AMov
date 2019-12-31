@@ -105,7 +105,7 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
         // Initialize a new ByteArrayStream
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         //Sets compression attributes
-        bitmap.compress(Bitmap.CompressFormat.JPEG,75,stream);
+        bitmap.compress(Bitmap.CompressFormat.PNG,50,stream);
         //Creates the new compressed image
         byte[] byteArray = stream.toByteArray();
         return BitmapFactory.decodeByteArray(byteArray,0,byteArray.length);
