@@ -8,8 +8,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -24,11 +26,17 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import com.tp_amov.models.SelectUserFragment;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.List;
+import java.util.UUID;
+
 public class SelectUserActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 4;
     public static final int CAMERA_REQUEST = 3;
     public static final int IMAGE_FILE_PICKER_PERMISSION_CODE = 2;
     public static final int IMAGE_FILE_PICKER_REQUEST = 1;
+    public static final String profilePictureFolder = "ProfilePictures";
     static final String EXTRA_USERNAMES = "usernames";
     static final String EXTRA_IMG_PATHS = "imgPaths";
     static final String EXTRA_USE_WEBSERVICE = "useWebservice";
@@ -168,6 +176,58 @@ public class SelectUserActivity extends AppCompatActivity {
                 Toast.makeText(this, "Read access denied", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public String saveImageOnAppFileDir(Bitmap bitmap){
+        final String randomFileName = UUID.randomUUID().toString().replace("-", "");
+        File path = new File(getFilesDir(),profilePictureFolder);
+        if(!path.exists()){
+            if(!path.mkdirs()){
+                Toast toast = Toast.makeText(getApplicationContext(), "Error creating profile image directory path!", Toast.LENGTH_LONG);
+                toast.show();
+                //DO SOMETHING ELSE IF NEEDED
+                return null;
+            }
+        }
+        File mypath = new File(path, randomFileName+".png");
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+        } catch (Exception e) {
+            Log.e("SAVE_IMAGE_EXCEPTION", e.getMessage(), e);
+            return null;
+        }
+        return mypath.getName();
+    }
+
+    public Bitmap LoadImage(String filename){
+        File directory = new File(getFilesDir(),profilePictureFolder);
+        File file = new File(directory, filename);
+        if(file.exists()) {
+            Log.d("File", "FileName:" + file.getName());
+            String filePath = file.getPath();
+            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+            return  bitmap;
+        }
+        else {
+            return null;
+        }
+    }
+
+    public File[] getAllImagesOnProfilePicturesDir(){
+        //For testing purposes
+        File directory = new File(getFilesDir(),profilePictureFolder);
+        File[] files = directory.listFiles();
+        Log.d("Files", "Size: "+ files.length);
+        for (File file : files) {
+            Log.d("Files", "FileName:" + file.getName());
+            String filePath = file.getPath();
+            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+            int j = 0;
+        }
+        return files;
     }
 
     @Override

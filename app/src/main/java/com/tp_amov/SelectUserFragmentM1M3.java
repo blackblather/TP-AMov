@@ -61,6 +61,10 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
                 Bitmap resized = Bitmap.createScaledBitmap(centeredImg, 240, 240, true);
                 //Compressing image
                 Bitmap compressed = mediumBitmapCompression(resized);
+                //Save image section
+                String savedImgFileName = ((SelectUserActivity)getActivity()).saveImageOnAppFileDir(compressed);
+                Bitmap loaded = ((SelectUserActivity)getActivity()).LoadImage(savedImgFileName);//FOR TESTING ONLY (YET)
+                ((SelectUserActivity)getActivity()).getAllImagesOnProfilePicturesDir();//FOR TESTING ONLY
                 //Prepares Extras for next activity
                 intent.putExtra(SelectUserActivity.EXTRA_USERNAMES, new ArrayList<String>(Collections.singletonList(usernameTxt.getText().toString())));
                 intent.putExtra(SelectUserActivity.EXTRA_IMG_PATHS, new ArrayList<String>(Collections.singletonList(BitMapToString(compressed))));
