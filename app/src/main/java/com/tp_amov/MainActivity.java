@@ -1,7 +1,10 @@
 package com.tp_amov;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -12,9 +15,12 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import com.tp_amov.models.sql.SudokuContract;
+import com.tp_amov.models.sql.SudokuDbHelper;
 
 public class MainActivity extends AppCompatActivity {
     static final String EXTRA_SELECTED_MODE = "com.tp_amov.SELECTED_MODE";
+    private SQLiteDatabase db;
 
     public void OnModeBtnClick(View v){
         //Clicked button is enabled
@@ -24,10 +30,43 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void InitDatabase(){
+        SudokuDbHelper dbHelper = new SudokuDbHelper(getApplicationContext());
+
+        // Gets the data repository in write mode
+        db = dbHelper.getWritableDatabase();
+
+        Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + SudokuContract.GameMode.TABLE_NAME, null);
+
+        if (c.moveToFirst()){
+            int count = c.getInt(0);
+            //Checks if default values already exist
+            if (count == 0){
+                ContentValues rowValues = new ContentValues();
+
+                //Insert default values
+                rowValues.put(SudokuContract.GameMode.COLUMN_NAME_GAME_MODE_NAME, "M1");
+                db.insert(SudokuContract.GameMode.TABLE_NAME, null, rowValues);
+
+                rowValues.put(SudokuContract.GameMode.COLUMN_NAME_GAME_MODE_NAME, "M2");
+                db.insert(SudokuContract.GameMode.TABLE_NAME, null, rowValues);
+
+                rowValues.put(SudokuContract.GameMode.COLUMN_NAME_GAME_MODE_NAME, "M3");
+                db.insert(SudokuContract.GameMode.TABLE_NAME, null, rowValues);
+            }
+        }
+
+        c.close();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Creates database and insert default values
+        InitDatabase();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         //Set toolbar info
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -63,5 +102,11 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        db.close();
+        super.onDestroy();
     }
 }
