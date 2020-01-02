@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.tp_amov.models.ProfilePictureTools;
+
 import java.util.ArrayList;
 
 public class InGamePlayerInfoFragment extends Fragment {
@@ -70,25 +72,15 @@ public class InGamePlayerInfoFragment extends Fragment {
 
     public void onSetDataForInGamePlayerInfo(ArrayList<String> usernames, ArrayList<String> imgPaths){
         Bundle args = new Bundle();
+        ProfilePictureTools PPT = new ProfilePictureTools();
         args.putStringArrayList(SelectUserActivity.EXTRA_USERNAMES, usernames);
         args.putStringArrayList(SelectUserActivity.EXTRA_IMG_PATHS, imgPaths);
         FillPlayersArray(usernames,imgPaths);
         TextView InGameCurrentUser = (TextView) this.getView().findViewById(R.id.in_game_current_user_txt);
         ImageView InGameCurrentPic = (ImageView) this.getView().findViewById(R.id.profile_image);
-        InGameCurrentPic.setImageBitmap(StringToBitMap(imgPaths.get(0)));
+        InGameCurrentPic.setImageBitmap(PPT.StringToBitMap(imgPaths.get(0)));
         //InGameCurrentPic.setImageResource(R.drawable.ic_default_user_icon);
         InGameCurrentUser.setText(players.get(0).getUsername());
         this.setArguments(args);
-    }
-
-    public Bitmap StringToBitMap(String encodedString){
-        try {
-            byte [] encodeByte=Base64.decode(encodedString,Base64.DEFAULT);
-            Bitmap bitmap=BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch(Exception e) {
-            e.getMessage();
-            return null;
-        }
     }
 }
