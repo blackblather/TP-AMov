@@ -44,6 +44,7 @@ public class SelectUserActivity extends AppCompatActivity {
     private SelectUserFragment selectUserFragment;
     private Bundle savedInstanceState;
     private MenuItem useWebservice;
+    private MenuItem useDBPicture;
 
     private void LoadFragment(){
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -92,9 +93,11 @@ public class SelectUserActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.game_settings_menu, menu);
         useWebservice = menu.findItem(R.id.usar_webservice);
-        if(savedInstanceState != null) //Isto está aqui porque os menus são criados depois do onRestoreInstanceState porque os menus são criados depois!!
+        useDBPicture = menu.findItem(R.id.use_db_profile_pio);
+        if(savedInstanceState != null) { //Isto está aqui porque os menus são criados depois do onRestoreInstanceState porque os menus são criados depois!!
             useWebservice.setChecked(savedInstanceState.getBoolean("useWebservice", false));
-
+            useDBPicture.setChecked(savedInstanceState.getBoolean("useDBPicture", true));
+        }
         return true;
     }
 
@@ -107,6 +110,12 @@ public class SelectUserActivity extends AppCompatActivity {
                 else
                     item.setChecked(true);
                 selectUserFragment.SetUseWebservice(item.isChecked());
+                return true;
+            case R.id.use_db_profile_pio:
+                if(item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
                 return true;
             case R.id.take_picture:
                 ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
@@ -121,6 +130,7 @@ public class SelectUserActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("useWebservice", useWebservice.isChecked());
+        outState.putBoolean("useDBPicture", useDBPicture.isChecked());
         super.onSaveInstanceState(outState);
     }
 
@@ -206,10 +216,9 @@ public class SelectUserActivity extends AppCompatActivity {
         File directory = new File(getFilesDir(),profilePictureFolder);
         File file = new File(directory, filename);
         if(file.exists()) {
-            Log.d("File", "FileName:" + file.getName());
+            Log.d("File Loaded", "FileName:" + file.getName());
             String filePath = file.getPath();
-            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-            return  bitmap;
+            return BitmapFactory.decodeFile(filePath);
         }
         else {
             return null;
@@ -257,5 +266,9 @@ public class SelectUserActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(getApplicationContext(), "Image size is too big, Aborting..."+ outOfMemoryError.getLocalizedMessage(), Toast.LENGTH_LONG);
             toast.show();
         }
+    }
+
+    public boolean isUseDBPictureChecked(){
+        return useDBPicture.isChecked();
     }
 }

@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
                 db.insert(SudokuContract.GameMode.TABLE_NAME, null, rowValues);
             }
         }
-
         c.close();
     }
 
