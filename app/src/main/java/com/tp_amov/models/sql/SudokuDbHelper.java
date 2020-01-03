@@ -24,9 +24,10 @@ public class SudokuDbHelper extends SQLiteOpenHelper {
         // to simply to discard the data and start over
 //        db.execSQL(SQL_DELETE_ENTRIES);
 //        onCreate(db);
-        if (newVersion > oldVersion) {
-            db.execSQL("ALTER TABLE "+SudokuContract.User.TABLE_NAME+" ADD COLUMN "+SudokuContract.User.COLUMN_NAME_PROFILE_PICTURE+" TEXT");
-        }
+
+//        if (newVersion > oldVersion) {
+//            db.execSQL("ALTER TABLE "+SudokuContract.User.TABLE_NAME+" ADD COLUMN "+SudokuContract.User.COLUMN_NAME_PROFILE_PICTURE+" TEXT");
+//        }
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
