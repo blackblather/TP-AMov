@@ -22,10 +22,12 @@ public final class SudokuContract {
         public static final String TABLE_NAME = "user_game";
         public static final String COLUMN_NAME_ID_USER = "id_user";
         public static final String COLUMN_NAME_ID_GAME = "id_game";
+        public static final String COLUMN_NAME_SCORE = "score";
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_ID_USER + " INTEGER," +
                 COLUMN_NAME_ID_GAME + " INTEGER," +
+                COLUMN_NAME_SCORE + " INTEGER," +
                 "FOREIGN KEY (" + COLUMN_NAME_ID_USER + ") REFERENCES " + User.TABLE_NAME + " (" + User._ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
                 "FOREIGN KEY (" + COLUMN_NAME_ID_GAME + ") REFERENCES " + Game.TABLE_NAME + " (" + Game._ID + ") ON DELETE CASCADE ON UPDATE CASCADE); ";
     }
