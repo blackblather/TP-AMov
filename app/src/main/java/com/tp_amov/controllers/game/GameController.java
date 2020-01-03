@@ -1,4 +1,4 @@
-package com.tp_amov.controllers.board;
+package com.tp_amov.controllers.game;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.*;
 
-public class BoardController extends ViewModel
+public class GameController extends ViewModel
 {
     public static class Factory implements ViewModelProvider.Factory{
         private Context context;
@@ -76,7 +76,7 @@ public class BoardController extends ViewModel
         }
     }
 
-    public BoardController(Context context, String difficulty, BoardEvents boardEvents, Boolean useWebservice) {
+    public GameController(Context context, String difficulty, BoardEvents boardEvents, Boolean useWebservice) {
         this.boardEvents = boardEvents;
         this.queue = CustomRequestQueueFactory.NewSingleThreadRequestQueue(context);
         this.difficulty = difficulty;

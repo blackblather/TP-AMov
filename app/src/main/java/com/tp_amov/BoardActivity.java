@@ -14,7 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.ViewModelProviders;
-import com.tp_amov.controllers.board.BoardController;
+import com.tp_amov.controllers.game.GameController;
 import com.tp_amov.events.board.BoardEvents;
 import com.tp_amov.models.board.BoardPosition;
 import com.tp_amov.models.board.EditStack;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 public class BoardActivity extends AppCompatActivity {
 
     private Bundle savedInstance;
-    private BoardController boardController;
+    private GameController gameController;
     private EditText selectedCell;
     private Toolbar toolbar;
     private MenuItem highlightOpt;
@@ -97,7 +97,7 @@ public class BoardActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
-                intent.putExtra("score",boardController.getScore());
+                intent.putExtra("score", gameController.getScore());
                 startActivity(intent);
             }
         });
@@ -160,9 +160,9 @@ public class BoardActivity extends AppCompatActivity {
 
         //Set boardController using ViewModelProviders
         SetBoardRunnables();
-        BoardController.Factory boardControllerFactory = new BoardController.Factory(getApplicationContext(), "easy", boardEvents, useWebservice);
-        boardController = ViewModelProviders.of(this, boardControllerFactory).get(BoardController.class);
-        boardController.InitializeBoard();
+        GameController.Factory boardControllerFactory = new GameController.Factory(getApplicationContext(), "easy", boardEvents, useWebservice);
+        gameController = ViewModelProviders.of(this, boardControllerFactory).get(GameController.class);
+        gameController.InitializeBoard();
 
         //Set editStack using ViewModelProviders
         editStack = ViewModelProviders.of(this).get(EditStack.class);
@@ -228,7 +228,7 @@ public class BoardActivity extends AppCompatActivity {
             int selectedInnerBoardResourceId = ((ViewGroup)selectedCell.getParent()).getId();
             int selectedCellResourceId = selectedCell.getId();
             editStack.AddElement(selectedInnerBoardResourceId, selectedCellResourceId, getBtnValue(t));
-            boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),getBtnValue(t)));
+            gameController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),getBtnValue(t)));
         } else {
             Toast.makeText(this, "Please select a cell!",
                     Toast.LENGTH_SHORT).show();
@@ -319,7 +319,7 @@ public class BoardActivity extends AppCompatActivity {
 
         for (int i = 0; i < boardArray.size(); i++)
             for (int j = 0; j < boardArray.get(i).size(); j++)
-                if(!boardController.ElementContainsType(i,j, Element.Type.userValue, Element.Type.hintValue))
+                if(!gameController.ElementContainsType(i,j, Element.Type.userValue, Element.Type.hintValue))
                     ibFrags.get(i).UpdateValue(j, boardArray.get(i).get(j),(dkMode.isChecked()?R.color.white:R.color.black), false);
     }
 
@@ -358,7 +358,7 @@ public class BoardActivity extends AppCompatActivity {
             ArrayList<View> components = ibFrags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
                 if(dkMode.isChecked())
-                    if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
+                    if(gameController.GetValuesFromStartBoard(i).get(j) == 0)
                         if(((EditText)components.get(j)) == selectedCell)
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_dark_interact));
                         else
@@ -368,7 +368,7 @@ public class BoardActivity extends AppCompatActivity {
                         ((EditText) components.get(j)).setTextColor(ResourcesCompat.getColor(getResources(), R.color.white, null));
                     }
                 else{
-                    if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
+                    if(gameController.GetValuesFromStartBoard(i).get(j) == 0)
                         if(((EditText)components.get(j)) == selectedCell)
                             ((EditText)components.get(j)).setBackground((Drawable) getDrawable( R.drawable.box_back_interact));
                         else
@@ -391,11 +391,11 @@ public class BoardActivity extends AppCompatActivity {
         for (int i = 0; i < 9; i++) {
             ArrayList<View> components = ibFrags.get(i).GetViews();
             for (int j = 0; j < 9; j++)
-                if(boardController.GetValuesFromStartBoard(i).get(j) == 0)
+                if(gameController.GetValuesFromStartBoard(i).get(j) == 0)
                     if(((EditText)components.get(j)) == selectedCell)
                         ((EditText)components.get(j)).setTextColor(foregroundSelected);
                     else {
-                        if(!(boardController.GetElementType(i,j)== Element.Type.hintValue))
+                        if(!(gameController.GetElementType(i,j)== Element.Type.hintValue))
                             ((EditText) components.get(j)).setTextColor(foregroundUnselected);
                         else {
                             if (highlightOpt.isChecked())
@@ -650,9 +650,9 @@ public class BoardActivity extends AppCompatActivity {
                 int innerboardIndex = getInnerBoxIndex(selectedCell);
                 int cellIndex = getCellIndex(selectedCell);
                 selectedCell.setBackground(unselected);
-                Element.Type type = boardController.GetElementType(innerboardIndex,cellIndex);
+                Element.Type type = gameController.GetElementType(innerboardIndex,cellIndex);
                 Element.Type type1 = Element.Type.hintValue;
-                if(!(boardController.GetElementType(innerboardIndex,cellIndex)== Element.Type.hintValue))
+                if(!(gameController.GetElementType(innerboardIndex,cellIndex)== Element.Type.hintValue))
                     selectedCell.setTextColor(foregroundUnselected);
                 else
                     selectedCell.setTextColor(hintUnselected);
@@ -665,7 +665,7 @@ public class BoardActivity extends AppCompatActivity {
             if(selectedCell == newSelectedCell) {
                 int innerboardIndex = getInnerBoxIndex(selectedCell);
                 int cellIndex = getCellIndex(selectedCell);
-                if(!(boardController.GetElementType(innerboardIndex,cellIndex)== Element.Type.hintValue))
+                if(!(gameController.GetElementType(innerboardIndex,cellIndex)== Element.Type.hintValue))
                     selectedCell.setTextColor(foregroundUnselected);
                 else
                     selectedCell.setTextColor(hintUnselected);
@@ -676,7 +676,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onSubmitBoard(View t) {
-        boardController.ValidateSolution();
+        gameController.ValidateSolution();
     }
 
     public void onBackspace(View t) {
@@ -684,7 +684,7 @@ public class BoardActivity extends AppCompatActivity {
             int selectedInnerBoardId = ((ViewGroup)selectedCell.getParent()).getId();
             int selectedCellId = selectedCell.getId();
             editStack.AddElement(selectedInnerBoardId, selectedCellId, 0);
-            boardController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),0));
+            gameController.InsertNumber(new BoardPosition(getInnerBoxIndex(),getCellIndex(),0));
         } else {
             Toast.makeText(this, "Please select a cell!",
                     Toast.LENGTH_SHORT).show();
@@ -692,7 +692,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     public void onHintRequest(View t) {
-        boardController.RequestHint();
+        gameController.RequestHint();
     }
 
     public EditText getSelectedCell() {
@@ -701,7 +701,7 @@ public class BoardActivity extends AppCompatActivity {
 
     private void updateScoreOnView(){
         TextView score = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_score_text);
-        String updatedScore = Integer.toString(boardController.getScore());
+        String updatedScore = Integer.toString(gameController.getScore());
         score.setText(updatedScore);
     }
 }
