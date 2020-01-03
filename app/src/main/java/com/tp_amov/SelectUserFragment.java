@@ -11,6 +11,12 @@ abstract class SelectUserFragment extends Fragment {
     private SQLiteDatabase db;
     private boolean useWebservice = false;
 
+    SelectUserFragment(){
+        SudokuDbHelper dbHelper = new SudokuDbHelper(getContext());
+        db = dbHelper.getReadableDatabase();
+        dbHelper.close();
+    }
+
     void SetUseWebservice(boolean useWebservice) {
         this.useWebservice = useWebservice;
     }
@@ -21,9 +27,6 @@ abstract class SelectUserFragment extends Fragment {
 
     //Database functions
     boolean UserExists(String userName) {
-        SudokuDbHelper dbHelper = new SudokuDbHelper(getContext());
-        db = dbHelper.getReadableDatabase();
-
         String Query = "Select * from " + SudokuContract.User.TABLE_NAME + " where " + SudokuContract.User.COLUMN_NAME_USERNAME + " LIKE '" + userName + "'";
         Cursor cursor = db.rawQuery(Query, null);
         int count = cursor.getCount();
@@ -32,8 +35,6 @@ abstract class SelectUserFragment extends Fragment {
     }
 
     void AddUser(String userName, String imgPath){
-        SudokuDbHelper dbHelper = new SudokuDbHelper(getContext());
-        db = dbHelper.getWritableDatabase();
         ContentValues rowValues = new ContentValues();
         rowValues.put(SudokuContract.User.COLUMN_NAME_USERNAME, userName);
         rowValues.put(SudokuContract.User.COLUMN_NAME_PROFILE_PICTURE,imgPath);
@@ -41,16 +42,11 @@ abstract class SelectUserFragment extends Fragment {
     }
 
     void UpdateImagePath(String userName, String imgPath){
-        SudokuDbHelper dbHelper = new SudokuDbHelper(getContext());
-        db = dbHelper.getWritableDatabase();
         ContentValues rowValues = new ContentValues();
         rowValues.put(SudokuContract.User.COLUMN_NAME_PROFILE_PICTURE,imgPath); //These Fields should be your String values of actual column names
         db.update(SudokuContract.User.TABLE_NAME, rowValues, SudokuContract.User.COLUMN_NAME_USERNAME+" LIKE '"+userName+"'", null);
     }
     String GetImagePath(String userName){
-        SudokuDbHelper dbHelper = new SudokuDbHelper(getContext());
-        db = dbHelper.getReadableDatabase();
-
         String query = "SELECT "+SudokuContract.User.COLUMN_NAME_PROFILE_PICTURE+" FROM "+SudokuContract.User.TABLE_NAME+" WHERE "+SudokuContract.User.COLUMN_NAME_USERNAME+" LIKE '" + userName + "'";
 
         Cursor  cursor = db.rawQuery(query,null);
@@ -66,5 +62,11 @@ abstract class SelectUserFragment extends Fragment {
         }
         cursor.close();
         return imageName;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        db.close();
     }
 }
