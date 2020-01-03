@@ -2,6 +2,7 @@ package com.tp_amov.controllers.sql;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import com.tp_amov.tools.SudokuDbHelper;
 
 abstract class SQLController {
     private SQLiteDatabase db;
@@ -12,7 +13,11 @@ abstract class SQLController {
         dbHelper.close();
     }
 
-    public SQLiteDatabase getDb() {
+    SQLController(SQLiteDatabase db){
+        this.db = db;
+    }
+
+    SQLiteDatabase getDb() {
         return db;
     }
 
