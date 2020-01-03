@@ -18,7 +18,7 @@ import java.util.Collections;
 
 
 public class SelectUserFragmentM1M3 extends SelectUserFragment {
-    public static final String GAME_MODE = "m1m3";
+    public static final String GAME_MODE = "M1";
 
     public SelectUserFragmentM1M3() { }
 
