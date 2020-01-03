@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.android.volley.*;
 import com.android.volley.toolbox.*;
-import com.tp_amov.events.board.BoardEvents;
+import com.tp_amov.events.game.GameEvents;
 import com.tp_amov.models.board.Board;
 import com.tp_amov.models.board.BoardPosition;
 import com.tp_amov.models.board.Element;
@@ -22,20 +22,20 @@ public class GameController extends ViewModel
     public static class Factory implements ViewModelProvider.Factory{
         private Context context;
         private String difficulty;
-        private BoardEvents boardEvents;
+        private GameEvents gameEvents;
         private boolean useWebservice;
 
-        public Factory(Context context, String difficulty, BoardEvents boardEvents, boolean useWebservice){
+        public Factory(Context context, String difficulty, GameEvents gameEvents, boolean useWebservice){
             this.context = context;
             this.difficulty = difficulty;
-            this.boardEvents = boardEvents;
+            this.gameEvents = gameEvents;
             this.useWebservice = useWebservice;
         }
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             try {
-                return modelClass.getConstructor(Context.class, String.class, BoardEvents.class, Boolean.class).newInstance(context, difficulty, boardEvents, useWebservice);
+                return modelClass.getConstructor(Context.class, String.class, GameEvents.class, Boolean.class).newInstance(context, difficulty, gameEvents, useWebservice);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -60,7 +60,7 @@ public class GameController extends ViewModel
     private boolean alreadyCreated = false;
     private boolean useWebservice = false;
 //Callbacks
-    private BoardEvents boardEvents;
+    private GameEvents gameEvents;
 //Network vars
     private RequestQueue queue;
     private final String WEBSERVICE_URL ="https://sugoku.herokuapp.com/";
@@ -76,8 +76,8 @@ public class GameController extends ViewModel
         }
     }
 
-    public GameController(Context context, String difficulty, BoardEvents boardEvents, Boolean useWebservice) {
-        this.boardEvents = boardEvents;
+    public GameController(Context context, String difficulty, GameEvents gameEvents, Boolean useWebservice) {
+        this.gameEvents = gameEvents;
         this.queue = CustomRequestQueueFactory.NewSingleThreadRequestQueue(context);
         this.difficulty = difficulty;
         this.useWebservice = useWebservice;
@@ -85,7 +85,7 @@ public class GameController extends ViewModel
 
     public void InitializeBoard(){
         if(alreadyCreated)
-            boardEvents.getOnBoardCreationSuccess().accept(board.toArray());
+            gameEvents.getOnBoardCreationSuccess().accept(board.toArray());
         else{
             GetOnlineBoard(difficulty);
             alreadyCreated = true;
@@ -104,16 +104,16 @@ public class GameController extends ViewModel
                     try{
                         board = new Board(response);
 //                        board = new Board(new JSONObject("{\"board\": [[0,0,1,0,0,0,0,0,0], [2,0,0,0,0,0,0,7,0], [0,7,0,0,0,0,0,0,0], [1,0,0,4,0,6,0,0,7], [0,0,0,0,0,0,0,0,0], [0,0,0,0,1,2,5,4,6], [3,0,2,7,6,0,9,8,0], [0,6,4,9,0,3,0,0,1], [9,8,0,5,2,1,0,6,0]]}"));
-                        boardEvents.getOnBoardCreationSuccess().accept(board.toArray(Element.Type.defaultValue));
+                        gameEvents.getOnBoardCreationSuccess().accept(board.toArray(Element.Type.defaultValue));
                     } catch (JSONException e) {
-                        boardEvents.getOnBoardCreationError().run();
+                        gameEvents.getOnBoardCreationError().run();
                     }
                 }
             },
             new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    boardEvents.getOnBoardCreationError().run();
+                    gameEvents.getOnBoardCreationError().run();
                 }
             });
 
@@ -181,16 +181,16 @@ public class GameController extends ViewModel
                 if(!request.GetValue().equals(request.GetOldValue()))
                     ScoreDecrement();
                 board.GetInnerBoard(request.GetInnerBoardIndex()).SetValue(request.GetCellIndex(),0);
-                boardEvents.getOnInsertInvalidNumber().run();
+                gameEvents.getOnInsertInvalidNumber().run();
             } else if (resp.equals("unsolved") || resp.equals("solved")){
                 if(!request.GetValue().equals(request.GetOldValue()) && !request.GetValue().equals(0))
                     ScoreIncrement();
                 else
                     ScoreDecrement();
-                boardEvents.getOnInsertValidNumber().run();
+                gameEvents.getOnInsertValidNumber().run();
             }
         } catch (JSONException e) {
-            boardEvents.getOnInsertInvalidNumber().run();
+            gameEvents.getOnInsertInvalidNumber().run();
         }
     }
 
@@ -198,11 +198,11 @@ public class GameController extends ViewModel
         try {
             String resp = jsonResp.getString("status");
             if(resp.equals("solved"))
-                boardEvents.getOnBoardSolved().run();
+                gameEvents.getOnBoardSolved().run();
             else
-                boardEvents.getOnBoardUnsolved().run();
+                gameEvents.getOnBoardUnsolved().run();
         } catch (JSONException e) {
-            boardEvents.getOnBoardUnsolved().run();
+            gameEvents.getOnBoardUnsolved().run();
         }
     }
 
@@ -244,12 +244,12 @@ public class GameController extends ViewModel
                 hintsLeft--;
                 board.GetInnerBoard(hint.GetInnerBoardIndex()).SetValue(hint.GetCellIndex(),hint.GetValue());
                 board.GetInnerBoard(hint.GetInnerBoardIndex()).GetElement(hint.GetCellIndex()).SetType(Element.Type.hintValue);
-                boardEvents.getOnReceivedHint().accept(hint);
+                gameEvents.getOnReceivedHint().accept(hint);
             }
             else if(status.equals("unsolvable"))
-                boardEvents.getOnBoardUnsolved().run();
+                gameEvents.getOnBoardUnsolved().run();
         } catch (JSONException e) {
-            boardEvents.getOnBoardUnsolved().run();
+            gameEvents.getOnBoardUnsolved().run();
         }
     }
 
@@ -329,11 +329,11 @@ public class GameController extends ViewModel
                         ScoreIncrement();
                     board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).SetValue(numberInfo.GetCellIndex(), numberInfo.GetValue());
                     board.GetInnerBoard(numberInfo.GetInnerBoardIndex()).GetElement(numberInfo.GetCellIndex()).SetType(Element.Type.userValue);
-                    boardEvents.getOnInsertValidNumber().run();
+                    gameEvents.getOnInsertValidNumber().run();
                 } else {
                     if (!numberInfo.GetValue().equals(oldValue))
                         ScoreDecrement();
-                    boardEvents.getOnInsertInvalidNumber().run();
+                    gameEvents.getOnInsertInvalidNumber().run();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

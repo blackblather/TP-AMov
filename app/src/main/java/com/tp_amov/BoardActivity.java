@@ -15,7 +15,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.ViewModelProviders;
 import com.tp_amov.controllers.game.GameController;
-import com.tp_amov.events.board.BoardEvents;
+import com.tp_amov.events.game.GameEvents;
 import com.tp_amov.models.board.BoardPosition;
 import com.tp_amov.models.board.EditStack;
 import com.tp_amov.models.board.Element;
@@ -36,7 +36,7 @@ public class BoardActivity extends AppCompatActivity {
 
     private EditStack editStack;
 
-    private BoardEvents boardEvents;
+    private GameEvents gameEvents;
 
     GridLayout NubPadBackground;
     InGamePlayerInfoFragment inGamePlayerInfoFragment;
@@ -47,8 +47,8 @@ public class BoardActivity extends AppCompatActivity {
     private String gameMode;
 
     private void SetBoardRunnables() {
-        boardEvents = new BoardEvents();
-        boardEvents.setOnInsertValidNumber(new Runnable() {
+        gameEvents = new GameEvents();
+        gameEvents.setOnInsertValidNumber(new Runnable() {
             @Override
             public void run() {
                 EditStack.Element editStackElement = editStack.RemoveValidElement();
@@ -67,7 +67,7 @@ public class BoardActivity extends AppCompatActivity {
                 updateScoreOnView();
             }
         });
-        boardEvents.setOnInsertInvalidNumber(new Runnable() {
+        gameEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
                 EditStack.Element editStackElement = editStack.RemoveInvalidElement();
@@ -80,20 +80,20 @@ public class BoardActivity extends AppCompatActivity {
                     editStackElement.getSelectedCell().setText("");
             }
         });
-        boardEvents.setOnBoardCreationError(new Runnable() {
+        gameEvents.setOnBoardCreationError(new Runnable() {
             @Override
             public void run() {
                 finishActivity(0);
             }
         });
-        boardEvents.setOnBoardCreationSuccess(new Consumer<ArrayList<ArrayList<Integer>>>() {
+        gameEvents.setOnBoardCreationSuccess(new Consumer<ArrayList<ArrayList<Integer>>>() {
             @Override
             public void accept(ArrayList<ArrayList<Integer>> arrayLists) {
                 FillViews(arrayLists);
             }
         });
 
-        boardEvents.setOnBoardSolved(new Runnable() {
+        gameEvents.setOnBoardSolved(new Runnable() {
             @Override
             public void run() {
                 Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
@@ -101,14 +101,14 @@ public class BoardActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        boardEvents.setOnBoardUnsolved(new Runnable(){
+        gameEvents.setOnBoardUnsolved(new Runnable(){
             @Override
             public void run() {
                 Toast toast = Toast.makeText(getApplicationContext(), "Solução inválida", Toast.LENGTH_SHORT);
                 toast.show();
             }
         });
-        boardEvents.setOnReceivedHint(new Consumer<BoardPosition>() {
+        gameEvents.setOnReceivedHint(new Consumer<BoardPosition>() {
             @Override
             public void accept(BoardPosition boardPosition) {
                 int innerBoardIndex = boardPosition.GetInnerBoardIndex();
@@ -160,7 +160,7 @@ public class BoardActivity extends AppCompatActivity {
 
         //Set boardController using ViewModelProviders
         SetBoardRunnables();
-        GameController.Factory boardControllerFactory = new GameController.Factory(getApplicationContext(), "easy", boardEvents, useWebservice);
+        GameController.Factory boardControllerFactory = new GameController.Factory(getApplicationContext(), "easy", gameEvents, useWebservice);
         gameController = ViewModelProviders.of(this, boardControllerFactory).get(GameController.class);
         gameController.InitializeBoard();
 

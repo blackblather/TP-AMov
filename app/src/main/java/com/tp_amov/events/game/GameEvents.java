@@ -1,15 +1,15 @@
-package com.tp_amov.events.board;
+package com.tp_amov.events.game;
 
 import androidx.core.util.Consumer;
 import com.tp_amov.models.board.BoardPosition;
 
 import java.util.ArrayList;
 
-public class BoardEvents {
+public class GameEvents {
     private Runnable onInsertValidNumber, onInsertInvalidNumber, onBoardCreationError, onBoardSolved, onBoardUnsolved, onHintLimitReached;
     private Consumer<ArrayList<ArrayList<Integer>>> onBoardCreationSuccess;
     private Consumer<BoardPosition> onReceivedHint;
-    public BoardEvents(){ }
+    public GameEvents(){ }
 
 //------------> Getters
 
