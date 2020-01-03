@@ -160,7 +160,7 @@ public class BoardActivity extends AppCompatActivity {
 
         //Set boardController using ViewModelProviders
         SetBoardRunnables();
-        GameController.Factory gameControllerFactory = new GameController.Factory(getApplicationContext(), "easy", gameEvents, useWebservice);
+        GameController.Factory gameControllerFactory = new GameController.Factory(getApplicationContext(), "easy", gameMode, gameEvents, useWebservice);
         gameController = ViewModelProviders.of(this, gameControllerFactory).get(GameController.class);
         gameController.InitializeBoard();
 
