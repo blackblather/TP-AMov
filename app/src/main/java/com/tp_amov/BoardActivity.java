@@ -41,8 +41,10 @@ public class BoardActivity extends AppCompatActivity {
     GridLayout NubPadBackground;
     InGamePlayerInfoFragment inGamePlayerInfoFragment;
     ArrayList<InnerBoardFragment> ibFrags = new ArrayList<>();
+    //Extracted from intent
     private ArrayList<String> usernames;
     private ArrayList<String> imgPaths;
+    private String gameMode;
 
     private void SetBoardRunnables() {
         boardEvents = new BoardEvents();
@@ -90,6 +92,7 @@ public class BoardActivity extends AppCompatActivity {
                 FillViews(arrayLists);
             }
         });
+
         boardEvents.setOnBoardSolved(new Runnable() {
             @Override
             public void run() {
@@ -131,16 +134,16 @@ public class BoardActivity extends AppCompatActivity {
 
             //Get intent
             Intent intent = getIntent();
+
+            //Extract intent info
             usernames = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_USERNAMES);
             imgPaths = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_IMG_PATHS);
             useWebservice = intent.getBooleanExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, false);
-            Toast toast = Toast.makeText(getApplicationContext(), "VALUE = " + (useWebservice?"TRUE":"FALSE"), Toast.LENGTH_SHORT);
-            toast.show();
-
-            //Populates fragment
+            gameMode = intent.getStringExtra(SelectUserActivity.EXTRA_GAME_MODE);
+            //Populate fragment
             inGamePlayerInfoFragment.onSetDataForInGamePlayerInfo(usernames,imgPaths);
 
-            //Set Adaptation for screen
+            //Set adaptation for screen
             setScreenAdaptation(getApplicationContext());
         } catch (ClassCastException e) {
             finish();

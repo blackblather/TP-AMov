@@ -10,13 +10,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import com.tp_amov.models.ProfilePictureTools;
+import com.tp_amov.models.sql.User;
+import com.tp_amov.tools.ProfilePictureTools;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 
 public class SelectUserFragmentM1M3 extends SelectUserFragment {
+    public static final String GAME_MODE = "m1m3";
 
     public SelectUserFragmentM1M3() { }
 
@@ -35,29 +37,30 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
         final ProfilePictureTools PPT = new ProfilePictureTools();
 
         //Gets button
-        Button btn_start_m1m3 = (Button) view.findViewById(R.id.btn_start_m1m3);
+        Button btn_start = (Button) view.findViewById(R.id.btn_start);
 
-        //Assigns an "OnClickListener" to btn_start_m1m3
-        btn_start_m1m3.setOnClickListener(new View.OnClickListener(){
+        //Assigns an "OnClickListener" to btn_start
+        btn_start.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                boolean overwritePic = ((SelectUserActivity)getActivity()).isUseDBPictureChecked(); //To know if user wants to update image on DB
-                //if( mode == 1) -> go to board activity
-                //else if (mode == 3) -> go to lobby activity
-                Intent intent = new Intent(getContext(), BoardActivity.class);
+                //To know if user wants to update image on DB
+                boolean overwritePic = ((SelectUserActivity)getActivity()).isUseDBPictureChecked();
 
-                EditText usernameTxt = finalView.findViewById(R.id.txt_username);
+
+                EditText usernameEditText = finalView.findViewById(R.id.txt_username);
                 ImageView userImg = finalView.findViewById(R.id.profile_image);
 
+                String username = usernameEditText.getText().toString();
+
                 Bitmap compressed;
-                //Compressing image
-                if(UserExists(usernameTxt.getText().toString())){
+                if(getUserController().UserExists(usernameEditText.getText().toString())){
                     //User exists on the DB
                     if(!overwritePic) {
                         //Get its image from DB
-                        String imgName = GetImagePath(usernameTxt.getText().toString());
+                        String imgName = getUserController().GetUser(username).getProfilePicture();
                         Bitmap loaded = ((SelectUserActivity) getActivity()).LoadImage(imgName);
                         if(loaded == null) {
+                            //Compressing image
                             compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImg.getDrawable());
                         }else
                             compressed = loaded;
@@ -65,19 +68,27 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
                         //Overwrites db img with current one
                         compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImg.getDrawable());
                         String savedImgFileName = ((SelectUserActivity)getActivity()).saveImageOnAppFileDir(compressed);
-                        UpdateImagePath(usernameTxt.getText().toString(),savedImgFileName);
+                        getUserController().UpdateImagePath(new User(username,savedImgFileName));
                     }
                 }else{
                     //User does not exists on the DB
                     compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImg.getDrawable());
                     String savedImgFileName = ((SelectUserActivity)getActivity()).saveImageOnAppFileDir(compressed);
-                    AddUser(usernameTxt.getText().toString(),savedImgFileName);
+                    getUserController().AddUser(new User(username,savedImgFileName));
                 }
+
                 //FOR TESTING ONLY (YET)
                 ((SelectUserActivity)getActivity()).getAllImagesOnProfilePicturesDir();//FOR TESTING ONLY
+
+
+                //if( mode == 1) -> go to board activity
+                //else if (mode == 3) -> go to lobby activity
+                Intent intent = new Intent(getContext(), BoardActivity.class);
+
                 //Prepares Extras for next activity
-                intent.putExtra(SelectUserActivity.EXTRA_USERNAMES, new ArrayList<String>(Collections.singletonList(usernameTxt.getText().toString())));
+                intent.putExtra(SelectUserActivity.EXTRA_USERNAMES, new ArrayList<String>(Collections.singletonList(usernameEditText.getText().toString())));
                 intent.putExtra(SelectUserActivity.EXTRA_IMG_PATHS, new ArrayList<String>(Collections.singletonList(PPT.BitMapToString(compressed))));
+                intent.putExtra(SelectUserActivity.EXTRA_GAME_MODE, GAME_MODE);
                 intent.putExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, GetUseWebservice());
 
                 startActivity(intent);

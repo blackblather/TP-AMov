@@ -28,14 +28,18 @@ import java.io.FileOutputStream;
 import java.util.UUID;
 
 public class SelectUserActivity extends AppCompatActivity {
-    public static final int CAMERA_PERMISSION_CODE = 4;
-    public static final int CAMERA_REQUEST = 3;
-    public static final int IMAGE_FILE_PICKER_PERMISSION_CODE = 2;
-    public static final int IMAGE_FILE_PICKER_REQUEST = 1;
-    public static final String profilePictureFolder = "ProfilePictures";
+    //Intent constants
     static final String EXTRA_USERNAMES = "usernames";
     static final String EXTRA_IMG_PATHS = "imgPaths";
     static final String EXTRA_USE_WEBSERVICE = "useWebservice";
+    static final String EXTRA_GAME_MODE = "gameMode";
+    //Camera constants
+    private static final int CAMERA_PERMISSION_CODE = 4;
+    private static final int CAMERA_REQUEST = 3;
+    private static final int IMAGE_FILE_PICKER_PERMISSION_CODE = 2;
+    private static final int IMAGE_FILE_PICKER_REQUEST = 1;
+    private static final String profilePictureFolder = "ProfilePictures";
+    //Control vars
     private String selectedMode;
     private SelectUserFragment selectUserFragment;
     private Bundle savedInstanceState;
