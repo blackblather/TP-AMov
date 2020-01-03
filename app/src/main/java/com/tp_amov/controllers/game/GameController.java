@@ -19,15 +19,18 @@ import java.util.*;
 
 public class GameController extends ViewModel
 {
+    //Factory
     public static class Factory implements ViewModelProvider.Factory{
         private Context context;
         private String difficulty;
+        private String mode;
         private GameEvents gameEvents;
         private boolean useWebservice;
 
-        public Factory(Context context, String difficulty, GameEvents gameEvents, boolean useWebservice){
+        public Factory(Context context, String difficulty, String mode, GameEvents gameEvents, boolean useWebservice){
             this.context = context;
             this.difficulty = difficulty;
+            this.mode = mode;
             this.gameEvents = gameEvents;
             this.useWebservice = useWebservice;
         }
@@ -35,33 +38,32 @@ public class GameController extends ViewModel
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             try {
-                return modelClass.getConstructor(Context.class, String.class, GameEvents.class, Boolean.class).newInstance(context, difficulty, gameEvents, useWebservice);
+                return modelClass.getConstructor(Context.class, String.class, String.class, GameEvents.class, Boolean.class).newInstance(context, difficulty, mode, gameEvents, useWebservice);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
         }
     }
-//Enums
+    //Enum
     private enum NetworkRequestType {
         insertNumber,
         validateSolution,
         requestHint
     }
-//Defines
-    private final int scoreDefaultValue = 5;
     //Control vars
     private Board board;
     private int score = 0;
+    private String mode;
     private Integer hintsLeft = 3;
     //"requestStack" is used to store requests made by the user (eg. insert number) and to synchronize webservice responses with user requests
     private LinkedList<BoardPosition> requestStack = new LinkedList<>();
     private String difficulty;
     private boolean alreadyCreated = false;
     private boolean useWebservice = false;
-//Callbacks
+    //Callbacks
     private GameEvents gameEvents;
-//Network vars
+    //Network vars
     private RequestQueue queue;
     private final String WEBSERVICE_URL ="https://sugoku.herokuapp.com/";
 
@@ -76,10 +78,11 @@ public class GameController extends ViewModel
         }
     }
 
-    public GameController(Context context, String difficulty, GameEvents gameEvents, Boolean useWebservice) {
-        this.gameEvents = gameEvents;
+    public GameController(Context context, String difficulty, String mode, GameEvents gameEvents, Boolean useWebservice) {
         this.queue = CustomRequestQueueFactory.NewSingleThreadRequestQueue(context);
         this.difficulty = difficulty;
+        this.mode = mode;
+        this.gameEvents = gameEvents;
         this.useWebservice = useWebservice;
     }
 
@@ -103,7 +106,6 @@ public class GameController extends ViewModel
                 public void onResponse(JSONObject response) {
                     try{
                         board = new Board(response);
-//                        board = new Board(new JSONObject("{\"board\": [[0,0,1,0,0,0,0,0,0], [2,0,0,0,0,0,0,7,0], [0,7,0,0,0,0,0,0,0], [1,0,0,4,0,6,0,0,7], [0,0,0,0,0,0,0,0,0], [0,0,0,0,1,2,5,4,6], [3,0,2,7,6,0,9,8,0], [0,6,4,9,0,3,0,0,1], [9,8,0,5,2,1,0,6,0]]}"));
                         gameEvents.getOnBoardCreationSuccess().accept(board.toArray(Element.Type.defaultValue));
                     } catch (JSONException e) {
                         gameEvents.getOnBoardCreationError().run();
