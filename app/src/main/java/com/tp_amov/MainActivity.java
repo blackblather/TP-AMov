@@ -15,8 +15,8 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import com.tp_amov.controllers.sql.SudokuDbHelper;
 import com.tp_amov.models.sql.SudokuContract;
-import com.tp_amov.models.sql.SudokuDbHelper;
 
 public class MainActivity extends AppCompatActivity {
     static final String EXTRA_SELECTED_MODE = "com.tp_amov.SELECTED_MODE";
