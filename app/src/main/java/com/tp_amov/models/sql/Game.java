@@ -9,6 +9,10 @@ public class Game {
         this.gameMode = gameMode;
     }
 
+    public Game(GameMode gameMode){
+        this.gameMode = gameMode;
+    }
+
     //Getters
     public int getId() {
         return id;

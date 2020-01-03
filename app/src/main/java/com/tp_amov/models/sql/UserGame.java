@@ -6,8 +6,14 @@ public class UserGame {
     private User user;
     private int score;
 
-    public UserGame(int id, Game game, User user, int score){
+    public UserGame(int id, User user, Game game, int score){
         this.id = id;
+        this.game = game;
+        this.user = user;
+        this.score = score;
+    }
+
+    public UserGame(User user, Game game, int score){
         this.game = game;
         this.user = user;
         this.score = score;

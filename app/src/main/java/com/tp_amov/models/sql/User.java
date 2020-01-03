@@ -10,6 +10,11 @@ public class User {
         this.username = username;
         this.profilePicture = profilePicture;
     }
+    public User(String username, String profilePicture){
+        this.id = id;
+        this.username = username;
+        this.profilePicture = profilePicture;
+    }
 
     //Getters
     public int getId() {
