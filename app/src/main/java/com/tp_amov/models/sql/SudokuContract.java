@@ -12,9 +12,9 @@ public final class SudokuContract {
         public static final String TABLE_NAME = "user";
         public static final String COLUMN_NAME_USERNAME = "username";
         public static final String COLUMN_NAME_PROFILE_PICTURE = "profile_picture";
-        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_USERNAME + " TEXT,"+
+                COLUMN_NAME_USERNAME + " TEXT, "+
                 COLUMN_NAME_PROFILE_PICTURE + " TEXT); ";
     }
 
@@ -22,7 +22,7 @@ public final class SudokuContract {
         public static final String TABLE_NAME = "user_game";
         public static final String COLUMN_NAME_ID_USER = "id_user";
         public static final String COLUMN_NAME_ID_GAME = "id_game";
-        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_ID_USER + " INTEGER," +
                 COLUMN_NAME_ID_GAME + " INTEGER," +
@@ -33,7 +33,7 @@ public final class SudokuContract {
     public static class Game implements BaseColumns {
         public static final String TABLE_NAME = "game";
         public static final String COLUMN_NAME_ID_GAME_MODE = "id_game_mode";
-        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_ID_GAME_MODE + " INTEGER," +
                 "FOREIGN KEY (" + COLUMN_NAME_ID_GAME_MODE + ") REFERENCES " + GameMode.TABLE_NAME + " (" + GameMode._ID + ") ON DELETE CASCADE ON UPDATE CASCADE); ";
@@ -42,7 +42,7 @@ public final class SudokuContract {
     public static class GameMode implements BaseColumns {
         public static final String TABLE_NAME = "game_mode";
         public static final String COLUMN_NAME_GAME_MODE_NAME = "name";
-        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_GAME_MODE_NAME + " TEXT); ";
     }
