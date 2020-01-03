@@ -1,8 +1,9 @@
-package com.tp_amov.models.sql;
+package com.tp_amov.controllers.sql;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.tp_amov.models.sql.SudokuContract;
 
 public class SudokuDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
