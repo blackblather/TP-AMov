@@ -6,14 +6,15 @@ import com.tp_amov.tools.SudokuDbHelper;
 
 abstract class SQLController {
     private SQLiteDatabase db;
+    private SudokuDbHelper dbHelper;
 
     SQLController(Context context){
-        SudokuDbHelper dbHelper = new SudokuDbHelper(context);
+        dbHelper = new SudokuDbHelper(context);
         db = dbHelper.getReadableDatabase();
-        dbHelper.close();
     }
 
-    SQLController(SQLiteDatabase db){
+    SQLController(SQLiteDatabase db, SudokuDbHelper dbHelper){
+        this.dbHelper = dbHelper;
         this.db = db;
     }
 
@@ -21,7 +22,12 @@ abstract class SQLController {
         return db;
     }
 
+    public SudokuDbHelper getDbHelper() {
+        return dbHelper;
+    }
+
     public void Close(){
         db.close();
+        dbHelper.close();
     }
 }

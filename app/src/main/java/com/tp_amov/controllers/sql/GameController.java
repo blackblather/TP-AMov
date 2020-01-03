@@ -7,14 +7,15 @@ import android.database.sqlite.SQLiteDatabase;
 import com.tp_amov.models.sql.Game;
 import com.tp_amov.models.sql.GameMode;
 import com.tp_amov.models.sql.SudokuContract;
+import com.tp_amov.tools.SudokuDbHelper;
 
 public class GameController extends SQLController {
     GameController(Context context) {
         super(context);
     }
 
-    GameController(SQLiteDatabase db) {
-        super(db);
+    public GameController(SQLiteDatabase db, SudokuDbHelper dbHelper) {
+        super(db,dbHelper);
     }
 
     public void AddGame(Game game){
@@ -26,7 +27,7 @@ public class GameController extends SQLController {
     }
 
     public Game GetGame(int id){
-        GameModeController gameModeController = new GameModeController(getDb());
+        GameModeController gameModeController = new GameModeController(getDb(), getDbHelper());
 
         String query = "SELECT * FROM " + SudokuContract.Game.TABLE_NAME + " WHERE " + SudokuContract.Game._ID + " = " + id;
 

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.tp_amov.models.sql.SudokuContract;
 import com.tp_amov.models.sql.User;
+import com.tp_amov.tools.SudokuDbHelper;
 
 public class UserController extends SQLController{
 
@@ -13,8 +14,8 @@ public class UserController extends SQLController{
         super(context);
     }
 
-    UserController(SQLiteDatabase db) {
-        super(db);
+    UserController(SQLiteDatabase db, SudokuDbHelper dbHelper) {
+        super(db,dbHelper);
     }
 
     public boolean UserExists(String userName) {

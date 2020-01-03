@@ -5,14 +5,15 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import com.tp_amov.models.sql.SudokuContract;
 import com.tp_amov.models.sql.UserGame;
+import com.tp_amov.tools.SudokuDbHelper;
 
 public class UserGameController extends SQLController {
     UserGameController(Context context) {
         super(context);
     }
 
-    UserGameController(SQLiteDatabase db) {
-        super(db);
+    public UserGameController(SQLiteDatabase db, SudokuDbHelper dbHelper) {
+        super(db,dbHelper);
     }
 
     public void AddUserGame(UserGame userGame){
