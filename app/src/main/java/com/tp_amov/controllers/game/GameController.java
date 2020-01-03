@@ -1,15 +1,24 @@
 package com.tp_amov.controllers.game;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.android.volley.*;
 import com.android.volley.toolbox.*;
+import com.tp_amov.SelectUserFragmentM1M3;
+import com.tp_amov.controllers.sql.GameModeController;
+import com.tp_amov.controllers.sql.UserGameController;
 import com.tp_amov.events.game.GameEvents;
 import com.tp_amov.models.board.Board;
 import com.tp_amov.models.board.BoardPosition;
 import com.tp_amov.models.board.Element;
+import com.tp_amov.models.sql.Game;
+import com.tp_amov.models.sql.GameMode;
+import com.tp_amov.models.sql.User;
+import com.tp_amov.models.sql.UserGame;
+import com.tp_amov.tools.SudokuDbHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,11 +63,13 @@ public class GameController extends ViewModel
     //Control vars
     private Board board;
     private int score = 0;
-    private String mode;
     private Integer hintsLeft = 3;
+    private ArrayList<User> users;
     //"requestStack" is used to store requests made by the user (eg. insert number) and to synchronize webservice responses with user requests
     private LinkedList<BoardPosition> requestStack = new LinkedList<>();
+    private Context context;
     private String difficulty;
+    private String mode;
     private boolean alreadyCreated = false;
     private boolean useWebservice = false;
     //Callbacks
@@ -78,10 +89,12 @@ public class GameController extends ViewModel
         }
     }
 
-    public GameController(Context context, String difficulty, String mode, GameEvents gameEvents, Boolean useWebservice) {
+    public GameController(Context context, String difficulty, String mode, ArrayList<User> users, GameEvents gameEvents, Boolean useWebservice) {
+        this.context = context;
         this.queue = CustomRequestQueueFactory.NewSingleThreadRequestQueue(context);
         this.difficulty = difficulty;
         this.mode = mode;
+        this.users = users;
         this.gameEvents = gameEvents;
         this.useWebservice = useWebservice;
     }
@@ -196,12 +209,43 @@ public class GameController extends ViewModel
         }
     }
 
+    private void SaveGameResult(){
+        //Initializing
+        SudokuDbHelper dbHelper = new SudokuDbHelper(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        switch (mode){
+            //Game mode M1
+            case SelectUserFragmentM1M3.GAME_MODE: {
+                //Get game mode
+                GameModeController gameModeController = new GameModeController(db, dbHelper);
+                GameMode gameMode = gameModeController.GetGameMode(SelectUserFragmentM1M3.GAME_MODE);
+
+                //Add new game. Warning: USING FULL CLASS NAME (package + class name) TO AVOID AMBIGUITY!!! AAAAAAAAAAAAAAAAAAAAAAAAH
+                com.tp_amov.controllers.sql.GameController gameController = new com.tp_amov.controllers.sql.GameController(db, dbHelper);
+                Game game = new Game(gameMode);
+                gameController.AddGame(game);
+
+                //Associate user with game
+                UserGameController userGameController = new UserGameController(db, dbHelper);
+                UserGame userGame = new UserGame(users.get(0), game, score);
+                userGameController.AddUserGame(userGame);
+            } break;
+        }
+
+
+        //Close database connection
+        db.close();
+        dbHelper.close();
+    }
+
     private void ValidateSolutionResponse(JSONObject jsonResp){
         try {
             String resp = jsonResp.getString("status");
-            if(resp.equals("solved"))
+            if(resp.equals("solved")) {
+
                 gameEvents.getOnBoardSolved().run();
-            else
+            } else
                 gameEvents.getOnBoardUnsolved().run();
         } catch (JSONException e) {
             gameEvents.getOnBoardUnsolved().run();
