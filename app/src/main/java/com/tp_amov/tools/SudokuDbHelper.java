@@ -1,4 +1,4 @@
-package com.tp_amov.controllers.sql;
+package com.tp_amov.tools;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,8 +7,8 @@ import com.tp_amov.models.sql.SudokuContract;
 
 public class SudokuDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 3;
-    public static final String DATABASE_NAME = "Sudoku.db";
+    private static final int DATABASE_VERSION = 3;
+    private static final String DATABASE_NAME = "Sudoku.db";
 
     public SudokuDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
