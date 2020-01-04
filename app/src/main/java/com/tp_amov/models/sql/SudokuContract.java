@@ -11,11 +11,11 @@ public final class SudokuContract {
     public static class User implements BaseColumns {
         public static final String TABLE_NAME = "user";
         public static final String COLUMN_NAME_USERNAME = "username";
-        public static final String COLUMN_NAME_PROFILE_PICTURE = "profile_picture";
+        public static final String COLUMN_NAME_PICTURE_PATH = "picture_path";
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_USERNAME + " TEXT, "+
-                COLUMN_NAME_PROFILE_PICTURE + " TEXT); ";
+                COLUMN_NAME_PICTURE_PATH + " TEXT); ";
     }
 
     public static class UserGame implements BaseColumns {
