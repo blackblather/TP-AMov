@@ -1,15 +1,26 @@
 package com.tp_amov.models.sql;
 
+import java.util.List;
+
 public class User {
     private int id;
     private String username;
     private String profilePicture;
+    private List<UserGame> userGames;
+
+    public User(int id, String username, String profilePicture, List<UserGame> userGames){
+        this.id = id;
+        this.username = username;
+        this.profilePicture = profilePicture;
+        this.userGames = userGames;
+    }
 
     public User(int id, String username, String profilePicture){
         this.id = id;
         this.username = username;
         this.profilePicture = profilePicture;
     }
+
     public User(String username, String profilePicture){
         this.id = id;
         this.username = username;
@@ -27,6 +38,10 @@ public class User {
 
     public String getProfilePicture() {
         return profilePicture;
+    }
+
+    public List<UserGame> getUserGames() {
+        return userGames;
     }
 
     //Setters
