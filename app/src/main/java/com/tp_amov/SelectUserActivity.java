@@ -29,8 +29,8 @@ import java.util.UUID;
 
 public class SelectUserActivity extends AppCompatActivity {
     //Intent constants
-    static final String EXTRA_USERNAMES = "usernames";
-    static final String EXTRA_IMG_PATHS = "imgPaths";
+    static final String EXTRA_USERS = "users";
+    static final String EXTRA_ENCODED_IMAGES = "encodedImages";
     static final String EXTRA_USE_WEBSERVICE = "useWebservice";
     static final String EXTRA_GAME_MODE = "gameMode";
     //Camera constants
@@ -44,7 +44,7 @@ public class SelectUserActivity extends AppCompatActivity {
     private SelectUserFragment selectUserFragment;
     private Bundle savedInstanceState;
     private MenuItem useWebservice;
-    private MenuItem useDBPicture;
+    private MenuItem overwriteDBPicture;
 
     private void LoadFragment(){
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -93,10 +93,10 @@ public class SelectUserActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.game_settings_menu, menu);
         useWebservice = menu.findItem(R.id.usar_webservice);
-        useDBPicture = menu.findItem(R.id.use_db_profile_pio);
+        overwriteDBPicture = menu.findItem(R.id.overwrite_db_profile_pio);
         if(savedInstanceState != null) { //Isto está aqui porque os menus são criados depois do onRestoreInstanceState porque os menus são criados depois!!
             useWebservice.setChecked(savedInstanceState.getBoolean("useWebservice", false));
-            useDBPicture.setChecked(savedInstanceState.getBoolean("useDBPicture", true));
+            overwriteDBPicture.setChecked(savedInstanceState.getBoolean("useDBPicture", true));
         }
         return true;
     }
@@ -111,7 +111,7 @@ public class SelectUserActivity extends AppCompatActivity {
                     item.setChecked(true);
                 selectUserFragment.SetUseWebservice(item.isChecked());
                 return true;
-            case R.id.use_db_profile_pio:
+            case R.id.overwrite_db_profile_pio:
                 if(item.isChecked())
                     item.setChecked(false);
                 else
@@ -130,7 +130,7 @@ public class SelectUserActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("useWebservice", useWebservice.isChecked());
-        outState.putBoolean("useDBPicture", useDBPicture.isChecked());
+        outState.putBoolean("useDBPicture", overwriteDBPicture.isChecked());
         super.onSaveInstanceState(outState);
     }
 
@@ -188,56 +188,54 @@ public class SelectUserActivity extends AppCompatActivity {
         }
     }
 
-    public String saveImageOnAppFileDir(Bitmap bitmap){
+    public String saveImage(Bitmap bitmap){
         final String randomFileName = UUID.randomUUID().toString().replace("-", "");
         File path = new File(getFilesDir(),profilePictureFolder);
         if(!path.exists()){
             if(!path.mkdirs()){
                 Toast toast = Toast.makeText(getApplicationContext(), "Error creating profile image directory path!", Toast.LENGTH_LONG);
                 toast.show();
-                //DO SOMETHING ELSE IF NEEDED
                 return null;
             }
         }
-        File mypath = new File(path, randomFileName+".png");
-        FileOutputStream fos = null;
+
+        File imagePath = new File(path, randomFileName+".png");
+
         try {
-            fos = new FileOutputStream(mypath);
+            FileOutputStream fos = new FileOutputStream(imagePath);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.close();
+            return imagePath.getCanonicalPath();
         } catch (Exception e) {
             Log.e("SAVE_IMAGE_EXCEPTION", e.getMessage(), e);
             return null;
         }
-        return mypath.getName();
     }
 
-    public Bitmap LoadImage(String filename){
-        File directory = new File(getFilesDir(),profilePictureFolder);
-        File file = new File(directory, filename);
-        if(file.exists()) {
-            Log.d("File Loaded", "FileName:" + file.getName());
-            String filePath = file.getPath();
-            return BitmapFactory.decodeFile(filePath);
+    public Bitmap LoadImage(String imagePath){
+        File image = new File(imagePath);
+        if(image.exists()) {
+            Log.d("File Loaded", "FileName:" + image.getName());
+            return BitmapFactory.decodeFile(imagePath);
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
-    public File[] getAllImagesOnProfilePicturesDir(){
-        //For testing purposes
-        File directory = new File(getFilesDir(),profilePictureFolder);
-        File[] files = directory.listFiles();
-        Log.d("Files", "Size: "+ files.length);
-        for (File file : files) {
-            Log.d("Files", "FileName:" + file.getName());
-            String filePath = file.getPath();
-            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-            int j = 0;
-        }
-        return files;
-    }
+    //TESTING TESTING TESTING TESTING TESTING TESTING TESTING
+//    public File[] getAllImagesOnProfilePicturesDir(){
+//        //For testing purposes
+//        File directory = new File(getFilesDir(),profilePictureFolder);
+//        File[] files = directory.listFiles();
+//        Log.d("Files", "Size: "+ files.length);
+//        for (File file : files) {
+//            Log.d("Files", "FileName:" + file.getName());
+//            String filePath = file.getPath();
+//            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+//            int j = 0;
+//        }
+//        return files;
+//    }
+    //TESTING TESTING TESTING TESTING TESTING TESTING TESTING
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -268,7 +266,7 @@ public class SelectUserActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isUseDBPictureChecked(){
-        return useDBPicture.isChecked();
+    public boolean isOverwriteDBPictureChecked(){
+        return overwriteDBPicture.isChecked();
     }
 }
