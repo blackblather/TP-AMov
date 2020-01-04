@@ -16,6 +16,8 @@ public final class SudokuContract {
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_USERNAME + " TEXT, "+
                 COLUMN_NAME_PICTURE_PATH + " TEXT); ";
+        public static final String SQL_DELETE_TABLE =
+                "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
     public static class UserGame implements BaseColumns {
@@ -30,6 +32,8 @@ public final class SudokuContract {
                 COLUMN_NAME_SCORE + " INTEGER," +
                 "FOREIGN KEY (" + COLUMN_NAME_ID_USER + ") REFERENCES " + User.TABLE_NAME + " (" + User._ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
                 "FOREIGN KEY (" + COLUMN_NAME_ID_GAME + ") REFERENCES " + Game.TABLE_NAME + " (" + Game._ID + ") ON DELETE CASCADE ON UPDATE CASCADE); ";
+        public static final String SQL_DELETE_TABLE =
+                "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
     public static class Game implements BaseColumns {
@@ -39,6 +43,8 @@ public final class SudokuContract {
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_ID_GAME_MODE + " INTEGER," +
                 "FOREIGN KEY (" + COLUMN_NAME_ID_GAME_MODE + ") REFERENCES " + GameMode.TABLE_NAME + " (" + GameMode._ID + ") ON DELETE CASCADE ON UPDATE CASCADE); ";
+        public static final String SQL_DELETE_TABLE =
+                "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
     public static class GameMode implements BaseColumns {
@@ -47,5 +53,7 @@ public final class SudokuContract {
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_GAME_MODE_NAME + " TEXT); ";
+        public static final String SQL_DELETE_TABLE =
+                "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 }

@@ -23,12 +23,11 @@ public class SudokuDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
-//        db.execSQL(SQL_DELETE_ENTRIES);
-//        onCreate(db);
-
-//        if (newVersion > oldVersion) {
-//            db.execSQL("ALTER TABLE "+SudokuContract.User.TABLE_NAME+" ADD COLUMN "+SudokuContract.User.COLUMN_NAME_PROFILE_PICTURE+" TEXT");
-//        }
+        db.execSQL(SudokuContract.UserGame.SQL_DELETE_TABLE);
+        db.execSQL(SudokuContract.Game.SQL_DELETE_TABLE);
+        db.execSQL(SudokuContract.GameMode.SQL_DELETE_TABLE);
+        db.execSQL(SudokuContract.User.SQL_DELETE_TABLE);
+        onCreate(db);
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
