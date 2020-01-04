@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.android.volley.*;
 import com.android.volley.toolbox.*;
-import com.tp_amov.SelectUserFragmentM1M3;
+import com.tp_amov.SelectUserFragmentM1;
 import com.tp_amov.controllers.sql.GameModeController;
 import com.tp_amov.controllers.sql.UserGameController;
 import com.tp_amov.events.game.GameEvents;
@@ -33,13 +33,15 @@ public class GameController extends ViewModel
         private Context context;
         private String difficulty;
         private String mode;
+        private ArrayList<User> users;
         private GameEvents gameEvents;
         private boolean useWebservice;
 
-        public Factory(Context context, String difficulty, String mode, GameEvents gameEvents, boolean useWebservice){
+        public Factory(Context context, String difficulty, String mode, ArrayList<User> users, GameEvents gameEvents, boolean useWebservice){
             this.context = context;
             this.difficulty = difficulty;
             this.mode = mode;
+            this.users = users;
             this.gameEvents = gameEvents;
             this.useWebservice = useWebservice;
         }
@@ -47,7 +49,7 @@ public class GameController extends ViewModel
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             try {
-                return modelClass.getConstructor(Context.class, String.class, String.class, GameEvents.class, Boolean.class).newInstance(context, difficulty, mode, gameEvents, useWebservice);
+                return modelClass.getConstructor(Context.class, String.class, String.class, ArrayList.class, GameEvents.class, Boolean.class).newInstance(context, difficulty, mode, users, gameEvents, useWebservice);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -216,10 +218,10 @@ public class GameController extends ViewModel
 
         switch (mode){
             //Game mode M1
-            case SelectUserFragmentM1M3.GAME_MODE: {
+            case SelectUserFragmentM1.GAME_MODE: {
                 //Get game mode
                 GameModeController gameModeController = new GameModeController(db, dbHelper);
-                GameMode gameMode = gameModeController.GetGameMode(SelectUserFragmentM1M3.GAME_MODE);
+                GameMode gameMode = gameModeController.GetGameMode(SelectUserFragmentM1.GAME_MODE);
 
                 //Add new game. Warning: USING FULL CLASS NAME (package + class name) TO AVOID AMBIGUITY!!! AAAAAAAAAAAAAAAAAAAAAAAAH
                 com.tp_amov.controllers.sql.GameController gameController = new com.tp_amov.controllers.sql.GameController(db, dbHelper);
