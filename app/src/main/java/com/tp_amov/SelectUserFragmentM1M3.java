@@ -32,6 +32,8 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
+
         //View to be used inside OnClickListener
         final View finalView = view;
         final ProfilePictureTools PPT = new ProfilePictureTools();

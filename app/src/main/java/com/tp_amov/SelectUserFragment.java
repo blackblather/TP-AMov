@@ -1,5 +1,9 @@
 package com.tp_amov;
 
+import android.os.Bundle;
+import android.view.View;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.tp_amov.controllers.sql.UserController;
 
@@ -7,9 +11,7 @@ abstract class SelectUserFragment extends Fragment {
     private boolean useWebservice = false;
     private UserController userController;
 
-    SelectUserFragment(){
-        userController = new UserController(getContext());
-    }
+    SelectUserFragment(){ }
 
     void SetUseWebservice(boolean useWebservice) {
         this.useWebservice = useWebservice;
@@ -21,6 +23,12 @@ abstract class SelectUserFragment extends Fragment {
 
     public UserController getUserController() {
         return userController;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        userController = new UserController(getContext());
     }
 
     @Override
