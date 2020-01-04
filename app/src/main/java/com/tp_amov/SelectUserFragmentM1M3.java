@@ -37,7 +37,6 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
         //View to be used inside OnClickListener
         final View finalView = view;
         final ProfilePictureTools PPT = new ProfilePictureTools();
-
         //Gets button
         Button btn_start = (Button) view.findViewById(R.id.btn_start);
 
@@ -60,7 +59,7 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
                     if(!overwritePic) {
                         //Get its image from DB
                         String imgName = getUserController().GetUser(username).getProfilePicture();
-                        Bitmap loaded = ((SelectUserActivity) getActivity()).LoadImage(imgName);
+                        Bitmap loaded = PPT.LoadImage(imgName,getActivity().getApplicationContext());
                         if(loaded == null) {
                             //Compressing image
                             compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImg.getDrawable());
@@ -69,19 +68,18 @@ public class SelectUserFragmentM1M3 extends SelectUserFragment {
                     }else {
                         //Overwrites db img with current one
                         compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImg.getDrawable());
-                        String savedImgFileName = ((SelectUserActivity)getActivity()).saveImageOnAppFileDir(compressed);
+                        String savedImgFileName = PPT.saveImageOnAppFileDir(compressed,getActivity().getApplicationContext());
                         getUserController().UpdateImagePath(new User(username,savedImgFileName));
                     }
                 }else{
                     //User does not exists on the DB
                     compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImg.getDrawable());
-                    String savedImgFileName = ((SelectUserActivity)getActivity()).saveImageOnAppFileDir(compressed);
+                    String savedImgFileName = PPT.saveImageOnAppFileDir(compressed,getActivity().getApplicationContext());
                     getUserController().AddUser(new User(username,savedImgFileName));
                 }
 
                 //FOR TESTING ONLY (YET)
-                ((SelectUserActivity)getActivity()).getAllImagesOnProfilePicturesDir();//FOR TESTING ONLY
-
+                PPT.getAllImagesOnProfilePicturesDir(getActivity().getApplicationContext());//FOR TESTING ONLY
 
                 //if( mode == 1) -> go to board activity
                 //else if (mode == 3) -> go to lobby activity
