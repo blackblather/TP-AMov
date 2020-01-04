@@ -17,16 +17,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class SelectUserFragmentM1M3 extends SelectUserFragment {
+public class SelectUserFragmentM1 extends SelectUserFragment {
     public static final String GAME_MODE = "M1";
 
-    public SelectUserFragmentM1M3() { }
+    public SelectUserFragmentM1() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_select_user_fragment_m1_m3, container, false);
+        return inflater.inflate(R.layout.fragment_select_user_fragment_m1, container, false);
 
     }
 

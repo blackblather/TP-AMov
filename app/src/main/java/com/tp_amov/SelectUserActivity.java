@@ -51,9 +51,9 @@ public class SelectUserActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         switch (selectedMode){
-            case "btn_m1": selectUserFragment = new SelectUserFragmentM1M3(); break;
+            case "btn_m1": selectUserFragment = new SelectUserFragmentM1(); break;
             case "btn_m2": selectUserFragment = new SelectUserFragmentM2(); break;
-            case "btn_m3": selectUserFragment = new SelectUserFragmentM1M3(); break;  //TODO
+            case "btn_m3": selectUserFragment = new SelectUserFragmentM1(); break;  //TODO
             default: return;
         }
 
