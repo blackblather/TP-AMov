@@ -1,30 +1,30 @@
 package com.tp_amov.models.sql;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class User {
+public class User implements Serializable {
     private int id;
     private String username;
-    private String profilePicture;
+    private String imagePath;
     private List<UserGame> userGames;
 
-    public User(int id, String username, String profilePicture, List<UserGame> userGames){
+    public User(int id, String username, String imagePath, List<UserGame> userGames){
         this.id = id;
         this.username = username;
-        this.profilePicture = profilePicture;
+        this.imagePath = imagePath;
         this.userGames = userGames;
     }
 
-    public User(int id, String username, String profilePicture){
+    public User(int id, String username, String imagePath){
         this.id = id;
         this.username = username;
-        this.profilePicture = profilePicture;
+        this.imagePath = imagePath;
     }
 
-    public User(String username, String profilePicture){
-        this.id = id;
+    public User(String username, String imagePath){
         this.username = username;
-        this.profilePicture = profilePicture;
+        this.imagePath = imagePath;
     }
 
     //Getters
@@ -36,8 +36,8 @@ public class User {
         return username;
     }
 
-    public String getProfilePicture() {
-        return profilePicture;
+    public String getImagePath() {
+        return imagePath;
     }
 
     public List<UserGame> getUserGames() {
@@ -50,7 +50,7 @@ public class User {
         this.username = username;
     }
 
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture = profilePicture;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }
