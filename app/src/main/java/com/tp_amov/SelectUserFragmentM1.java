@@ -46,50 +46,57 @@ public class SelectUserFragmentM1 extends SelectUserFragment {
             @Override
             public void onClick(View v) {
                 //To know if user wants to update image on DB
-                boolean overwritePic = ((SelectUserActivity)getActivity()).isUseDBPictureChecked();
-
+                boolean overwritePic = ((SelectUserActivity)getActivity()).isOverwriteDBPictureChecked();
 
                 EditText usernameEditText = finalView.findViewById(R.id.txt_username);
-                ImageView userImg = finalView.findViewById(R.id.profile_image);
+                ImageView userImageView = finalView.findViewById(R.id.profile_image);
 
                 String username = usernameEditText.getText().toString();
 
                 Bitmap compressed;
-                if(getUserController().UserExists(usernameEditText.getText().toString())){
+                String imagePath;
+                User user;
+
+                if(getUserController().UserExists(username)){
                     //User exists on the DB
                     if(!overwritePic) {
                         //Get its image from DB
-                        String imgName = getUserController().GetUser(username).getProfilePicture();
-                        Bitmap loaded = ((SelectUserActivity) getActivity()).LoadImage(imgName);
+                        imagePath = getUserController().GetUser(username).getImagePath();
+                        Bitmap loaded = ((SelectUserActivity) getActivity()).LoadImage(imagePath);
                         if(loaded == null) {
                             //Compressing image
-                            compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImg.getDrawable());
+                            compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImageView.getDrawable());
                         }else
                             compressed = loaded;
+                        user = new User(username,imagePath);
                     }else {
                         //Overwrites db img with current one
-                        compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImg.getDrawable());
-                        String savedImgFileName = ((SelectUserActivity)getActivity()).saveImageOnAppFileDir(compressed);
-                        getUserController().UpdateImagePath(new User(username,savedImgFileName));
+                        compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImageView.getDrawable());
+                        imagePath = ((SelectUserActivity)getActivity()).saveImage(compressed);
+                        user = new User(username,imagePath);
+                        getUserController().UpdateImagePath(user);
                     }
                 }else{
                     //User does not exists on the DB
-                    compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImg.getDrawable());
-                    String savedImgFileName = ((SelectUserActivity)getActivity()).saveImageOnAppFileDir(compressed);
-                    getUserController().AddUser(new User(username,savedImgFileName));
+                    compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImageView.getDrawable());
+                    imagePath = ((SelectUserActivity)getActivity()).saveImage(compressed);
+                    user = new User(username,imagePath);
+                    getUserController().AddUser(user);
                 }
 
-                //FOR TESTING ONLY (YET)
-                ((SelectUserActivity)getActivity()).getAllImagesOnProfilePicturesDir();//FOR TESTING ONLY
+                //TESTING TESTING TESTING TESTING TESTING TESTING TESTING
+                //((SelectUserActivity)getActivity()).getAllImagesOnProfilePicturesDir();
+                //TESTING TESTING TESTING TESTING TESTING TESTING TESTING
 
+                //Create array of Users
+                ArrayList<User> users = new ArrayList<>();
+                users.add(user);
 
-                //if( mode == 1) -> go to board activity
-                //else if (mode == 3) -> go to lobby activity
+                //Create intent
                 Intent intent = new Intent(getContext(), BoardActivity.class);
-
                 //Prepares Extras for next activity
-                intent.putExtra(SelectUserActivity.EXTRA_USERNAMES, new ArrayList<String>(Collections.singletonList(usernameEditText.getText().toString())));
-                intent.putExtra(SelectUserActivity.EXTRA_IMG_PATHS, new ArrayList<String>(Collections.singletonList(PPT.BitMapToString(compressed))));
+                intent.putExtra(SelectUserActivity.EXTRA_USERS, users);
+                intent.putExtra(SelectUserActivity.EXTRA_ENCODED_IMAGES, new ArrayList<String>(Collections.singletonList(PPT.BitMapToString(compressed))));
                 intent.putExtra(SelectUserActivity.EXTRA_GAME_MODE, GAME_MODE);
                 intent.putExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, GetUseWebservice());
 
