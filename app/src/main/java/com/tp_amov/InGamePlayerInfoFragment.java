@@ -9,33 +9,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.tp_amov.models.sql.User;
 import com.tp_amov.tools.ProfilePictureTools;
 
 import java.util.ArrayList;
 
 public class InGamePlayerInfoFragment extends Fragment {
-    private class Player{
-        private String username, imgPath;
-        Player(String username, String imgPath){
-            this.username = username;
-            this.imgPath = imgPath;
-        }
-
-        String getUsername() {
-            return username;
-        }
-
-        public String getImgPath() {
-            return imgPath;
-        }
-    }
-    private ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<User> users = new ArrayList<>();
 
     public InGamePlayerInfoFragment() {
         // Required empty public constructor
     }
 
-    private void FillPlayersArray(ArrayList<String> usernames, ArrayList<String> imgPaths){
+/*    private void FillPlayersArray(ArrayList<String> usernames, ArrayList<String> imgPaths){
         if(usernames != null && imgPaths != null) {
             if (usernames.size() == imgPaths.size()) {
                 for (int i = 0; i < usernames.size(); i++)
@@ -44,7 +30,7 @@ public class InGamePlayerInfoFragment extends Fragment {
                 throw new IllegalArgumentException("Arguments must be of the same length");
         } else
             throw new NullPointerException("Arguments cannot be null");
-    }
+    }*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,17 +51,19 @@ public class InGamePlayerInfoFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_in_game_player_info, container, false);
     }
 
-    public void onSetDataForInGamePlayerInfo(ArrayList<String> usernames, ArrayList<String> imgPaths){
+    void onSetDataForInGamePlayerInfo(ArrayList<User> users, ArrayList<String> encodedImages){
         Bundle args = new Bundle();
         ProfilePictureTools PPT = new ProfilePictureTools();
-        args.putStringArrayList(SelectUserActivity.EXTRA_USERNAMES, usernames);
-        args.putStringArrayList(SelectUserActivity.EXTRA_IMG_PATHS, imgPaths);
-        FillPlayersArray(usernames,imgPaths);
+
+        args.putSerializable(SelectUserActivity.EXTRA_USERS, users);
+        args.putStringArrayList(SelectUserActivity.EXTRA_ENCODED_IMAGES, encodedImages);
+
         TextView InGameCurrentUser = (TextView) this.getView().findViewById(R.id.in_game_current_user_txt);
         ImageView InGameCurrentPic = (ImageView) this.getView().findViewById(R.id.profile_image);
-        InGameCurrentPic.setImageBitmap(PPT.StringToBitMap(imgPaths.get(0)));
-        //InGameCurrentPic.setImageResource(R.drawable.ic_default_user_icon);
-        InGameCurrentUser.setText(players.get(0).getUsername());
+
+        InGameCurrentPic.setImageBitmap(PPT.StringToBitMap(encodedImages.get(0)));
+        InGameCurrentUser.setText(users.get(0).getUsername());
+
         this.setArguments(args);
     }
 }

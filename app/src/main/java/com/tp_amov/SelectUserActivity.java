@@ -24,8 +24,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 public class SelectUserActivity extends AppCompatActivity {
     //Intent constants
-    static final String EXTRA_USERNAMES = "usernames";
-    static final String EXTRA_IMG_PATHS = "imgPaths";
+    static final String EXTRA_USERS = "users";
+    static final String EXTRA_ENCODED_IMAGES = "encodedImages";
     static final String EXTRA_USE_WEBSERVICE = "useWebservice";
     static final String EXTRA_GAME_MODE = "gameMode";
     //Camera constants
@@ -39,16 +39,16 @@ public class SelectUserActivity extends AppCompatActivity {
     private SelectUserFragment selectUserFragment;
     private Bundle savedInstanceState;
     private MenuItem useWebservice;
-    private MenuItem useDBPicture;
+    private MenuItem overwriteDBPicture;
 
-    private void LoadFragment(){
+    private void LoadFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        switch (selectedMode){
-            case "btn_m1": selectUserFragment = new SelectUserFragmentM1M3(); break;
+        switch (selectedMode) {
+            case "btn_m1": selectUserFragment = new SelectUserFragmentM1(); break;
             case "btn_m2": selectUserFragment = new SelectUserFragmentM2(); break;
-            case "btn_m3": selectUserFragment = new SelectUserFragmentM1M3(); break;  //TODO
+            case "btn_m3": selectUserFragment = new SelectUserFragmentM1(); break;  //TODO
             default: return;
         }
 
@@ -68,30 +68,28 @@ public class SelectUserActivity extends AppCompatActivity {
         toolbar.setTitle("Sudoku - Configuração do Jogo");
         setSupportActionBar(toolbar);
 
-
         Intent intent = getIntent();
         selectedMode = intent.getStringExtra(MainActivity.EXTRA_SELECTED_MODE);
 
         if(selectedMode != null)
             LoadFragment();
-        else{
+        else {
             android.os.Process.killProcess(android.os.Process.myPid());
             System.exit(1);
         }
+
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
-
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.game_settings_menu, menu);
         useWebservice = menu.findItem(R.id.usar_webservice);
-        useDBPicture = menu.findItem(R.id.use_db_profile_pio);
-        if(savedInstanceState != null) { //Isto está aqui porque os menus são criados depois do onRestoreInstanceState porque os menus são criados depois!!
+        overwriteDBPicture = menu.findItem(R.id.overwrite_db_profile_pio);
+        if(savedInstanceState != null) { //Isto está aqui porque os menus são criados depois do onRestoreInstanceState
             useWebservice.setChecked(savedInstanceState.getBoolean("useWebservice", false));
-            useDBPicture.setChecked(savedInstanceState.getBoolean("useDBPicture", true));
+            overwriteDBPicture.setChecked(savedInstanceState.getBoolean("useDBPicture", true));
         }
         return true;
     }
@@ -106,7 +104,7 @@ public class SelectUserActivity extends AppCompatActivity {
                     item.setChecked(true);
                 selectUserFragment.SetUseWebservice(item.isChecked());
                 return true;
-            case R.id.use_db_profile_pio:
+            case R.id.overwrite_db_profile_pio:
                 if(item.isChecked())
                     item.setChecked(false);
                 else
@@ -125,7 +123,7 @@ public class SelectUserActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("useWebservice", useWebservice.isChecked());
-        outState.putBoolean("useDBPicture", useDBPicture.isChecked());
+        outState.putBoolean("useDBPicture", overwriteDBPicture.isChecked());
         super.onSaveInstanceState(outState);
     }
 
@@ -135,36 +133,26 @@ public class SelectUserActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CAMERA_PERMISSION_CODE && grantResults.length != 0)
         {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Camera permission granted", Toast.LENGTH_SHORT).show();
                 takePicture();
             }
             else
-            {
                 Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
-            }
         }
-        else if (requestCode == IMAGE_FILE_PICKER_PERMISSION_CODE && grantResults.length != 0)
-        {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
+        else if (requestCode == IMAGE_FILE_PICKER_PERMISSION_CODE && grantResults.length != 0) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Read access granted", Toast.LENGTH_SHORT).show();
                 pickFile();
                 getFilesDir();
             }
             else
-            {
                 Toast.makeText(this, "Read access denied", Toast.LENGTH_SHORT).show();
-            }
         }
     }
-
-    private void takePicture(){
-        if (ContextCompat.checkSelfPermission(getApplicationContext() , Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            //CAMERA PERMISSION NOT GRANTED
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
-        }
+    private void takePicture() {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);   //CAMERA PERMISSION NOT GRANTED
         else {
             Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             startActivityForResult(cameraIntent, CAMERA_REQUEST);
@@ -213,7 +201,7 @@ public class SelectUserActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isUseDBPictureChecked(){
-        return useDBPicture.isChecked();
+    boolean isOverwriteDBPictureChecked(){
+        return overwriteDBPicture.isChecked();
     }
 }

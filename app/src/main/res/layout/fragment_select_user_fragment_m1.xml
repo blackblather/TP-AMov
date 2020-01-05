@@ -4,7 +4,7 @@
                                                    xmlns:tools="http://schemas.android.com/tools"
                                                    android:layout_width="match_parent"
                                                    android:layout_height="match_parent"
-                                                   tools:context=".SelectUserFragmentM1M3"
+                                                   tools:context=".SelectUserFragmentM1"
                                                    android:id="@+id/constraintLayout_m1_m3">
     <de.hdodenhof.circleimageview.CircleImageView
             xmlns:app="http://schemas.android.com/apk/res-auto"

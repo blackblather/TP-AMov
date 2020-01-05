@@ -16,7 +16,6 @@ import java.io.FileOutputStream;
 import java.util.UUID;
 
 public class ProfilePictureTools {
-    //Profile Pictures Folder
     private static final String profilePictureFolder = "ProfilePictures";
 
     private Bitmap DrawableToBitmap(Drawable drawable) {
@@ -91,53 +90,53 @@ public class ProfilePictureTools {
         return MediumBitmapCompression(Bitmap.createScaledBitmap(CropImageToCenter(DrawableToBitmap(picture)), 240, 240, true));
     }
 
-    public String saveImageOnAppFileDir(Bitmap bitmap, Context context){
+    public String saveImage(Bitmap bitmap, Context context){
         final String randomFileName = UUID.randomUUID().toString().replace("-", "");
         File path = new File(context.getFilesDir(),profilePictureFolder);
-        if(!path.exists()){
-            if(!path.mkdirs()){
+
+        if(!path.exists()) {
+            if(!path.mkdirs()) {
                 Toast toast = Toast.makeText(context, "Error creating profile image directory path!", Toast.LENGTH_LONG);
                 toast.show();
-                //DO SOMETHING ELSE IF NEEDED
                 return null;
             }
         }
-        File mypath = new File(path, randomFileName+".png");
-        FileOutputStream fos = null;
+
+        File imagePath = new File(path, randomFileName + ".png");
+
         try {
-            fos = new FileOutputStream(mypath);
+            FileOutputStream fos = new FileOutputStream(imagePath);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.close();
+            return imagePath.getCanonicalPath();
         } catch (Exception e) {
             Log.e("SAVE_IMAGE_EXCEPTION", e.getMessage(), e);
             return null;
         }
-        return mypath.getName();
     }
 
-    public Bitmap LoadImage(String filename, Context context){
-        File directory = new File(context.getFilesDir(),profilePictureFolder);
-        File file = new File(directory, filename);
-        if(file.exists()) {
-            Log.d("File Loaded", "FileName:" + file.getName());
-            String filePath = file.getPath();
-            return BitmapFactory.decodeFile(filePath);
+    public Bitmap LoadImage(String imagePath){
+        File image = new File(imagePath);
+        if(image.exists()) {
+            Log.d("File Loaded", "FileName:" + image.getName());
+            return BitmapFactory.decodeFile(imagePath);
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
-    public File[] getAllImagesOnProfilePicturesDir(Context context){
-        //For testing purposes
-        File directory = new File(context.getFilesDir(),profilePictureFolder);
-        File[] files = directory.listFiles();
-        Log.d("Files", "Size: "+ files.length);
-        for (File file : files) {
-            Log.d("Files", "FileName:" + file.getName());
-            String filePath = file.getPath();
-            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-        }
-        return files;
-    }
+//TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING
+//    public File[] getAllImagesOnProfilePicturesDir(Context context){
+//        //For testing purposes
+//        File directory = new File(context.getFilesDir(),profilePictureFolder);
+//        File[] files = directory.listFiles();
+//        Log.d("Files", "Size: "+ files.length);
+//        for (File file : files) {
+//            Log.d("Files", "FileName:" + file.getName());
+//            String filePath = file.getPath();
+//            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+//        }
+//        return files;
+//    }
+//TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING
+
 }

@@ -19,6 +19,7 @@ import com.tp_amov.events.game.GameEvents;
 import com.tp_amov.models.board.BoardPosition;
 import com.tp_amov.models.board.EditStack;
 import com.tp_amov.models.board.Element;
+import com.tp_amov.models.sql.User;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -42,8 +43,8 @@ public class BoardActivity extends AppCompatActivity {
     InGamePlayerInfoFragment inGamePlayerInfoFragment;
     ArrayList<InnerBoardFragment> ibFrags = new ArrayList<>();
     //Extracted from intent
-    private ArrayList<String> usernames;
-    private ArrayList<String> imgPaths;
+    private ArrayList<User> users;
+    private ArrayList<String> encodedImages;
     private String gameMode;
 
     private void SetBoardRunnables() {
@@ -136,12 +137,12 @@ public class BoardActivity extends AppCompatActivity {
             Intent intent = getIntent();
 
             //Extract intent info
-            usernames = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_USERNAMES);
-            imgPaths = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_IMG_PATHS);
+            users = (ArrayList<User>) intent.getSerializableExtra(SelectUserActivity.EXTRA_USERS);
+            encodedImages = intent.getStringArrayListExtra(SelectUserActivity.EXTRA_ENCODED_IMAGES);
             useWebservice = intent.getBooleanExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, false);
             gameMode = intent.getStringExtra(SelectUserActivity.EXTRA_GAME_MODE);
             //Populate fragment
-            inGamePlayerInfoFragment.onSetDataForInGamePlayerInfo(usernames,imgPaths);
+            inGamePlayerInfoFragment.onSetDataForInGamePlayerInfo(users,encodedImages);
 
             //Set adaptation for screen
             setScreenAdaptation(getApplicationContext());
@@ -160,7 +161,7 @@ public class BoardActivity extends AppCompatActivity {
 
         //Set boardController using ViewModelProviders
         SetBoardRunnables();
-        GameController.Factory gameControllerFactory = new GameController.Factory(getApplicationContext(), "easy", gameMode, gameEvents, useWebservice);
+        GameController.Factory gameControllerFactory = new GameController.Factory(getApplicationContext(), "easy", gameMode, users, gameEvents, useWebservice);
         gameController = ViewModelProviders.of(this, gameControllerFactory).get(GameController.class);
         gameController.InitializeBoard();
 

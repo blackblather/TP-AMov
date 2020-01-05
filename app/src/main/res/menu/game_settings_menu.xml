@@ -9,7 +9,7 @@
         android:checked="false"
         app:showAsAction="never"/>
 
-    <item android:id="@+id/use_db_profile_pio"
+    <item android:id="@+id/overwrite_db_profile_pio"
         android:title="@string/usar_imagem_armazenada"
         android:icon="@android:drawable/ic_menu_preferences"
         android:checkable="true"
