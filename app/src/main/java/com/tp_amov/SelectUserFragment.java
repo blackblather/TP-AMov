@@ -21,7 +21,7 @@ abstract class SelectUserFragment extends Fragment {
         return useWebservice;
     }
 
-    public UserController getUserController() {
+    UserController getUserController() {
         return userController;
     }
 
