@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -23,10 +22,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.UUID;
-
 public class SelectUserActivity extends AppCompatActivity {
     //Intent constants
     static final String EXTRA_USERNAMES = "usernames";
@@ -36,9 +31,9 @@ public class SelectUserActivity extends AppCompatActivity {
     //Camera constants
     private static final int CAMERA_PERMISSION_CODE = 4;
     private static final int CAMERA_REQUEST = 3;
+    //File Picker constants
     private static final int IMAGE_FILE_PICKER_PERMISSION_CODE = 2;
     private static final int IMAGE_FILE_PICKER_REQUEST = 1;
-    private static final String profilePictureFolder = "ProfilePictures";
     //Control vars
     private String selectedMode;
     private SelectUserFragment selectUserFragment;
@@ -134,30 +129,6 @@ public class SelectUserActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-    private void takePicture(){
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            //CAMERA PERMISSION NOT GRANTED
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
-        }
-        else {
-            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(cameraIntent, CAMERA_REQUEST);
-        }
-    }
-
-    private void pickFile(){
-        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        getIntent.setType("image/*");
-
-        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        pickIntent.setType("image/*");
-
-        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
-
-        startActivityForResult(chooserIntent, IMAGE_FILE_PICKER_REQUEST);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
@@ -180,6 +151,7 @@ public class SelectUserActivity extends AppCompatActivity {
             {
                 Toast.makeText(this, "Read access granted", Toast.LENGTH_SHORT).show();
                 pickFile();
+                getFilesDir();
             }
             else
             {
@@ -188,55 +160,28 @@ public class SelectUserActivity extends AppCompatActivity {
         }
     }
 
-    public String saveImageOnAppFileDir(Bitmap bitmap){
-        final String randomFileName = UUID.randomUUID().toString().replace("-", "");
-        File path = new File(getFilesDir(),profilePictureFolder);
-        if(!path.exists()){
-            if(!path.mkdirs()){
-                Toast toast = Toast.makeText(getApplicationContext(), "Error creating profile image directory path!", Toast.LENGTH_LONG);
-                toast.show();
-                //DO SOMETHING ELSE IF NEEDED
-                return null;
-            }
-        }
-        File mypath = new File(path, randomFileName+".png");
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(mypath);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
-        } catch (Exception e) {
-            Log.e("SAVE_IMAGE_EXCEPTION", e.getMessage(), e);
-            return null;
-        }
-        return mypath.getName();
-    }
-
-    public Bitmap LoadImage(String filename){
-        File directory = new File(getFilesDir(),profilePictureFolder);
-        File file = new File(directory, filename);
-        if(file.exists()) {
-            Log.d("File Loaded", "FileName:" + file.getName());
-            String filePath = file.getPath();
-            return BitmapFactory.decodeFile(filePath);
+    private void takePicture(){
+        if (ContextCompat.checkSelfPermission(getApplicationContext() , Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            //CAMERA PERMISSION NOT GRANTED
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
         }
         else {
-            return null;
+            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(cameraIntent, CAMERA_REQUEST);
         }
     }
 
-    public File[] getAllImagesOnProfilePicturesDir(){
-        //For testing purposes
-        File directory = new File(getFilesDir(),profilePictureFolder);
-        File[] files = directory.listFiles();
-        Log.d("Files", "Size: "+ files.length);
-        for (File file : files) {
-            Log.d("Files", "FileName:" + file.getName());
-            String filePath = file.getPath();
-            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-            int j = 0;
-        }
-        return files;
+    private void pickFile(){
+        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        getIntent.setType("image/*");
+
+        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("image/*");
+
+        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+
+        startActivityForResult(chooserIntent, IMAGE_FILE_PICKER_REQUEST);
     }
 
     @Override
