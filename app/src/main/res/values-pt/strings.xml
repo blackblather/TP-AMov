@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">TP-AMov</string>
+    <string name="modo_1">Modo para 1 Jogador</string>
+    <string name="modo_2">1 vs 1 - Local</string>
+    <string name="modo_3">Online</string>
+    <string name="comecar">Começar</string>
+    <string name="username">Nome do Utilizador</string>
+    <string name="highlight_editable_setting">Realçar Células Editáveis</string>
+    <string name="highlight_editable_setting_condensed">Realçar Células</string>
+    <string name="username_player_1">Modo do Utilizador (jogador 1)</string>
+    <string name="username_player_2">Modo do Utilizador (jogador 2)</string>
+    <string name="dark_ui">Modo Escuro</string>
+    <string name="score">Pontuação:</string>
+    <string name="_0">0</string>
+    <string name="game_mode">Modo de Jogo</string>
+    <string name="usar_webservice">Usar Webservice</string>
+    <string name="menu_inicial">Menu Inicial</string>
+    <string name="pontuacao">Pontuação: </string>
+    <string name="ganhou">Ganhou!</string>
+    <string name="novo_jogo">Novo Jogo</string>
+    <string name="adicionar_imagem">Adicionar Imagem</string>
+    <string name="tirar_uma_fotografia">Tirar uma Fotografia</string>
+    <string name="procurar_fotografia">Procurar Fotografia</string>
+    <string name="usar_imagem_armazenada">Atualizar imagem armazenada</string>
+    <string name="x">x</string>
+</resources>
