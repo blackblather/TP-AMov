@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.tp_amov.models.sql.SudokuContract;
 
 public class SudokuDbHelper extends SQLiteOpenHelper {
-    // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "Sudoku.db";
 
@@ -21,8 +20,6 @@ public class SudokuDbHelper extends SQLiteOpenHelper {
         db.execSQL(SudokuContract.UserGame.SQL_CREATE_TABLE);
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // This database is only a cache for online data, so its upgrade policy is
-        // to simply to discard the data and start over
         db.execSQL(SudokuContract.UserGame.SQL_DELETE_TABLE);
         db.execSQL(SudokuContract.Game.SQL_DELETE_TABLE);
         db.execSQL(SudokuContract.GameMode.SQL_DELETE_TABLE);

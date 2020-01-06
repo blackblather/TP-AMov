@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.util.List;
 
 public class User implements Serializable {
-    private int id;
+    private long id;
     private String username;
     private String imagePath;
     private List<UserGame> userGames;
 
-    public User(int id, String username, String imagePath, List<UserGame> userGames){
+    public User(long id, String username, String imagePath, List<UserGame> userGames){
         this.id = id;
         this.username = username;
         this.imagePath = imagePath;
@@ -28,7 +28,7 @@ public class User implements Serializable {
     }
 
     //Getters
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -45,6 +45,9 @@ public class User implements Serializable {
     }
 
     //Setters
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -52,5 +55,9 @@ public class User implements Serializable {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public void setUserGames(List<UserGame> userGames) {
+        this.userGames = userGames;
     }
 }

@@ -48,7 +48,6 @@ public class UserGameController extends SQLController {
 
         Cursor cursor = getDb().rawQuery(query,null);
         if(cursor != null){
-            cursor.moveToPosition(-1);
             UserController userController = new UserController(getDb(), getDbHelper());
             GameController gameController = new GameController(getDb(), getDbHelper());
             while(cursor.moveToNext()) {
