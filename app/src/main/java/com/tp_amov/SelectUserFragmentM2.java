@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 
 public class SelectUserFragmentM2 extends SelectUserFragment {
+    public static final String GAME_MODE = "M2";
 
     public SelectUserFragmentM2() {
         // Required empty public constructor
