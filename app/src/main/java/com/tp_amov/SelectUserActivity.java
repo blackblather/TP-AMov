@@ -182,7 +182,10 @@ public class SelectUserActivity extends AppCompatActivity {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, permissionCode);   //CAMERA PERMISSION NOT GRANTED
         else {
             Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(cameraIntent, CAMERA_REQUEST_P1);
+            if(permissionCode == CAMERA_PERMISSION_CODE_P1)
+                startActivityForResult(cameraIntent, CAMERA_REQUEST_P1);
+            else if(permissionCode == CAMERA_PERMISSION_CODE_P2)
+                startActivityForResult(cameraIntent, CAMERA_REQUEST_P2);
         }
     }
 
