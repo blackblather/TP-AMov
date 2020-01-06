@@ -318,10 +318,12 @@ public class BoardActivity extends AppCompatActivity {
 
     private void FillViews(ArrayList<ArrayList<Integer>> boardArray) {
 
+        boolean dkModeIsChecked = (dkMode == null?false:dkMode.isChecked());
+
         for (int i = 0; i < boardArray.size(); i++)
             for (int j = 0; j < boardArray.get(i).size(); j++)
                 if(!gameController.ElementContainsType(i,j, Element.Type.userValue, Element.Type.hintValue))
-                    ibFrags.get(i).UpdateValue(j, boardArray.get(i).get(j),(dkMode.isChecked()?R.color.white:R.color.black), false);
+                    ibFrags.get(i).UpdateValue(j, boardArray.get(i).get(j),(dkModeIsChecked?R.color.white:R.color.black), false);
     }
 
     private void Toggle_darkmode() {

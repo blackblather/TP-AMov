@@ -101,11 +101,20 @@ public class GameController extends ViewModel
         this.useWebservice = useWebservice;
     }
 
-    public void InitializeBoard(){
+    public void InitializeBoard() {
         if(alreadyCreated)
             gameEvents.getOnBoardCreationSuccess().accept(board.toArray());
         else{
-            GetOnlineBoard(difficulty);
+            if(useWebservice)
+                GetOnlineBoard(difficulty);
+            else {
+                try {
+                    board = new Board(new JSONObject("{\"board\": [[0,0,1,0,0,0,0,0,0], [2,0,0,0,0,0,0,7,0], [0,7,0,0,0,0,0,0,0], [1,0,0,4,0,6,0,0,7], [0,0,0,0,0,0,0,0,0], [0,0,0,0,1,2,5,4,6], [3,0,2,7,6,0,9,8,0], [0,6,4,9,0,3,0,0,1], [9,8,0,5,2,1,0,6,0]]}"));
+                    gameEvents.getOnBoardCreationSuccess().accept(board.toArray(Element.Type.defaultValue));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
             alreadyCreated = true;
         }
     }
