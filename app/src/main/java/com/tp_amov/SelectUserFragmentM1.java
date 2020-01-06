@@ -57,23 +57,22 @@ public class SelectUserFragmentM1 extends SelectUserFragment {
                 String imagePath;
                 User user;
 
-                if(getUserController().UserExists(username)){
+                if(getUserController().UserExists(username)) {
+                    user = getUserController().GetUser(username);
                     //User exists on the DB
                     if(!overwritePic) {
                         //Get its image from DB
                         imagePath = getUserController().GetUser(username).getImagePath();
                         Bitmap loaded = PPT.LoadImage(imagePath);
-                        if(loaded == null) {
-                            //Compressing image
-                            compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImageView.getDrawable());
-                        }else
+                        if(loaded == null)
+                            compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImageView.getDrawable()); //Compressing image
+                        else
                             compressed = loaded;
-                        user = new User(username,imagePath);
                     }else {
                         //Overwrites db img with current one
                         compressed = PPT.GetMediumCompressedBitmapFromRawDrawable(userImageView.getDrawable());
                         imagePath = PPT.saveImage(compressed,getActivity().getApplicationContext());
-                        user = new User(username,imagePath);
+                        user.setImagePath(imagePath);
                         getUserController().UpdateImagePath(user);
                     }
                 }else{

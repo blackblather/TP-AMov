@@ -7,10 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.tp_amov.models.sql.Game;
 import com.tp_amov.models.sql.GameMode;
 import com.tp_amov.models.sql.SudokuContract;
-import com.tp_amov.models.sql.UserGame;
 import com.tp_amov.tools.SudokuDbHelper;
-
-import java.util.List;
 
 public class GameController extends SQLController {
     public enum GetType{
@@ -31,7 +28,7 @@ public class GameController extends SQLController {
 
         rowValues.put(SudokuContract.Game.COLUMN_NAME_ID_GAME_MODE, game.getGameMode().getId());
 
-        getDb().insert(SudokuContract.Game.TABLE_NAME, null, rowValues);
+        game.setId(getDb().insert(SudokuContract.Game.TABLE_NAME, null, rowValues));
     }
 
     //Get game by: id (used in UserGameController.java)
@@ -50,8 +47,9 @@ public class GameController extends SQLController {
 
         if (type == GetType.withUserGames){
             UserGameController userGameController = new UserGameController(getDb(), getDbHelper());
-            List<UserGame> userGames = userGameController.GetUserGame(id, UserGameController.SearchType.gameId);
-            game.setUserGames(userGames);
+
+            //List<UserGame> userGames = userGameController.GetUserGame(id, UserGameController.SearchType.gameId);
+            //game.setUserGames(userGames);
         }
 
         cursor.close();

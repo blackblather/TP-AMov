@@ -35,7 +35,7 @@ public class GameModeController extends SQLController {
         Cursor cursor = getDb().rawQuery(query,null);
         cursor.moveToFirst();
 
-        int id = cursor.getInt(cursor.getColumnIndex(SudokuContract.GameMode.COLUMN_NAME_GAME_MODE_NAME));
+        int id = cursor.getInt(cursor.getColumnIndex(SudokuContract.GameMode._ID));
 
         cursor.close();
 

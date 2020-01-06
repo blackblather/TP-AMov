@@ -3,11 +3,11 @@ package com.tp_amov.models.sql;
 import java.util.List;
 
 public class Game {
-    private int id;
+    private long id;
     private GameMode gameMode;
     private List<UserGame> userGames;
 
-    public Game(int id, GameMode gameMode){
+    public Game(long id, GameMode gameMode){
         this.id = id;
         this.gameMode = gameMode;
     }
@@ -17,7 +17,7 @@ public class Game {
     }
 
     //Getters
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -30,6 +30,10 @@ public class Game {
     }
 
     //Setter
+    public void setId(long id){
+        this.id = id;
+    }
+
     public void setUserGames(List<UserGame> userGames) {
         this.userGames = userGames;
     }

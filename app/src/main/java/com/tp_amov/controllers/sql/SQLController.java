@@ -10,7 +10,7 @@ abstract class SQLController {
 
     SQLController(Context context){
         dbHelper = new SudokuDbHelper(context);
-        db = dbHelper.getReadableDatabase();
+        db = dbHelper.getWritableDatabase();
     }
 
     SQLController(SQLiteDatabase db, SudokuDbHelper dbHelper){

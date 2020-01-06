@@ -6,10 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.tp_amov.models.sql.SudokuContract;
 import com.tp_amov.models.sql.User;
-import com.tp_amov.models.sql.UserGame;
 import com.tp_amov.tools.SudokuDbHelper;
-
-import java.util.List;
 
 public class UserController extends SQLController{
 
@@ -39,7 +36,7 @@ public class UserController extends SQLController{
         rowValues.put(SudokuContract.User.COLUMN_NAME_USERNAME, user.getUsername());
         rowValues.put(SudokuContract.User.COLUMN_NAME_PICTURE_PATH, user.getImagePath());
 
-        getDb().insert(SudokuContract.User.TABLE_NAME, null, rowValues);
+        user.setId(getDb().insert(SudokuContract.User.TABLE_NAME, null, rowValues));
     }
 
     //Get user by: username
@@ -54,9 +51,11 @@ public class UserController extends SQLController{
 
         int id = cursor.getInt(cursor.getColumnIndex(SudokuContract.User._ID));
         String profilePicture = cursor.getString(cursor.getColumnIndex(SudokuContract.User.COLUMN_NAME_PICTURE_PATH));
-        List<UserGame> userGames = userGameController.GetUserGame(id, UserGameController.SearchType.userId);
+        user = new User(id, username, profilePicture);
 
-        user = new User(id, username, profilePicture, userGames);
+        //Get user games
+        //List<UserGame> userGames = userGameController.GetUserGame(id, UserGameController.SearchType.userId);
+        //user.setUserGames(userGames);
 
         cursor.close();
 
@@ -67,7 +66,7 @@ public class UserController extends SQLController{
     User GetUser(Integer id){
         User user;
 
-        String query = "SELECT * FROM " + SudokuContract.User.TABLE_NAME + " WHERE " + SudokuContract.User.COLUMN_NAME_USERNAME + " = " + id;
+        String query = "SELECT * FROM " + SudokuContract.User.TABLE_NAME + " WHERE " + SudokuContract.User._ID + " = " + id;
 
         Cursor  cursor = getDb().rawQuery(query,null);
         cursor.moveToFirst();
