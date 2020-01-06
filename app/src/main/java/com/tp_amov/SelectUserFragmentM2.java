@@ -11,6 +11,7 @@ public class SelectUserFragmentM2 extends SelectUserFragment {
 
     public SelectUserFragmentM2() {
         // Required empty public constructor
+        game_mode = SelectUserActivity.GAME_MODE_2;
     }
 
     @Override

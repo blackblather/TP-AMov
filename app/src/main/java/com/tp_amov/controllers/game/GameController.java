@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.android.volley.*;
 import com.android.volley.toolbox.*;
+import com.tp_amov.SelectUserActivity;
 import com.tp_amov.SelectUserFragmentM1;
 import com.tp_amov.controllers.sql.GameModeController;
 import com.tp_amov.controllers.sql.UserGameController;
@@ -218,10 +219,10 @@ public class GameController extends ViewModel
 
         switch (mode){
             //Game mode M1
-            case SelectUserFragmentM1.GAME_MODE: {
+            case SelectUserActivity.GAME_MODE_1: {
                 //Get game mode
                 GameModeController gameModeController = new GameModeController(db, dbHelper);
-                GameMode gameMode = gameModeController.GetGameMode(SelectUserFragmentM1.GAME_MODE);
+                GameMode gameMode = gameModeController.GetGameMode(SelectUserActivity.GAME_MODE_1);
 
                 //Add new game. Warning: USING FULL CLASS NAME (package + class name) TO AVOID AMBIGUITY!!! AAAAAAAAAAAAAAAAAAAAAAAAH
                 com.tp_amov.controllers.sql.GameController gameController = new com.tp_amov.controllers.sql.GameController(db, dbHelper);

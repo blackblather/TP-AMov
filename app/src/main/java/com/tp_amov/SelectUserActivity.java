@@ -23,17 +23,24 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 public class SelectUserActivity extends AppCompatActivity {
+    public static final String GAME_MODE_1 = "M1";
+    public static final String GAME_MODE_2 = "M2";
+    public static final String GAME_MODE_3 = "M3";
     //Intent constants
     static final String EXTRA_USERS = "users";
     static final String EXTRA_ENCODED_IMAGES = "encodedImages";
     static final String EXTRA_USE_WEBSERVICE = "useWebservice";
     static final String EXTRA_GAME_MODE = "gameMode";
     //Camera constants
-    private static final int CAMERA_PERMISSION_CODE = 4;
-    private static final int CAMERA_REQUEST = 3;
+    private static final int CAMERA_PERMISSION_CODE_P2 = 8;
+    private static final int CAMERA_REQUEST_P2 = 7;
+    private static final int CAMERA_PERMISSION_CODE_P1 = 6;
+    private static final int CAMERA_REQUEST_P1 = 5;
     //File Picker constants
-    private static final int IMAGE_FILE_PICKER_PERMISSION_CODE = 2;
-    private static final int IMAGE_FILE_PICKER_REQUEST = 1;
+    private static final int IMAGE_FILE_PICKER_PERMISSION_CODE_P2 = 4;
+    private static final int IMAGE_FILE_PICKER_REQUEST_P2 = 3;
+    private static final int IMAGE_FILE_PICKER_PERMISSION_CODE_P1 = 2;
+    private static final int IMAGE_FILE_PICKER_REQUEST_P1 = 1;
     //Control vars
     private String selectedMode;
     private SelectUserFragment selectUserFragment;
@@ -84,13 +91,21 @@ public class SelectUserActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.game_settings_menu, menu);
-        useWebservice = menu.findItem(R.id.usar_webservice);
-        overwriteDBPicture = menu.findItem(R.id.overwrite_db_profile_pio);
-        if(savedInstanceState != null) { //Isto está aqui porque os menus são criados depois do onRestoreInstanceState
-            useWebservice.setChecked(savedInstanceState.getBoolean("useWebservice", false));
-            overwriteDBPicture.setChecked(savedInstanceState.getBoolean("useDBPicture", true));
+        if(selectUserFragment.game_mode.equals(GAME_MODE_1)) {
+            getMenuInflater().inflate(R.menu.game_settings_menu, menu);
+        }else if(selectUserFragment.game_mode.equals(GAME_MODE_2)){
+            getMenuInflater().inflate(R.menu.game_settings_menu_m2, menu);
+        }else if(selectUserFragment.game_mode.equals(GAME_MODE_3)){
+            //TODO
+            getMenuInflater().inflate(R.menu.game_settings_menu, menu);
         }
+            //Opcoes comuns a todos os menus
+            useWebservice = menu.findItem(R.id.usar_webservice);
+            overwriteDBPicture = menu.findItem(R.id.overwrite_db_profile_pio);
+            if (savedInstanceState != null) { //Isto está aqui porque os menus são criados depois do onRestoreInstanceState
+                useWebservice.setChecked(savedInstanceState.getBoolean("useWebservice", false));
+                overwriteDBPicture.setChecked(savedInstanceState.getBoolean("useDBPicture", true));
+            }
         return true;
     }
 
@@ -111,10 +126,22 @@ public class SelectUserActivity extends AppCompatActivity {
                     item.setChecked(true);
                 return true;
             case R.id.take_picture:
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE_P1);
                 return true;
             case R.id.browse_picture:
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, IMAGE_FILE_PICKER_PERMISSION_CODE);
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, IMAGE_FILE_PICKER_PERMISSION_CODE_P1);
+                return true;
+            case R.id.take_picture_p1:
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE_P1);
+                return true;
+            case R.id.browse_picture_p1:
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, IMAGE_FILE_PICKER_PERMISSION_CODE_P1);
+                return true;
+            case R.id.take_picture_p2:
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE_P2);
+                return true;
+            case R.id.browse_picture_p2:
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, IMAGE_FILE_PICKER_PERMISSION_CODE_P2);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -131,35 +158,35 @@ public class SelectUserActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_CODE && grantResults.length != 0)
+        if (((requestCode == CAMERA_PERMISSION_CODE_P1) || (requestCode == CAMERA_PERMISSION_CODE_P2)) && grantResults.length != 0)
         {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Camera permission granted", Toast.LENGTH_SHORT).show();
-                takePicture();
+                takePicture(requestCode);
             }
             else
                 Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
         }
-        else if (requestCode == IMAGE_FILE_PICKER_PERMISSION_CODE && grantResults.length != 0) {
+        else if (((requestCode == IMAGE_FILE_PICKER_PERMISSION_CODE_P1) || (requestCode == IMAGE_FILE_PICKER_PERMISSION_CODE_P2)) && grantResults.length != 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Read access granted", Toast.LENGTH_SHORT).show();
-                pickFile();
-                getFilesDir();
+                pickFile(requestCode);
             }
             else
                 Toast.makeText(this, "Read access denied", Toast.LENGTH_SHORT).show();
         }
     }
-    private void takePicture() {
+
+    private void takePicture(int permissionCode) {
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);   //CAMERA PERMISSION NOT GRANTED
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, permissionCode);   //CAMERA PERMISSION NOT GRANTED
         else {
             Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+            startActivityForResult(cameraIntent, CAMERA_REQUEST_P1);
         }
     }
 
-    private void pickFile(){
+    private void pickFile(int permissionCode){
         Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
         getIntent.setType("image/*");
 
@@ -168,19 +195,22 @@ public class SelectUserActivity extends AppCompatActivity {
 
         Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
-
-        startActivityForResult(chooserIntent, IMAGE_FILE_PICKER_REQUEST);
+        if(permissionCode == IMAGE_FILE_PICKER_PERMISSION_CODE_P1)
+            startActivityForResult(chooserIntent, IMAGE_FILE_PICKER_REQUEST_P1);
+        else if(permissionCode == IMAGE_FILE_PICKER_PERMISSION_CODE_P2)
+            startActivityForResult(chooserIntent, IMAGE_FILE_PICKER_REQUEST_P2);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
-            if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+            if (((requestCode == CAMERA_REQUEST_P1) || (requestCode == CAMERA_REQUEST_P2)) && resultCode == RESULT_OK) {
                 Bitmap photo = (Bitmap) data.getExtras().get("data");
-                ImageView img = findViewById(R.id.profile_image);
-                img.setImageBitmap(photo);
-            } else if (requestCode == IMAGE_FILE_PICKER_REQUEST && resultCode == RESULT_OK) {
+                ImageView img = GetImageViewForRequest(requestCode);
+                if(img != null)
+                    img.setImageBitmap(photo);
+            } else if (((requestCode == IMAGE_FILE_PICKER_REQUEST_P1) || (requestCode == IMAGE_FILE_PICKER_REQUEST_P2)) && resultCode == RESULT_OK) {
                 Uri selectedImage = data.getData();
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
@@ -192,13 +222,22 @@ public class SelectUserActivity extends AppCompatActivity {
                 cursor.close();
 
                 Bitmap photo = BitmapFactory.decodeFile(picturePath);
-                ImageView img = findViewById(R.id.profile_image);
-                img.setImageBitmap(photo);
+                ImageView img = GetImageViewForRequest(requestCode);
+                if(img != null)
+                    img.setImageBitmap(photo);
             }
         }catch (OutOfMemoryError outOfMemoryError){
             Toast toast = Toast.makeText(getApplicationContext(), "Image size is too big, Aborting..."+ outOfMemoryError.getLocalizedMessage(), Toast.LENGTH_LONG);
             toast.show();
         }
+    }
+
+    private ImageView GetImageViewForRequest(int requestCode){
+        if((requestCode == CAMERA_REQUEST_P1) || (requestCode == IMAGE_FILE_PICKER_REQUEST_P1))
+             return (ImageView)findViewById(R.id.profile_image);
+        else if((requestCode == CAMERA_REQUEST_P2) || (requestCode == IMAGE_FILE_PICKER_REQUEST_P2))
+            return (ImageView)findViewById(R.id.profile_image2);
+        return null;
     }
 
     boolean isOverwriteDBPictureChecked(){

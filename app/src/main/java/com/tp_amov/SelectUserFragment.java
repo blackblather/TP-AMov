@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import com.tp_amov.controllers.sql.UserController;
 
 abstract class SelectUserFragment extends Fragment {
+    String game_mode;
     private boolean useWebservice = false;
     private UserController userController;
 
@@ -34,6 +35,7 @@ abstract class SelectUserFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        userController.Close();
+        if(userController != null)
+            userController.Close();
     }
 }

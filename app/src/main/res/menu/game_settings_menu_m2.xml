@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/usar_webservice"
+        android:title="@string/usar_webservice"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:checkable="true"
+        android:checked="false"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/overwrite_db_profile_pio"
+        android:title="@string/usar_imagem_armazenada"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:checkable="true"
+        android:checked="false"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/add_image_p1"
+        android:title="@string/adicionar_imagem"
+        android:icon="@drawable/ic_insert_image_icon1_m2"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item android:id="@+id/take_picture_p1"
+                android:title="@string/tirar_uma_fotografia"
+                android:icon="@drawable/ic_insert_image_take_picture_icon"
+                />
+            <item android:id="@+id/browse_picture_p1"
+                android:title="@string/procurar_fotografia"
+                android:icon="@drawable/ic_browse_icon"
+                />
+        </menu>
+    </item>
+
+    <item android:id="@+id/add_image_p2"
+        android:title="@string/adicionar_imagem"
+        android:icon="@drawable/ic_insert_image_icon2_m2"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item android:id="@+id/take_picture_p2"
+                android:title="@string/tirar_uma_fotografia"
+                android:icon="@drawable/ic_insert_image_take_picture_icon"
+                />
+            <item android:id="@+id/browse_picture_p2"
+                android:title="@string/procurar_fotografia"
+                android:icon="@drawable/ic_browse_icon"
+                />
+        </menu>
+    </item>
+</menu>

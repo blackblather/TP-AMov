@@ -18,9 +18,10 @@ import java.util.Collections;
 
 
 public class SelectUserFragmentM1 extends SelectUserFragment {
-    public static final String GAME_MODE = "M1";
 
-    public SelectUserFragmentM1() { }
+    public SelectUserFragmentM1() {
+        game_mode = SelectUserActivity.GAME_MODE_1;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -96,7 +97,7 @@ public class SelectUserFragmentM1 extends SelectUserFragment {
                 //Prepares Extras for next activity
                 intent.putExtra(SelectUserActivity.EXTRA_USERS, users);
                 intent.putExtra(SelectUserActivity.EXTRA_ENCODED_IMAGES, new ArrayList<String>(Collections.singletonList(PPT.BitMapToString(compressed))));
-                intent.putExtra(SelectUserActivity.EXTRA_GAME_MODE, GAME_MODE);
+                intent.putExtra(SelectUserActivity.EXTRA_GAME_MODE, game_mode);
                 intent.putExtra(SelectUserActivity.EXTRA_USE_WEBSERVICE, GetUseWebservice());
 
                 startActivity(intent);
