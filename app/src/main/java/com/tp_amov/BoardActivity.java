@@ -65,14 +65,16 @@ public class BoardActivity extends AppCompatActivity {
                 }
                 else
                     editStackElement.getSelectedCell().setText("");
-                updateScoreOnView();
+                updateUserNameplate();
+                //updateScoreOnView();
             }
         });
         gameEvents.setOnInsertInvalidNumber(new Runnable() {
             @Override
             public void run() {
                 EditStack.Element editStackElement = editStack.RemoveInvalidElement();
-                updateScoreOnView();
+                updateUserNameplate();
+                //updateScoreOnView();
                 if(!Integer.toString(editStackElement.getSelectedValue()).equals("0")) {
                     editStackElement.getSelectedCell().setText(Integer.toString(editStackElement.getSelectedValue()));
                     editStackElement.getSelectedCell().setBackground(getColorInvalid());
@@ -97,9 +99,25 @@ public class BoardActivity extends AppCompatActivity {
         gameEvents.setOnBoardSolved(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
-                intent.putExtra("score", gameController.getScore());
-                startActivity(intent);
+                if(gameMode.equals(SelectUserActivity.GAME_MODE_1))
+                {
+                    Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
+                    intent.putExtra("score", gameController.GetScore());
+                    startActivity(intent);
+                }
+                else if(gameMode.equals(SelectUserActivity.GAME_MODE_2))
+                {
+                    Intent intent = new Intent(getApplicationContext(), ResultsActivityM2.class);
+                    intent.putExtra(SelectUserActivity.EXTRA_USERS, users);
+                    intent.putExtra("scores", gameController.GetScores());
+                    startActivity(intent);
+                }
+                else {
+                    //TODO
+                    Intent intent = new Intent(getApplicationContext(), ResultsActivity.class);
+                    intent.putExtra("score", gameController.GetScore());
+                    startActivity(intent);
+                }
             }
         });
         gameEvents.setOnBoardUnsolved(new Runnable(){
@@ -171,7 +189,8 @@ public class BoardActivity extends AppCompatActivity {
         setScreenAdaptation(getApplicationContext());
 
         //Initializes the score module
-        updateScoreOnView();
+        int updatedScore = gameController.GetScore();
+        inGamePlayerInfoFragment.updateScoreOnView(updatedScore);
     }
 
     @Override
@@ -700,9 +719,10 @@ public class BoardActivity extends AppCompatActivity {
         return selectedCell;
     }
 
-    private void updateScoreOnView(){
-        TextView score = (TextView) inGamePlayerInfoFragment.getView().findViewById(R.id.in_game_score_text);
-        String updatedScore = Integer.toString(gameController.getScore());
-        score.setText(updatedScore);
+    private void updateUserNameplate(){
+        int turn = gameController.NextTurn();
+        int updatedScore = gameController.GetScore();
+        inGamePlayerInfoFragment.UpdateNameplateData(turn);
+        inGamePlayerInfoFragment.updateScoreOnView(updatedScore);
     }
 }

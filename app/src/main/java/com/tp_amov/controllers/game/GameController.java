@@ -66,6 +66,8 @@ public class GameController extends ViewModel
     //Control vars
     private Board board;
     private int score = 0;
+    private int turnIndex = 0;
+    private  ArrayList<Integer> scores;
     private Integer hintsLeft = 3;
     private ArrayList<User> users;
     //"requestStack" is used to store requests made by the user (eg. insert number) and to synchronize webservice responses with user requests
@@ -100,6 +102,9 @@ public class GameController extends ViewModel
         this.users = users;
         this.gameEvents = gameEvents;
         this.useWebservice = useWebservice;
+        this.scores = new ArrayList<>();
+        this.scores.add(0,0);
+        this.scores.add(1,0);
     }
 
     public void InitializeBoard(){
@@ -216,26 +221,21 @@ public class GameController extends ViewModel
         //Initializing
         SudokuDbHelper dbHelper = new SudokuDbHelper(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        //Get game mode
+        GameModeController gameModeController = new GameModeController(db, dbHelper);
+        GameMode gameMode = gameModeController.GetGameMode(SelectUserActivity.GAME_MODE_1);
 
-        switch (mode){
-            //Game mode M1
-            case SelectUserActivity.GAME_MODE_1: {
-                //Get game mode
-                GameModeController gameModeController = new GameModeController(db, dbHelper);
-                GameMode gameMode = gameModeController.GetGameMode(SelectUserActivity.GAME_MODE_1);
+        //Add new game. Warning: USING FULL CLASS NAME (package + class name) TO AVOID AMBIGUITY!!! AAAAAAAAAAAAAAAAAAAAAAAAH
+        com.tp_amov.controllers.sql.GameController gameController = new com.tp_amov.controllers.sql.GameController(db, dbHelper);
+        Game game = new Game(gameMode);
+        gameController.AddGame(game);
 
-                //Add new game. Warning: USING FULL CLASS NAME (package + class name) TO AVOID AMBIGUITY!!! AAAAAAAAAAAAAAAAAAAAAAAAH
-                com.tp_amov.controllers.sql.GameController gameController = new com.tp_amov.controllers.sql.GameController(db, dbHelper);
-                Game game = new Game(gameMode);
-                gameController.AddGame(game);
-
-                //Associate user with game
-                UserGameController userGameController = new UserGameController(db, dbHelper);
-                UserGame userGame = new UserGame(users.get(0), game, score);
-                userGameController.AddUserGame(userGame);
-            } break;
+        //Associate user with game
+        UserGameController userGameController = new UserGameController(db, dbHelper);
+        for(int i=0; i<users.size();i++){
+            UserGame userGame = new UserGame(users.get(i), game, scores.get(i));
+            userGameController.AddUserGame(userGame);
         }
-
 
         //Close database connection
         db.close();
@@ -312,18 +312,28 @@ public class GameController extends ViewModel
         return board.GetInnerBoard(innerBoardIndex).GetElement(elementIndex).GetType();
     }
 
-    public Integer getScore(){
-        return score;
+    public int NextTurn(){
+        if(turnIndex == users.size()-1){
+            turnIndex = 0;
+        }
+        else{ turnIndex++; }
+        return turnIndex;
     }
+
+    public Integer GetScore(){
+        return scores.get(turnIndex);
+    }
+
+    public ArrayList<Integer> GetScores() {return scores;}
 
 //------------> Setters
 
     private void ScoreIncrement(){
-        score += 5;
+        scores.set(turnIndex,scores.get(turnIndex)+5);
     }
 
     private void ScoreDecrement(){
-        score -= 5;
+        scores.set(turnIndex,scores.get(turnIndex)-5);
     }
 
 //------------> Validations

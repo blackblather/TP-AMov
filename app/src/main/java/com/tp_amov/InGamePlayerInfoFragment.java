@@ -15,22 +15,13 @@ import com.tp_amov.tools.ProfilePictureTools;
 import java.util.ArrayList;
 
 public class InGamePlayerInfoFragment extends Fragment {
-    private ArrayList<User> users = new ArrayList<>();
+    private int turn = 0;
+    private ArrayList<User> users ;
+    private ArrayList<String> encodedImages ;
 
     public InGamePlayerInfoFragment() {
         // Required empty public constructor
     }
-
-/*    private void FillPlayersArray(ArrayList<String> usernames, ArrayList<String> imgPaths){
-        if(usernames != null && imgPaths != null) {
-            if (usernames.size() == imgPaths.size()) {
-                for (int i = 0; i < usernames.size(); i++)
-                    players.add(new Player(usernames.get(i), imgPaths.get(i)));
-            } else
-                throw new IllegalArgumentException("Arguments must be of the same length");
-        } else
-            throw new NullPointerException("Arguments cannot be null");
-    }*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,11 +43,9 @@ public class InGamePlayerInfoFragment extends Fragment {
     }
 
     void onSetDataForInGamePlayerInfo(ArrayList<User> users, ArrayList<String> encodedImages){
-        Bundle args = new Bundle();
+        this.users = users;
+        this.encodedImages = encodedImages;
         ProfilePictureTools PPT = new ProfilePictureTools();
-
-        args.putSerializable(SelectUserActivity.EXTRA_USERS, users);
-        args.putStringArrayList(SelectUserActivity.EXTRA_ENCODED_IMAGES, encodedImages);
 
         TextView InGameCurrentUser = (TextView) this.getView().findViewById(R.id.in_game_current_user_txt);
         ImageView InGameCurrentPic = (ImageView) this.getView().findViewById(R.id.profile_image);
@@ -64,6 +53,28 @@ public class InGamePlayerInfoFragment extends Fragment {
         InGameCurrentPic.setImageBitmap(PPT.StringToBitMap(encodedImages.get(0)));
         InGameCurrentUser.setText(users.get(0).getUsername());
 
-        this.setArguments(args);
     }
+
+    public void UpdateNameplateData(int turn){
+        if(turn != this.turn)
+            this.turn = turn;
+        //TOOLS
+        ProfilePictureTools PPT = new ProfilePictureTools();
+        //GETS COMPONENTS
+        TextView InGameCurrentUser = (TextView) this.getView().findViewById(R.id.in_game_current_user_txt);
+        ImageView InGameCurrentPic = (ImageView) this.getView().findViewById(R.id.profile_image);
+        //SETS COMPONENT
+        InGameCurrentPic.setImageBitmap(PPT.StringToBitMap(encodedImages.get(this.turn)));
+        InGameCurrentUser.setText(users.get(this.turn).getUsername());
+    }
+
+    public void updateScoreOnView(int updatedScore){
+        TextView score = (TextView) this.getView().findViewById(R.id.in_game_score_text);
+        String updatedScoreStr = Integer.toString(updatedScore);
+        score.setText(updatedScoreStr);
+    }
+
+
+
+
 }
